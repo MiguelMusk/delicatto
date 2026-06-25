@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}Delicatto{% endblock %}
+
+{% block content %}
+<!-- HERO -->
+<section class="hero">
+    <div class="hero-text">
+        <h1>
+            A <span class="gold-script">delicadeza</span> que transforma
+            sua rotina de <span class="gold-script">beleza</span>
+        </h1>
+        <p>
+            Cosméticos premium para realçar sua beleza natural.
+        </p>
+        <a href="produtos" class="hero-products-btn">
+            Conheça nossos produtos
+        </a>
+    </div>
+    <img src="{{ url_for('static', filename='img/model.png') }}" class="hero-img">
+</section>
+
+<!-- BENEFITS -->
+<section class="benefits">
+    <div class="card">
+        <i class="fa-solid fa-heart"></i>
+        <div>
+            <h3>Cruelty Free</h3>
+            <p>Não testado em animais</p>
+        </div>
+    </div>
+    <div class="card">
+        <i class="fa-solid fa-droplet"></i>
+        <div>
+            <h3>Dermatologicamente Testado</h3>
+            <p>Seguro para sua pele</p>
+        </div>
+    </div>
+    <div class="card">
+        <i class="fa-solid fa-spa"></i>
+        <div>
+            <h3>Ingredientes Premium</h3>
+            <p>Fórmulas de alta qualidade</p>
+        </div>
+    </div>
+</section>
+
+<!-- function q faz PRODUTOS EM DESTAQUE -->
+<section class="products">
+    <div class="title">
+        <span>PRODUTOS PREMIUM</span>
+        <h2>Nossos Destaques</h2>  
+    </div>
+
+    <div class="products-grid">
+        {% for produto in produtos_destaque %}
+        <div class="product-card">
+            <div class="product-image">
+                <img src="{{ url_for('static', filename='img/' + produto[4]) }}" alt="{{ produto[1] }}">
+            </div>
+            <div class="product-info">
+                <h3>{{ produto[1] }}</h3>
+                <p>{{ produto[2] }}</p>
+                <span>R$ {{ "%.2f"|format(produto[3]) }}</span>
+                <a href="/produto/{{ produto[0] }}" class="primary-btn">Ver Produto</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- BOTÃO VER TODOS OS PRODUTOS -->
+    <div style="text-align: center; margin-top: 50px;">
+        <a href="/produtos" class="primary-btn" style="padding: 16px 50px; font-size: 18px;">
+            <i class="fa-solid fa-store"></i> Ver todos os produtos
+        </a>
+    </div>
+</section>
+
+<!-- SKINMATCH -->
+<section class="skinmatch-home">
+    <div class="skinmatch-home-text">
+        <span>SKINMATCH</span>
+        <h2>Uma análise inteligente para sua pele</h2>
+        <p>
+            Descubra sua rotina ideal através do nosso sistema de recomendação
+            personalizado.
+        </p>
+        <a href="/skinmatch">Fazer SkinMatch</a>
+    </div>
+
+    <div class="skinmatch-home-card">
+        <div class="mini-card">
+            <i class="fa-solid fa-droplet"></i>
+            <div>
+                <h3>Análise de Pele</h3>
+                <p>Identifique necessidades específicas.</p>
+            </div>
+        </div>
+        <div class="mini-card">
+            <i class="fa-solid fa-spa"></i>
+            <div>
+                <h3>Rotina Personalizada</h3>
+                <p>Produtos ideais para você.</p>
+            </div>
+        </div>
+        <div class="mini-card">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <div>
+                <h3>Resultados Inteligentes</h3>
+                <p>Recomendações premium Delicatto.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

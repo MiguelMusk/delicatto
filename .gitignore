@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv/
+virtualenv/
+
+# Arquivos de ambiente (SENHAS!)
+.env
+.env.local
+.env.production
+
+# Banco de dados
+*.db
+*.sqlite
+*.sqlite3
+instance/
+*.sql
+
+# Logs
+*.log
+logs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+
+# Arquivos do projeto
+static/img/uploads/
+*.pyc

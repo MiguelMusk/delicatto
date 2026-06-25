@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Produto | Delicatto{% endblock %}
+
+{% block content %}
+<section class="login-page">
+    <div class="login-box">
+        <h1>Editar Produto</h1>
+
+        <form method="POST" enctype="multipart/form-data"> 
+            <input type="text" name="nome" value="{{ produto[1] }}" required>
+            <input type="text" name="descricao" value="{{ produto[2] }}" required>
+            <input type="number" step="0.01" name="preco" value="{{ produto[3] }}" required>
+            
+            <!-- IMAGEM ATUAL -->
+            <div class="imagem-atual">
+                <p>Imagem atual:</p>
+                <img src="{{ url_for('static', filename='img/' + produto[4]) }}" 
+                     alt="{{ produto[1] }}" 
+                     style="max-width: 150px; border-radius: 10px; margin: 10px 0;">
+                <p><small>Nome do arquivo: {{ produto[4] }}</small></p>
+            </div>
+            
+            <!-- UPLOAD DE NOVA IMAGEM -->
+            <input type="file" name="imagem" accept="image/*">
+            <p><small>Deixe em branco para manter a imagem atual</small></p>
+
+            <textarea name="descricao_completa" rows="4" required>{{ produto[5] }}</textarea>
+            <textarea name="modo_uso" rows="4" required>{{ produto[6] }}</textarea>
+            <textarea name="beneficios" rows="4" required>{{ produto[7] }}</textarea>
+            <textarea name="ingredientes" rows="4" required>{{ produto[8] }}</textarea>
+
+            <button type="submit">Salvar Alterações</button>
+        </form>
+    </div>
+</section>
+{% endblock %}

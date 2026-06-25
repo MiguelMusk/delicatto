@@ -1,0 +1,74 @@
+/* ============================================
+   CARDS DE PRODUTOS
+============================================ */
+.product-card {
+    flex: 1;
+    background: white;
+    border-radius: 28px;
+    overflow: hidden;
+    transition: .4s;
+    box-shadow: 0 10px 30px rgba(143, 107, 207, .08);
+}
+
+.product-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 45px rgba(143, 107, 207, .18);
+}
+
+.product-image {
+    height: 450px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform .4s;
+}
+
+.product-card:hover .product-image img {
+    transform: scale(1.08);
+}
+
+.product-info {
+    padding: 30px;
+}
+
+.product-info h3 {
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+
+.product-info p {
+    color: #726681;
+    line-height: 1.7;
+    margin-bottom: 20px;
+}
+
+.product-info span {
+    display: block;
+    font-size: 28px;
+    color: #8F6BCF;
+    font-weight: 600;
+    margin-bottom: 25px;
+}
+
+.product-info button {
+    width: 100%;
+    height: 55px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #8F6BCF, #6d4eb0);
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: .3s;
+}
+
+.product-info button:hover {
+    transform: scale(1.03);
+}

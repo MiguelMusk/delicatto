@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block title %}SkinMatch | Delicatto{% endblock %}
+
+{% block content %}
+<section class="skinmatch-page">
+    <div class="skinmatch-header">
+        <span>SKINMATCH</span>
+        <h1>Descubra sua rotina ideal</h1>
+        <p>Análise completa para encontrar o cuidado perfeito para sua pele.</p>
+    </div>
+
+    <div class="quiz-box">
+        <!-- PROGRESSO -->
+        <div class="progress-bar">
+            <div id="progress"></div>
+        </div>
+
+        <!-- QUIZ -->
+        <div id="quiz-container">
+            <!-- 1 -->
+            <div class="quiz-step active">
+                <p>Como você define sua pele?</p>
+                <div class="options">
+                    <button onclick="selectOption(this, 'oleosa')">Oleosa</button>
+                    <button onclick="selectOption(this, 'seca')">Seca</button>
+                    <button onclick="selectOption(this, 'mista')">Mista</button>
+                    <button onclick="selectOption(this, 'normal')">Normal</button>
+                </div>
+                <button class="next-btn" onclick="nextStep()">Próxima</button>
+            </div>
+
+            <!-- 2 -->
+            <div class="quiz-step">
+                <p>Sua pele é sensível?</p>
+                <div class="options">
+                    <button onclick="setSensitive('sim', this)">Sim</button>
+                    <button onclick="setSensitive('nao', this)">Não</button>
+                </div>
+                <button class="back-btn" onclick="prevStep()">Voltar</button>
+                <button class="next-btn" onclick="nextStep()">Próxima</button>
+            </div>
+
+            <!-- 3 -->
+            <div class="quiz-step">
+                <p>Qual seu principal objetivo?</p>
+                <div class="options">
+                    <button onclick="setGoal('hidratação', this)">Hidratação</button>
+                    <button onclick="setGoal('glow', this)">Glow</button>
+                    <button onclick="setGoal('oleosidade', this)">Controle de Oleosidade</button>
+                </div>
+                <button class="back-btn" onclick="prevStep()">Voltar</button>
+                <button class="next-btn" onclick="nextStep()">Próxima</button>
+            </div>
+
+            <!-- 4 -->
+            <div class="quiz-step">
+                <p>Você costuma ter acne?</p>
+                <div class="options">
+                    <button onclick="setAcne('alta', this)">Sim, frequentemente</button>
+                    <button onclick="setAcne('media', this)">Às vezes</button>
+                    <button onclick="setAcne('baixa', this)">Raramente</button>
+                </div>
+                <button class="back-btn" onclick="prevStep()">Voltar</button>
+                <button class="next-btn" onclick="nextStep()">Próxima</button>
+            </div>
+
+            <!-- 5 -->
+            <div class="quiz-step">
+                <p>Como sua pele fica após lavar o rosto?</p>
+                <div class="options">
+                    <button onclick="setFeel('repuxando', this)">Repuxando</button>
+                    <button onclick="setFeel('normal', this)">Normal</button>
+                    <button onclick="setFeel('oleosa', this)">Fica oleosa rápido</button>
+                </div>
+                <button class="back-btn" onclick="prevStep()">Voltar</button>
+                <button class="next-btn" onclick="nextStep()">Próxima</button>
+            </div>
+
+            <!-- 6 -->
+            <div class="quiz-step">
+                <p>Você usa maquiagem com frequência?</p>
+                <div class="options">
+                    <button onclick="setMakeup('alto', this)">Sim, todos os dias</button>
+                    <button onclick="setMakeup('medio', this)">Às vezes</button>
+                    <button onclick="setMakeup('baixo', this)">Quase nunca</button>
+                </div>
+                <button class="back-btn" onclick="prevStep()">Voltar</button>
+                <button class="next-btn" onclick="nextStep()">Próxima</button>
+            </div>
+
+            <!-- 7 -->
+            <div class="quiz-step">
+                <p>Você se expõe ao sol com frequência?</p>
+                <div class="options">
+                    <button onclick="setSun('alta', this)">Sim</button>
+                    <button onclick="setSun('media', this)">Moderado</button>
+                    <button onclick="setSun('baixa', this)">Pouco</button>
+                </div>
+                <button class="back-btn" onclick="prevStep()">Voltar</button>
+                <button class="result-btn" onclick="showResult()">Ver Resultado</button>
+            </div>
+        </div>
+
+        <!-- RESULTADO -->
+        <div id="result"></div>
+    </div>
+</section>
+{% endblock %}

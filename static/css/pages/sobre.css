@@ -1,0 +1,366 @@
+/* ============================================
+   SOBRE NÓS - VERSÃO CLEAN COM GLOW
+============================================ */
+
+/* Hero da página */
+.page-hero {
+    padding: 140px 80px 60px;
+    text-align: center;
+}
+
+.page-hero h1 {
+    font-size: 70px;
+    font-family: 'Playfair Display', serif;
+}
+
+.page-hero p {
+    margin-top: 20px;
+    color: #6f5a83;
+    font-size: 18px;
+}
+
+/* Text section */
+.text-section {
+    max-width: 900px;
+    margin: auto;
+    padding: 40px 80px 60px;
+    line-height: 1.8;
+}
+
+.text-section h2 {
+    margin-top: 40px;
+    font-size: 32px;
+    color: #3d3052;
+}
+
+.text-section p {
+    margin-top: 15px;
+    color: #6f5a83;
+}
+
+/* MVV Cards */
+.mvv {
+    display: flex;
+    gap: 30px;
+    justify-content: center;
+    padding: 60px 80px 120px;
+    flex-wrap: wrap;
+}
+
+.mvv-card {
+    flex: 1;
+    min-width: 250px;
+    background: rgba(255, 255, 255, .7);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(143, 107, 207, .1);
+    transition: .3s;
+}
+
+.mvv-card:hover {
+    transform: translateY(-8px);
+}
+
+.mvv-card h2 {
+    margin-bottom: 15px;
+    color: #3d3052;
+}
+
+.mvv-card p {
+    color: #6f5a83;
+    line-height: 1.6;
+}
+
+/* ============================================
+   EQUIPE - VERSÃO GLOW
+============================================ */
+.team-section {
+    padding: 80px 8%;
+    background: linear-gradient(180deg, #faf8ff 0%, #f5f0ff 100%);
+    position: relative;
+}
+
+/* Efeito de glow no fundo */
+.team-section::before {
+    content: '';
+    position: absolute;
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(circle, rgba(143, 107, 207, 0.06) 0%, transparent 70%);
+    top: -200px;
+    right: -200px;
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.team-section::after {
+    content: '';
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(143, 107, 207, 0.04) 0%, transparent 70%);
+    bottom: -100px;
+    left: -100px;
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.team-heading {
+    max-width: 650px;
+    margin: 0 auto 60px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+}
+
+.team-heading span {
+    display: block;
+    margin-bottom: 12px;
+    color: #8F6BCF;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+.team-heading h2 {
+    margin-bottom: 15px;
+    color: #3d3052;
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8rem;
+}
+
+.team-heading h2::after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 3px;
+    margin: 12px auto 0;
+    background: linear-gradient(90deg, #8F6BCF, #b49cff);
+    border-radius: 2px;
+}
+
+.team-heading p {
+    color: #6f6878;
+    line-height: 1.8;
+    font-size: 1.05rem;
+}
+
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+}
+
+/* CARD COM GLOW ✨ */
+.team-card {
+    position: relative;
+    background: white;
+    border-radius: 16px;
+    padding: 30px 20px 25px;
+    text-align: center;
+    transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(143, 107, 207, 0.06);
+    overflow: hidden;
+}
+
+/* ✨ Efeito de glow principal */
+.team-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle at center, rgba(143, 107, 207, 0.12) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    pointer-events: none;
+}
+
+/* ✨ Efeito de glow nas bordas */
+.team-card::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 17px;
+    background: linear-gradient(135deg, rgba(143, 107, 207, 0.2), transparent 40%, rgba(143, 107, 207, 0.1));
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.team-card:hover::before {
+    opacity: 1;
+}
+
+.team-card:hover::after {
+    opacity: 1;
+}
+
+.team-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 50px rgba(143, 107, 207, 0.15), 0 0 40px rgba(143, 107, 207, 0.05);
+    border-color: rgba(143, 107, 207, 0.15);
+}
+
+/* Avatar */
+.team-avatar {
+    width: 110px;
+    height: 110px;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 3px solid #f0ebff;
+    transition: all 0.4s ease;
+    position: relative;
+}
+
+/* ✨ Glow ao redor do avatar no hover */
+.team-card:hover .team-avatar {
+    border-color: #8F6BCF;
+    box-shadow: 0 0 30px rgba(143, 107, 207, 0.15);
+}
+
+.team-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.team-card:hover .team-avatar img {
+    transform: scale(1.08);
+}
+
+/* Info */
+.team-info h3 {
+    margin: 0 0 4px;
+    color: #2d1f42;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    transition: color 0.3s ease;
+}
+
+.team-card:hover .team-info h3 {
+    color: #6d4eb0;
+}
+
+/* Cargo com ícone */
+.team-role {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #8F6BCF;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    margin-bottom: 10px;
+    padding: 4px 12px;
+    border-radius: 50px;
+    background: rgba(143, 107, 207, 0.04);
+    transition: all 0.3s ease;
+}
+
+.team-card:hover .team-role {
+    background: rgba(143, 107, 207, 0.08);
+    transform: scale(1.04);
+}
+
+.team-role i {
+    font-size: 0.85rem;
+    color: #8F6BCF;
+}
+
+.team-info p {
+    margin: 0;
+    color: #8a7a9e;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    max-width: 200px;
+    margin: 0 auto;
+    transition: color 0.3s ease;
+}
+
+.team-card:hover .team-info p {
+    color: #6a5a7e;
+}
+
+/*  Brilho parte superior do card (efeito de luz) */
+.team-card .glow-spot {
+    position: absolute;
+    top: -30px;
+    right: -30px;
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle, rgba(143, 107, 207, 0.06) 0%, transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+    transition: all 0.6s ease;
+}
+
+.team-card:hover .glow-spot {
+    transform: scale(1.5);
+    opacity: 0.5;
+}
+
+/* Responsivo */
+@media (max-width: 1024px) {
+    .team-grid {
+        grid-template-columns: repeat(2, 1fr);
+        max-width: 600px;
+    }
+}
+
+@media (max-width: 600px) {
+    .team-grid {
+        grid-template-columns: 1fr;
+        max-width: 320px;
+    }
+
+    .team-section {
+        padding: 60px 20px;
+    }
+
+    .team-heading h2 {
+        font-size: 2rem;
+    }
+
+    .team-card {
+        padding: 25px 15px;
+    }
+
+    .page-hero {
+        padding: 100px 20px 40px;
+    }
+
+    .page-hero h1 {
+        font-size: 38px;
+    }
+
+    .text-section {
+        padding: 20px 20px 40px;
+    }
+
+    .mvv {
+        padding: 30px 20px 60px;
+        gap: 20px;
+    }
+
+    .mvv-card {
+        min-width: 100%;
+    }
+}
+
+@media (min-width: 1400px) {
+    .team-grid {
+        gap: 40px;
+    }
+}

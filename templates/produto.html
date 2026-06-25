@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ produto[1] }} | Delicatto{% endblock %}
+
+{% block content %}
+<section class="produto-page">
+    <div class="produto-image">
+        <img src="{{ url_for('static', filename='img/' + produto[4]) }}" alt="{{ produto[1] }}">
+    </div>
+
+    <div class="produto-details">
+        <span class="produto-category">Delicatto Cosmetics</span>
+        <h1>{{ produto[1] }}</h1>
+        <p class="produto-short">{{ produto[2] }}</p>
+        <h2>R$ {{ "%.2f"|format(produto[3]) }}</h2>
+
+        <div class="produto-rating">
+            {% if quantidade > 0 %}
+                <span class="stars">
+                    {% if media >= 1 %}⭐{% endif %}
+                    {% if media >= 2 %}⭐{% endif %}
+                    {% if media >= 3 %}⭐{% endif %}
+                    {% if media >= 4 %}⭐{% endif %}
+                    {% if media >= 5 %}⭐{% endif %}
+                </span>
+                <span>{{ "%.1f"|format(media) }} ({{ quantidade }} avaliações)</span>
+            {% else %}
+                <span>Ainda não há avaliações</span>
+            {% endif %}
+        </div>
+
+        <div class="produto-actions">
+            <a href="/adicionar_carrinho/{{ produto[0] }}" class="checkout-btn">
+                <i class="fa-solid fa-cart-plus"></i> Adicionar ao Carrinho
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- info dos produtos -->
+<section class="produto-info-tabs">
+    <div class="tabs-container">
+        <!-- Abas -->
+        <div class="tabs-header">
+            <button class="tab-btn active" data-tab="descricao">Descrição</button>
+            <button class="tab-btn" data-tab="modo_uso">Modo de Uso</button>
+            <button class="tab-btn" data-tab="beneficios">Benefícios</button>
+            <button class="tab-btn" data-tab="ingredientes">Ingredientes</button>
+        </div>
+
+        <!-- Conteúdo das Abas -->
+        <div class="tabs-content">
+            <!-- DESCRIÇÃO - índice 5 -->
+            <div class="tab-panel active" id="descricao">
+                <div class="tab-inner">
+                    <h3>Descrição Completa</h3>
+                    <p>{{ produto[5] }}</p>
+                </div>
+            </div>
+
+            <!-- MODO DE USO - índice 6 -->
+            <div class="tab-panel" id="modo_uso">
+                <div class="tab-inner">
+                    <h3>Modo de Uso</h3>
+                    <div class="usage-steps">
+                        {% for passo in produto[6].split('\n') %}
+                            {% if passo.strip() %}
+                                <div class="usage-step">
+                                    <span class="step-number">{{ loop.index }}</span>
+                                    <p>{{ passo }}</p>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- BENEFÍCIOS - índice 7 -->
+            <div class="tab-panel" id="beneficios">
+                <div class="tab-inner">
+                    <h3>Benefícios</h3>
+                    <ul class="benefits-list">
+                        {% for beneficio in produto[7].split('\n') %}
+                            {% if beneficio.strip() %}
+                                <li><i class="fa-solid fa-check-circle"></i> {{ beneficio }}</li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            <!-- INGREDIENTES - índice 8 -->
+            <div class="tab-panel" id="ingredientes">
+                <div class="tab-inner">
+                    <h3>Ingredientes</h3>
+                    <div class="ingredients-grid">
+                        {% for ingrediente in produto[8].split(';') %} 
+                            {% if ingrediente.strip() %}
+                                <div class="ingredient-card">
+                                    <span class="ingredient-icon">
+                                        <i class="fa-solid fa-leaf"></i>
+                                    </span>
+                                    <span class="ingredient-name">{{ ingrediente.strip() }}</span>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============================================ -->
+<!-- AVALIAÇÕES -->
+<!-- ============================================ -->
+<section class="produto-review-section">
+    <h2>Avaliações dos Clientes</h2>
+
+    {% if usuario %}
+    <form method="POST" action="/avaliar/{{ produto[0] }}" class="review-form">
+        <select name="nota" required>
+            <option value="">Selecione uma nota</option>
+            <option value="5">⭐⭐⭐⭐⭐</option>
+            <option value="4">⭐⭐⭐⭐</option>
+            <option value="3">⭐⭐⭐</option>
+            <option value="2">⭐⭐</option>
+            <option value="1">⭐</option>
+        </select>
+        <textarea name="comentario" placeholder="Conte sua experiência com este produto..." required></textarea>
+        <button type="submit" class="checkout-btn">
+            <i class="fa-solid fa-paper-plane"></i> Enviar Avaliação
+        </button>
+    </form>
+    {% else %}
+    <p class="login-message">
+        <i class="fa-solid fa-lock"></i> Faça login para avaliar este produto.
+    </p>
+    {% endif %}
+
+    <div class="reviews-list">
+        {% for avaliacao in avaliacoes %}
+        <div class="review-card">
+            <div class="review-header">
+                <strong>{{ avaliacao[0] }}</strong>
+                <span>{{ "⭐" * avaliacao[1] }}</span>
+            </div>
+            <p>{{ avaliacao[2] }}</p>
+        </div>
+        {% else %}
+        <p class="no-reviews">Seja o primeiro a avaliar este produto!</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Sistema de Abas
+    document.addEventListener('DOMContentLoaded', function() {
+        const tabs = document.querySelectorAll('.tab-btn');
+        const panels = document.querySelectorAll('.tab-panel');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                tabs.forEach(t => t.classList.remove('active'));
+                panels.forEach(p => p.classList.remove('active'));
+
+                this.classList.add('active');
+                const target = document.getElementById(this.dataset.tab);
+                if (target) target.classList.add('active');
+            });
+        });
+    });
+</script>
+{% endblock %}

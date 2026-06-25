@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Minha Conta | Delicatto{% endblock %}
+
+{% block content %}
+<section class="perfil-page">
+    <div class="perfil-card">
+        <div class="perfil-avatar">
+            <i class="fa-solid fa-user"></i>
+        </div>
+        <h1>{{ usuario_db[1] }}</h1>
+        <p>{{ usuario_db[2] }}</p>
+
+        <div class="perfil-info">
+            <div class="info-box">
+                <h3>Pedidos</h3>
+                <span>{{ total_pedidos }}</span>
+            </div>
+            <div class="info-box">
+                <h3>Total Gasto</h3>
+                <span>R$ {{ "%.2f"|format(total_gasto) }}</span>
+            </div>
+        </div>
+
+        <a href="/logout" class="logout-link">
+            Sair da Conta
+        </a>
+    </div>
+</section>
+{% endblock %}

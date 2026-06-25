@@ -1,0 +1,138 @@
+<footer class="footer">
+    <div class="footer-top">
+        <!-- MARCA -->
+        <div class="footer-brand">
+            <img
+                src="{{ url_for('static', filename='img/logoredonda.png') }}"
+                class="footer-logo-img"
+                alt="Logo Delicatto">
+            <p>
+                Beleza, delicadeza e tecnologia para transformar sua rotina
+                skincare em uma experiência premium.
+            </p>
+            <div class="footer-social">
+                <a href="https://www.instagram.com/delicatto.cosmetics/"
+                target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                    <i class="fa-brands fa-instagram"></i>
+                </a>
+                <a href="https://www.tiktok.com/@delicatto.cosmetics"
+                target="_blank" rel="noopener noreferrer" aria-label="TikTok">
+                    <i class="fa-brands fa-tiktok"></i>
+                </a>
+                <a href="https://www.youtube.com/@delicatto.cosmetics"
+                target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+                    <i class="fa-brands fa-youtube"></i>
+                </a>
+                <a href="https://www.linkedin.com/in/delicatto-undefined-66576a419/"
+                target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+                    <i class="fa-brands fa-linkedin-in"></i>
+                </a>
+                <a href="https://www.facebook.com/profile.php?id=61591012845923"
+                target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+                    <i class="fa-brands fa-facebook-f"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- NAVEGAÇÃO -->
+        <div class="footer-links">
+            <h3>
+                <i class="fa-solid fa-compass"></i>
+                Navegação
+            </h3>
+            <a href="/">
+                <i class="fa-solid fa-house"></i>
+                Início
+            </a>
+            <a href="/produtos">
+                <i class="fa-solid fa-bag-shopping"></i>
+                Produtos
+            </a>
+            <a href="/skinmatch">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                SkinMatch
+            </a>
+            <a href="/contato">
+                <i class="fa-solid fa-envelope"></i>
+                Contato
+            </a>
+        </div>
+
+        <!-- INFORMAÇÕES -->
+        <div class="footer-links">
+            <h3>
+                <i class="fa-solid fa-circle-info"></i>
+                Informações
+            </h3>
+            <a href="{{ url_for('politica_privacidade') }}"> 
+                <i class="fa-solid fa-shield-halved"></i>
+                Política de Privacidade
+            </a>
+            <a href="{{ url_for('termos_condicoes') }}">
+                <i class="fa-solid fa-file-contract"></i>
+                Termos e Condições
+            </a>
+            <a href="/sobre">
+                <i class="fa-solid fa-building"></i>
+                Sobre Nós
+            </a>
+        </div>
+
+        <!-- ATENDIMENTO -->
+        <div class="footer-links footer-contact">
+            <h3>
+                <i class="fa-solid fa-headset"></i>
+                Atendimento
+            </h3>
+            <p class="footer-address">
+                <i class="fa-solid fa-location-dot"></i>
+                Rua Coronel Xavier de Toledo, 71 - República
+            </p>
+            <p>
+                <i class="fa-solid fa-envelope"></i>
+                delicatto.filomena@gmail.com
+            </p>
+            <p>
+                <i class="fa-solid fa-phone"></i>
+                (11) 99334-9095
+            </p>
+            <p>
+                <i class="fa-solid fa-clock"></i>
+                Seg - Sex • 09h às 18h
+            </p>
+        </div>
+
+        <!-- NEWSLETTER -->
+        <div class="footer-newsletter">
+            <h3>
+                <i class="fa-solid fa-envelope-open-text"></i>
+                Receba novidades
+            </h3>
+            <p>
+                <i class="fa-solid fa-gift"></i>
+                Promoções, lançamentos e dicas exclusivas.
+            </p>
+            <div class="newsletter-box">
+                <i class="fa-solid fa-at newsletter-icon"></i>
+                <input
+                    type="email"
+                    placeholder="Seu e-mail"
+                    aria-label="Seu e-mail">
+                <button type="button">
+                    <i class="fa-solid fa-paper-plane"></i>
+                    Enviar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        <p>
+            <i class="fa-regular fa-copyright"></i>
+            2026 Delicatto Cosméticos — Todos os direitos reservados.
+        </p>
+        <p class="last-update">
+            Última atualização: 24 de junho de 2026
+        </p>
+    </div>
+</footer>

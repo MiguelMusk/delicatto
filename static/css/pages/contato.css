@@ -1,0 +1,56 @@
+/* ============================================
+   CONTATO
+============================================ */
+.contact-section {
+    display: flex;
+    justify-content: center;
+    padding: 40px 80px 100px;
+}
+
+.contact-form {
+    width: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.contact-form input,
+.contact-form textarea {
+    padding: 15px;
+    border-radius: 14px;
+    border: none;
+    background: #f7efff;
+    outline: none;
+    font-family: 'Poppins', sans-serif;
+}
+
+.contact-form textarea {
+    height: 140px;
+    resize: none;
+}
+
+.contact-form button {
+    padding: 16px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #8F6BCF, #6d4eb0);
+    color: white;
+    cursor: pointer;
+    font-weight: 600;
+    transition: .3s;
+}
+
+.contact-form button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(143, 107, 207, .25);
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .contact-section {
+        padding: 30px 20px 60px;
+    }
+    .contact-form {
+        width: 100%;
+    }
+}

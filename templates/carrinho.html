@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Carrinho | Delicatto{% endblock %}
+
+{% block content %}
+<section class="products">
+    <div class="title">
+        <h2>Seu Carrinho</h2>
+    </div>
+
+    <div class="carrinho-container">
+        {% for produto in produtos %}
+        <div class="cart-card">
+            <div class="product-image">
+                <img
+                    src="{{ url_for('static', filename='img/' + produto[4]) }}"
+                    alt="{{ produto[1] }}">
+            </div>
+            <div class="product-info">
+                <h3>{{ produto[1] }}</h3>
+                <p>{{ produto[2] }}</p>
+                <span>R$ {{ produto[3] }}</span>
+                <br><br>
+                <a href="/remover_carrinho/{{ produto[0] }}" class="delete-btn">
+                    Remover
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <h2 class="cart-total">
+        Total: R$ {{ "%.2f"|format(total) }}
+    </h2>
+
+    <div class="cart-actions">
+        <a href="/finalizar_compra" class="checkout-btn">
+            Finalizar Compra
+        </a>
+    </div>
+</section>
+{% endblock %}

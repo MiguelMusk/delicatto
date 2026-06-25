@@ -1,0 +1,110 @@
+/* ============================================
+   LOGIN E CADASTRO
+============================================ */
+.login-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    background: radial-gradient(circle at top left, #ead7ff, transparent 35%),
+                radial-gradient(circle at bottom right, #dcc0ff, transparent 30%),
+                linear-gradient(135deg, #fff, #faf4ff);
+}
+
+.login-box {
+    width: 430px;
+    background: rgba(255, 255, 255, .75);
+    backdrop-filter: blur(14px);
+    border-radius: 30px;
+    padding: 50px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(143, 107, 207, .15);
+}
+
+.login-logo {
+    width: 180px;
+    margin-bottom: 20px;
+}
+
+.login-box h1 {
+    font-size: 42px;
+    font-family: 'Playfair Display', serif;
+}
+
+.login-box p {
+    margin-top: 10px;
+    color: #726681;
+}
+
+.login-box form {
+    margin-top: 35px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.login-box input,
+.login-box textarea {
+    height: 58px;
+    border: none;
+    border-radius: 14px;
+    padding: 0 20px;
+    background: #f7f1ff;
+    font-size: 15px;
+    outline: none;
+}
+
+.login-box textarea {
+    width: 100%;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    font-family: 'Poppins', sans-serif;
+    resize: vertical;
+    margin-bottom: 15px;
+    height: auto;
+}
+
+.login-box button {
+    height: 58px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #8F6BCF, #6d4eb0);
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: .3s;
+}
+
+.login-box button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(143, 107, 207, .25);
+}
+
+.register-link {
+    display: block;
+    margin-top: 25px;
+    color: #726681;
+}
+
+.register-link a {
+    color: #8F6BCF;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+/* Responsivo */
+@media (max-width: 500px) {
+    .login-box {
+        padding: 30px 20px;
+        width: 100%;
+    }
+    .login-box h1 {
+        font-size: 32px;
+    }
+    .login-logo {
+        width: 140px;
+    }
+}

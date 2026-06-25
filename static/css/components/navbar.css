@@ -1,0 +1,275 @@
+/* ============================================
+   NAVBAR
+============================================ */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2px 6%;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: rgba(255, 255, 255, .92);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 2px 15px rgba(0, 0, 0, .05);
+}
+
+.logo-area {
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    width: 180px;
+}
+
+.navbar nav {
+    display: flex;
+    gap: 30px;
+}
+
+.navbar nav a {
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    transition: .3s;
+}
+
+.navbar nav a:hover {
+    color: #6E4CC9;
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-name {
+    color: #5A3E9B;
+    font-weight: 600;
+}
+
+.login-link,
+.admin-link {
+    background: #6E4CC9;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 999px;
+    text-decoration: none;
+}
+
+.logout-link {
+    background: #c41212;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 999px;
+    text-decoration: none;
+}
+
+.cadastro-link {
+    text-decoration: none;
+    color: #555;
+}
+
+/* Menu mobile */
+.menu-toggle {
+    display: none;
+    font-size: 28px;
+    color: #3d3052;
+    cursor: pointer;
+    z-index: 1001;
+}
+
+/* Profile Dropdown */
+.profile-menu {
+    position: relative;
+    cursor: pointer;
+}
+
+.profile-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-btn i {
+    font-size: 1.6rem;
+    color: #5A3E9B;
+    transition: .3s;
+}
+
+.profile-btn:hover i {
+    color: #8F6BCF;
+}
+
+.profile-dropdown {
+    position: absolute;
+    top: 35px;
+    right: 0;
+    width: 180px;
+    background: white;
+    border-radius: 16px;
+    padding: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .08);
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 999;
+}
+
+.profile-dropdown.active {
+    display: flex;
+}
+
+.profile-dropdown p {
+    font-weight: 600;
+    color: #5A3E9B;
+    margin-bottom: 10px;
+}
+
+.profile-dropdown a {
+    text-decoration: none;
+    color: #555;
+    transition: .3s;
+}
+
+.profile-dropdown a:hover {
+    color: #8F6BCF;
+}
+/* ============================================
+   LINKS MOBILE (DENTRO DO HAMBÚRGUER)
+============================================ */
+.nav-mobile-actions {
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(143, 107, 207, .15);
+}
+
+.mobile-user-info {
+    color: #5A3E9B;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 5px 0;
+}
+
+.mobile-user-info i {
+    margin-right: 8px;
+}
+
+.mobile-link {
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    padding: 10px 14px;
+    border-radius: 10px;
+    transition: .3s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.mobile-link:hover {
+    background: rgba(143, 107, 207, .08);
+    color: #6E4CC9;
+}
+
+.mobile-link i {
+    width: 20px;
+    color: #8F6BCF;
+}
+
+.cadastro-mobile {
+    background: rgba(143, 107, 207, .06);
+    color: #6E4CC9;
+    font-weight: 600;
+}
+
+.cadastro-mobile:hover {
+    background: rgba(143, 107, 207, .15);
+}
+
+.login-mobile {
+    background: #6E4CC9;
+    color: white;
+    font-weight: 600;
+}
+
+.login-mobile:hover {
+    background: #5a3aad;
+    color: white;
+}
+
+.admin-mobile {
+    background: rgba(143, 107, 207, .06);
+    color: #6E4CC9;
+}
+
+.logout-mobile {
+    color: #dc3545;
+}
+
+.logout-mobile:hover {
+    background: rgba(220, 53, 69, .08);
+}
+
+/* ============================================
+   RESPONSIVO - MOSTRAR LINKS MOBILE
+============================================ */
+@media (max-width: 900px) {
+    .nav-mobile-actions {
+        display: flex;
+    }
+
+    /* Esconder ações do desktop no mobile */
+    .nav-actions {
+        display: none !important;
+    }
+}
+/* Responsivo */
+@media (max-width: 900px) {
+    .menu-toggle {
+        display: block;
+    }
+
+    .navbar {
+        padding: 20px 25px;
+        position: relative;
+    }
+
+    .navbar nav {
+        position: absolute;
+        top: 100%;
+        right: 25px;
+        width: 260px;
+        background: rgba(255, 255, 255, .95);
+        backdrop-filter: blur(12px);
+        border-radius: 20px;
+        padding: 25px;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        box-shadow: 0 10px 30px rgba(143, 107, 207, .15);
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(-10px);
+        transition: .3s;
+    }
+
+    .navbar nav.active {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateY(0);
+    }
+
+    .navbar nav a {
+        color: #3d3052;
+    }
+}

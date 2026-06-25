@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Login | Delicatto{% endblock %}
+
+{% block content %}
+<section class="login-page">
+    <div class="login-box">
+        <a href="/">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" class="login-logo">
+        </a>
+        <h1>Bem-vinda de volta</h1>
+        <p>Entre na sua conta Delicatto</p>
+
+        <form method="POST">
+            <input type="email" name="email" placeholder="Seu e-mail" required>
+            <input type="password" name="senha" placeholder="Sua senha" required>
+            <button type="submit">Entrar</button>
+        </form>
+
+        {% if mensagem %}
+            <p class="success-msg">{{ mensagem }}</p>
+        {% endif %}
+
+        <span class="register-link">
+            Não possui conta? <a href="/cadastro">Criar conta</a>
+        </span>
+    </div>
+</section>
+{% endblock %}

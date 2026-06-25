@@ -1,0 +1,41 @@
+/* ============================================
+   CARRINHO FLUTUANTE
+============================================ */
+.floating-cart {
+    position: fixed;
+    right: 30px;
+    bottom: 30px;
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #7B5CE1, #A88CF6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: white;
+    font-size: 1.4rem;
+    box-shadow: 0 10px 30px rgba(123, 92, 225, .35);
+    z-index: 999;
+    transition: .3s;
+}
+
+.floating-cart:hover {
+    transform: translateY(-5px) scale(1.05);
+}
+
+.floating-cart span {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #E63946;
+    color: white;
+    font-size: .75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+}

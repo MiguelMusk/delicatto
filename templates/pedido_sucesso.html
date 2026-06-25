@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Pedido Confirmado | Delicatto{% endblock %}
+
+{% block content %}
+<section class="success-page">
+    <div class="success-card">
+        <div class="success-icon">
+            <i class="fa-solid fa-check"></i>
+        </div>
+        <h1>Pedido Confirmado</h1>
+        <p>
+            Sua experiência Delicatto está a caminho.
+            Recebemos seu pedido com sucesso e em breve
+            você poderá acompanhar cada etapa da preparação.
+        </p>
+        <div class="success-actions">
+            <a href="/produtos" class="primary-btn">
+                <i class="fa-solid fa-store"></i> Continuar Comprando
+            </a>
+            <a href="/" class="secondary-btn">
+                <i class="fa-solid fa-house"></i> Voltar ao Início
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

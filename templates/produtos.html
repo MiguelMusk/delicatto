@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Produtos | Delicatto{% endblock %}
+
+{% block content %}
+<!-- HEADER -->
+<section class="products-hero">
+    <h1>Nossos Produtos</h1>
+    <p>
+        Cosméticos premium desenvolvidos
+        para valorizar sua beleza natural.
+    </p>
+</section>
+
+<!-- PRODUTOS -->
+<div class="products-page">
+    {% for produto in produtos %}
+    <div class="product-card">
+        <div class="product-image">
+            <img
+                src="{{ url_for('static', filename='img/' + produto[4]) }}"
+                alt="{{ produto[1] }}">
+        </div>
+        <div class="product-info">
+            <h3>{{ produto[1] }}</h3>
+            <p>{{ produto[2] }}</p>
+            <span>R$ {{ "%.2f"|format(produto[3]) }}</span>
+            <div class="product-actions">
+                <a href="/produto/{{ produto[0] }}" class="primary-btn">
+                    Ver Produto
+                </a>
+                <a href="/adicionar_carrinho/{{ produto[0] }}" class="checkout-btn">
+                    Adicionar ao Carrinho
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,67 @@
+<header class="navbar">
+    <a href="/" class="logo-area">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" class="logo">
+    </a>
+
+    <!-- Menu Toggle (Mobile) -->
+    <div class="menu-toggle">
+        <i class="fa-solid fa-bars"></i>
+    </div>
+
+    <nav>
+        <a href="/">Início</a>
+        <a href="/produtos">Produtos</a>
+        <a href="/skinmatch">SkinMatch</a>
+        <a href="/sobre">Sobre Nós</a>
+        <a href="/contato">Contato</a>
+
+        <!-- LINKS MOBILE (aparecem apenas no hambúrguer) -->
+        <div class="nav-mobile-actions">
+            {% if usuario %}
+                <div class="mobile-user-info">
+                    <p><i class="fa-solid fa-user"></i> {{ usuario }}</p>
+                </div>
+                <a href="/perfil" class="mobile-link">Minha Conta</a>
+                <a href="/carrinho" class="mobile-link">Meu Carrinho</a>
+                {% if session.get('admin') %}
+                    <a href="/admin" class="mobile-link admin-mobile">Admin</a>
+                {% endif %}
+                <a href="/logout" class="mobile-link logout-mobile">Sair</a>
+            {% else %}
+                <a href="/cadastro" class="mobile-link cadastro-mobile">Cadastro</a>
+                <a href="/login" class="mobile-link login-mobile">Entrar</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- AÇÕES DO DESKTOP -->
+    <div class="nav-actions">
+        {% if usuario %}
+            {% if session.get('admin') %}
+                <a href="/admin" class="admin-link">Admin</a>
+            {% endif %}
+
+            <div class="profile-menu">
+                <button class="profile-btn">
+                    <i class="fa-solid fa-user"></i>
+                </button>
+                <div class="profile-dropdown">
+                    <p>{{ usuario }}</p>
+                    <a href="/perfil">Minha Conta</a>
+                    <a href="/carrinho">Meu Carrinho</a>
+                    <a href="/logout">Sair</a>
+                </div>
+            </div>
+        {% else %}
+            <a href="/cadastro" class="cadastro-link">Cadastro</a>
+            <a href="/login" class="login-link">Entrar</a>
+        {% endif %}
+    </div>
+</header>
+
+<a href="/carrinho" class="floating-cart">
+    <i class="fa-solid fa-bag-shopping"></i>
+    {% if total_carrinho > 0 %}
+        <span>{{ total_carrinho }}</span>
+    {% endif %}
+</a>

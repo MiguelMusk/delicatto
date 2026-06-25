@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin | Delicatto{% endblock %}
+
+{% block content %}
+<section class="login-page">
+    <div class="login-box">
+        <h1>Painel Admin</h1>
+        <p>Adicionar novo produto</p>
+
+        <form method="POST" enctype="multipart/form-data">
+            <input type="text" name="nome" placeholder="Nome do produto" required>
+            <input type="text" name="descricao" placeholder="Descrição curta" required>
+            <input type="number" step="0.01" name="preco" placeholder="Preço" required>
+            <input type="file" name="imagem" accept="image/*" required>
+            
+            <textarea name="descricao_completa" placeholder="Descrição completa do produto" rows="4" required></textarea>
+            <textarea name="modo_uso" placeholder="Modo de uso" rows="4" required></textarea>
+            <textarea name="beneficios" placeholder="Benefícios do produto" rows="4" required></textarea>
+            <textarea name="ingredientes" placeholder="Lista de ingredientes" rows="4" required></textarea>
+            
+            <button type="submit">Adicionar Produto</button>
+        </form>
+
+        {% if mensagem %}
+            <p class="success-msg">{{ mensagem }}</p>
+        {% endif %}
+    </div>
+
+    <hr>
+
+    <h2>Produtos Cadastrados</h2>
+
+    <div class="admin-produtos">
+        {% for produto in produtos %}
+        <div class="product-card">
+            <div class="product-info">
+                <h3>{{ produto[1] }}</h3>
+                <p>{{ produto[2] }}</p>
+                <span>R$ {{ produto[3] }}</span>
+                <div class="admin-actions">
+                    <a href="/editar_produto/{{ produto[0] }}" class="edit-btn">
+                        <i class="fa-solid fa-pen"></i> Editar
+                    </a>
+                    <a href="/deletar_produto/{{ produto[0] }}" class="delete-btn">
+                        <i class="fa-solid fa-trash"></i> Excluir
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

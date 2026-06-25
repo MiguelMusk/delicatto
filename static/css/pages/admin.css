@@ -1,0 +1,39 @@
+/* ============================================
+   ADMIN
+============================================ */
+.admin-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 30px;
+    align-items: center;
+}
+
+.admin-actions .primary-btn {
+    width: 100%;
+    max-width: 300px;
+}
+
+.admin-actions .delete-btn {
+    width: 100%;
+    max-width: 300px;
+    text-align: center;
+}
+
+/* Produtos cadastrados no admin */
+.admin-produtos {
+    max-width: 800px;
+    margin: 40px auto;
+}
+
+.admin-produtos .product-card {
+    margin-bottom: 20px;
+}
+
+/* Responsivo */
+@media (max-width: 600px) {
+    .admin-actions .primary-btn,
+    .admin-actions .delete-btn {
+        max-width: 100%;
+    }
+}
