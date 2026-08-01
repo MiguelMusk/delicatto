@@ -3,13 +3,14 @@
 {% block title %}Sobre Nós | Delicatto{% endblock %}
 
 {% block content %}
-<section class="page-hero">
+<!-- HERO -->
+<section class="page-hero reveal">
     <h1>Sobre a Delicatto</h1>
     <p>Beleza, ciência e delicadeza em cada fórmula.</p>
 </section>
 
 <!-- HISTÓRIA -->
-<section class="text-section">
+<section class="text-section reveal">
     <h2>Um pouco de nossa História...</h2>
     <p>
         A Delicatto nasceu com o propósito de unir tecnologia, dermatologia e autoestima.
@@ -25,7 +26,7 @@
 
 <!-- MISSÃO VISÃO VALORES -->
 <section class="mvv">
-    <div class="mvv-card">
+    <div class="mvv-card reveal" style="transition-delay: 0.1s;">
         <h2>Missão</h2>
         <p>
             Promover cuidados com a pele através de cosméticos premium
@@ -33,7 +34,7 @@
         </p>
     </div>
 
-    <div class="mvv-card">
+    <div class="mvv-card reveal" style="transition-delay: 0.2s;">
         <h2>Visão</h2>
         <p>
             Ser referência em skincare inteligente e personalizado não somente no Brasil, mas no mundo todo,
@@ -41,7 +42,7 @@
         </p>
     </div>
 
-    <div class="mvv-card">
+    <div class="mvv-card reveal" style="transition-delay: 0.3s;">
         <h2>Valores</h2>
         <p>
             • Qualidade<br>
@@ -52,9 +53,10 @@
         </p>
     </div>
 </section>
-<!-- equipes -->
+
+<!-- EQUIPE -->
 <section class="team-section">
-    <div class="team-heading">
+    <div class="team-heading reveal">
         <span>QUEM FAZ A DELICATTO?</span>
         <h2>Nossa Equipe</h2>
         <p>
@@ -64,9 +66,8 @@
     </div>
 
     <div class="team-grid">
-    
         <!-- CARD 1 - CEO -->
-        <div class="team-card">
+        <div class="team-card reveal" style="transition-delay: 0.05s;">
             <div class="team-avatar">
                 <img src="{{ url_for('static', filename='img/equipe/miguel.png') }}" alt="Miguel">
             </div>
@@ -80,7 +81,7 @@
         </div>
 
         <!-- CARD 2 - COO -->
-        <div class="team-card">
+        <div class="team-card reveal" style="transition-delay: 0.10s;">
             <div class="team-avatar">
                 <img src="{{ url_for('static', filename='img/equipe/pietra.jpeg') }}" alt="Pietra">
             </div>
@@ -89,13 +90,12 @@
                 <span class="team-role">
                     <i class="fa-solid fa-users"></i> COO & Diretora de RH
                 </span>
-                <p> Gestão de pessoas e cultura empresarial</p>
+                <p>Gestão de pessoas e cultura empresarial</p>
             </div>
         </div>
 
-       
         <!-- CARD 3 - Diretora de Marketing -->
-        <div class="team-card">
+        <div class="team-card reveal" style="transition-delay: 0.15s;">
             <div class="team-avatar">
                 <img src="{{ url_for('static', filename='img/equipe/fontes.png') }}" alt="Maria E. Fontes">
             </div>
@@ -109,7 +109,7 @@
         </div>
 
         <!-- CARD 4 - Diretora Financeira -->
-        <div class="team-card">
+        <div class="team-card reveal" style="transition-delay: 0.20s;">
             <div class="team-avatar">
                 <img src="{{ url_for('static', filename='img/equipe/nunes.png') }}" alt="Maria E. Nunes">
             </div>
@@ -121,9 +121,9 @@
                 <p>Gestão financeira e planejamento</p>
             </div>
         </div>
-        
+
         <!-- CARD 5 - Gerente de Logística -->
-        <div class="team-card">
+        <div class="team-card reveal" style="transition-delay: 0.25s;">
             <div class="team-avatar">
                 <img src="{{ url_for('static', filename='img/equipe/analivia.png') }}" alt="Anna Livia">
             </div>
@@ -137,7 +137,7 @@
         </div>
 
         <!-- CARD 6 - Coordenadora de Estoque -->
-        <div class="team-card">
+        <div class="team-card reveal" style="transition-delay: 0.30s;">
             <div class="team-avatar">
                 <img src="{{ url_for('static', filename='img/equipe/camila.png') }}" alt="Camila">
             </div>
@@ -151,7 +151,7 @@
         </div>
 
         <!-- CARD 7 - Gerente de SAC -->
-        <div class="team-card">
+        <div class="team-card reveal" style="transition-delay: 0.35s;">
             <div class="team-avatar">
                 <img src="{{ url_for('static', filename='img/equipe/gabriel.png') }}" alt="Gabriel">
             </div>
@@ -165,7 +165,7 @@
         </div>
 
         <!-- CARD 8 - Gerente de Tecnologia -->
-        <div class="team-card">
+        <div class="team-card reveal" style="transition-delay: 0.40s;">
             <div class="team-avatar">
                 <img src="{{ url_for('static', filename='img/equipe/vitor.png') }}" alt="Vitor">
             </div>

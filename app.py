@@ -137,12 +137,7 @@ def produtos():
     conexao.close()
     return render_template('produtos.html', produtos=produtos)
 
-# ============================================
-# PRODUTO DETALHE
-# ============================================
-# ============================================
-# PRODUTO DETALHE
-# ============================================
+
 # ============================================
 # PRODUTO DETALHE
 # ============================================
@@ -314,9 +309,10 @@ def admin():
         preco = request.form.get('preco')
         imagem = request.files['imagem']
         descricao_completa = request.form.get('descricao_completa')
-        modo_uso = request.form.get('modo_uso')         
-        beneficios = request.form.get('beneficios')    
-        ingredientes = request.form.get('ingredientes')   
+        modo_uso = request.form.get('modo_uso')
+        beneficios = request.form.get('beneficios')
+        ingredientes = request.form.get('ingredientes')
+        categoria = request.form.get('categoria')
 
         nome_arquivo = secure_filename(imagem.filename)
         imagem.save(os.path.join(app.config['UPLOAD_FOLDER'], nome_arquivo))
@@ -326,26 +322,87 @@ def admin():
 
         sql = """
         INSERT INTO produtos
-        (nome, descricao, preco, imagem, descricao_completa, modo_uso, beneficios, ingredientes)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+        (nome, descricao, preco, imagem, descricao_completa, modo_uso, beneficios, ingredientes, categoria)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
         """
-        cursor.execute(sql, (nome, descricao, preco, nome_arquivo, descricao_completa, modo_uso, beneficios, ingredientes))
+        cursor.execute(sql, (nome, descricao, preco, nome_arquivo, descricao_completa, modo_uso, beneficios, ingredientes, categoria))
         conexao.commit()
-
         cursor.close()
         conexao.close()
 
         mensagem = 'Produto adicionado com sucesso!'
 
+    # ===== BUSCAR DADOS PARA O ADMIN =====
     conexao = conectar()
     cursor = conexao.cursor()
-    cursor.execute("SELECT * FROM produtos")
+
+    # 1. Produtos
+    cursor.execute("SELECT * FROM produtos ORDER BY id DESC")
     produtos = cursor.fetchall()
+
+    # 2. Total de usuários
+    cursor.execute("SELECT COUNT(*) FROM usuarios")
+    total_usuarios = cursor.fetchone()[0]
+
+    # 3. Total de pedidos
+    cursor.execute("SELECT COUNT(*) FROM pedidos")
+    total_pedidos = cursor.fetchone()[0]
+
+    # 4. Total de avaliações
+    cursor.execute("SELECT COUNT(*) FROM avaliacoes")
+    total_avaliacoes = cursor.fetchone()[0]
+
+    # 5. Lista de usuários
+    cursor.execute("SELECT id, nome, email, admin FROM usuarios ORDER BY id DESC")
+    usuarios = cursor.fetchall()
+
+    # 6. Vendas dos últimos 7 dias
+    try:
+        cursor.execute("""
+            SELECT 
+                DATE(data) as dia, 
+                COUNT(*) as total_pedidos, 
+                SUM(total) as valor_total
+            FROM pedidos 
+            WHERE data >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+            GROUP BY DATE(data) 
+            ORDER BY dia ASC
+        """)
+        vendas_semana = cursor.fetchall()
+    except:
+        vendas_semana = []
+
+    # ===== 7. DISTRIBUIÇÃO DE PRODUTOS POR CATEGORIA =====
+    try:
+        cursor.execute("""
+            SELECT categoria, COUNT(*) as total
+            FROM produtos
+            WHERE categoria IS NOT NULL AND categoria != ''
+            GROUP BY categoria
+            ORDER BY total DESC
+        """)
+        distribuicao = cursor.fetchall()
+        
+        if not distribuicao:
+            distribuicao = []
+    except Exception as e:
+        print(f"Erro na consulta de distribuição: {e}")
+        distribuicao = []
+
     cursor.close()
     conexao.close()
 
-    return render_template('admin.html', mensagem=mensagem, produtos=produtos)
-
+    return render_template(
+        'admin.html',
+        mensagem=mensagem,
+        produtos=produtos,
+        total_usuarios=total_usuarios,
+        total_pedidos=total_pedidos,
+        total_avaliacoes=total_avaliacoes,
+        usuarios=usuarios,
+        vendas_semana=vendas_semana,
+        distribuicao=distribuicao
+    )
 # ============================================
 # DELETAR PRODUTO
 # ============================================
@@ -375,6 +432,7 @@ def editar_produto(id):
         modo_uso = request.form.get('modo_uso')
         beneficios = request.form.get('beneficios')
         ingredientes = request.form.get('ingredientes')
+        categoria = request.form.get('categoria')
 
         # Verifica se uma nova imagem foi enviada
         imagem = request.files.get('imagem')

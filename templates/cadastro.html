@@ -1,21 +1,58 @@
-{% extends 'base.html' %}
+{% extends 'base_clean.html' %}
 
 {% block title %}Cadastro | Delicatto{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/login_cadastro.css') }}">
+{% endblock %}
+
 {% block content %}
 <section class="login-page">
-    <div class="login-box">
-        <a href="/">
-            <img src="{{ url_for('static', filename='img/logo.png') }}" class="login-logo">
+    <!-- Efeitos decorativos -->
+    <div class="login-bg-effects">
+        <div class="login-glow login-glow-1"></div>
+        <div class="login-glow login-glow-2"></div>
+        <div class="login-sparkle sparkle-1">✦</div>
+        <div class="login-sparkle sparkle-2">✦</div>
+        <div class="login-sparkle sparkle-3">✦</div>
+        <div class="login-particle particle-1"></div>
+        <div class="login-particle particle-2"></div>
+    </div>
+
+    <div class="login-box glass-card">
+        <!-- BOTÃO VOLTAR -->
+        <a href="/" class="btn-back-home" title="Voltar para a home">
+            <i class="fa-solid fa-arrow-left"></i>
         </a>
-        <h1>Criar Conta</h1>
-        <p>Faça parte da experiência Delicatto</p>
+
+        <a href="/" class="login-logo-link">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" class="login-logo" alt="Delicatto">
+        </a>
+        <div class="login-header">
+            <h1>Criar Conta</h1>
+            <p>Faça parte da experiência Delicatto</p>
+        </div>
 
         <form method="POST">
-            <input type="text" name="nome" placeholder="Seu nome" required>
-            <input type="email" name="email" placeholder="Seu e-mail" required>
-            <input type="password" name="senha" placeholder="Sua senha" required>
-            <button type="submit">Criar Conta</button>
+            <div class="input-group">
+                <i class="fa-solid fa-user input-icon"></i>
+                <input type="text" name="nome" placeholder="Seu nome" required>
+            </div>
+            <div class="input-group">
+                <i class="fa-solid fa-envelope input-icon"></i>
+                <input type="email" name="email" placeholder="Seu e-mail" required>
+            </div>
+            <div class="input-group password-group">
+                <i class="fa-solid fa-lock input-icon"></i>
+                <input type="password" name="senha" id="cadastroSenha" placeholder="Sua senha" required>
+                <button type="button" class="toggle-password" onclick="toggleSenha('cadastroSenha', this)">
+                    <i class="fa-solid fa-eye"></i>
+                </button>
+            </div>
+            <button type="submit" class="btn-primary btn-login">
+                <span>Criar Conta</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
         </form>
 
         {% if mensagem %}

@@ -24,13 +24,14 @@
         <div class="product-info">
             <h3>{{ produto[1] }}</h3>
             <p>{{ produto[2] }}</p>
-            <span>R$ {{ "%.2f"|format(produto[3]) }}</span>
+            <span class="product-price">R$ {{ "%.2f"|format(produto[3]) }}</span>
+            
             <div class="product-actions">
-                <a href="/produto/{{ produto[0] }}" class="primary-btn">
-                    Ver Produto
+                <a href="/produto/{{ produto[0] }}" class="btn-detail">
+                    <i class="fa-solid fa-eye"></i> Ver Produto
                 </a>
-                <a href="/adicionar_carrinho/{{ produto[0] }}" class="checkout-btn">
-                    Adicionar ao Carrinho
+                <a href="/adicionar_carrinho/{{ produto[0] }}" class="btn-cart">
+                    <i class="fa-solid fa-cart-plus"></i> Adicionar
                 </a>
             </div>
         </div>

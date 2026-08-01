@@ -28,6 +28,121 @@
     display: flex;
     gap: 30px;
 }
+/* ============================================
+   PRODUTOS - BOTÕES ESTILIZADOS
+============================================ */
+
+/* ===== BOTÃO VER PRODUTO ===== */
+.btn-detail {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 50px;
+    background: transparent;
+    color: #6d4eb0;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.4s ease;
+    border: 2px solid rgba(143, 107, 207, 0.2);
+    flex: 1;
+}
+
+.btn-detail:hover {
+    background: #f0ebff;
+    border-color: #8F6BCF;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(143, 107, 207, 0.1);
+}
+
+.btn-detail i {
+    font-size: 14px;
+    color: #8F6BCF;
+}
+
+/* ===== BOTÃO ADICIONAR AO CARRINHO ===== */
+.btn-cart {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 50px;
+    background: linear-gradient(135deg, #8F6BCF, #6d4eb0);
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.4s ease;
+    box-shadow: 0 4px 20px rgba(143, 107, 207, 0.15);
+    flex: 1;
+}
+
+.btn-cart:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 40px rgba(143, 107, 207, 0.3);
+}
+
+.btn-cart i {
+    font-size: 14px;
+}
+
+/* ===== CONTAINER DOS BOTÕES ===== */
+.product-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+/* ===== PREÇO ESTILIZADO ===== */
+.product-price {
+    display: block;
+    font-size: 28px;
+    color: #8F6BCF;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+/* ============================================
+   RESPONSIVO
+============================================ */
+@media (max-width: 768px) {
+    .product-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .btn-detail,
+    .btn-cart {
+        width: 100%;
+        padding: 14px 20px;
+        font-size: 15px;
+    }
+
+    .product-price {
+        font-size: 24px;
+    }
+}
+
+@media (max-width: 480px) {
+    .product-actions {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .btn-detail,
+    .btn-cart {
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+
+    .btn-detail i,
+    .btn-cart i {
+        font-size: 13px;
+    }
+}
 
 /* Responsivo */
 @media (max-width: 1024px) {

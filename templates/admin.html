@@ -3,52 +3,482 @@
 {% block title %}Admin | Delicatto{% endblock %}
 
 {% block content %}
-<section class="login-page">
-    <div class="login-box">
-        <h1>Painel Admin</h1>
-        <p>Adicionar novo produto</p>
-
-        <form method="POST" enctype="multipart/form-data">
-            <input type="text" name="nome" placeholder="Nome do produto" required>
-            <input type="text" name="descricao" placeholder="Descrição curta" required>
-            <input type="number" step="0.01" name="preco" placeholder="Preço" required>
-            <input type="file" name="imagem" accept="image/*" required>
-            
-            <textarea name="descricao_completa" placeholder="Descrição completa do produto" rows="4" required></textarea>
-            <textarea name="modo_uso" placeholder="Modo de uso" rows="4" required></textarea>
-            <textarea name="beneficios" placeholder="Benefícios do produto" rows="4" required></textarea>
-            <textarea name="ingredientes" placeholder="Lista de ingredientes" rows="4" required></textarea>
-            
-            <button type="submit">Adicionar Produto</button>
-        </form>
-
+<section class="admin-dashboard">
+    <!-- NOTIFICAÇÕES -->
+    <div id="notification-container">
         {% if mensagem %}
-            <p class="success-msg">{{ mensagem }}</p>
+            <div class="alert alert-success">
+                <i class="fa-solid fa-check-circle"></i>
+                <span>{{ mensagem }}</span>
+                <button class="alert-close" onclick="fecharNotificacao(this)">&times;</button>
+            </div>
         {% endif %}
     </div>
 
-    <hr>
+    <!-- HEADER -->
+    <div class="admin-header">
+        <div>
+            <h1><i class="fa-solid fa-gem"></i> Painel Admin</h1>
+            <p class="admin-subtitle">Gerencie todos os produtos da Delicatto</p>
+        </div>
+        <a href="/" class="btn-voltar">
+            <i class="fa-solid fa-arrow-left"></i> Voltar ao Site
+        </a>
+    </div>
 
-    <h2>Produtos Cadastrados</h2>
+    <!-- STATS -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <i class="fa-solid fa-boxes-stacked"></i>
+            <div class="number">{{ produtos|length }}</div>
+            <div class="label">Total de Produtos</div>
+        </div>
+        <div class="stat-card">
+            <i class="fa-solid fa-users"></i>
+            <div class="number">{{ total_usuarios }}</div>
+            <div class="label">Usuários</div>
+        </div>
+        <div class="stat-card">
+            <i class="fa-solid fa-shopping-cart"></i>
+            <div class="number">{{ total_pedidos }}</div>
+            <div class="label">Pedidos</div>
+        </div>
+        <div class="stat-card">
+            <i class="fa-solid fa-star"></i>
+            <div class="number">{{ total_avaliacoes }}</div>
+            <div class="label">Avaliações</div>
+        </div>
+    </div>
 
-    <div class="admin-produtos">
-        {% for produto in produtos %}
-        <div class="product-card">
-            <div class="product-info">
-                <h3>{{ produto[1] }}</h3>
-                <p>{{ produto[2] }}</p>
-                <span>R$ {{ produto[3] }}</span>
-                <div class="admin-actions">
-                    <a href="/editar_produto/{{ produto[0] }}" class="edit-btn">
-                        <i class="fa-solid fa-pen"></i> Editar
-                    </a>
-                    <a href="/deletar_produto/{{ produto[0] }}" class="delete-btn">
-                        <i class="fa-solid fa-trash"></i> Excluir
-                    </a>
+    <!-- GRÁFICOS -->
+    <div class="chart-container">
+        <div class="chart-card">
+            <h3><i class="fa-solid fa-chart-bar"></i> Vendas dos Últimos 7 Dias</h3>
+            <canvas id="chartVendas"></canvas>
+        </div>
+        <div class="chart-card">
+            <h3><i class="fa-solid fa-chart-pie"></i> Distribuição de Produtos</h3>
+            <canvas id="chartProdutos"></canvas>
+        </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="admin-tabs">
+        <button class="admin-tab active" data-tab="tab-add">
+            <i class="fa-solid fa-plus-circle"></i> Adicionar Produto
+        </button>
+        <button class="admin-tab" data-tab="tab-list">
+            <i class="fa-solid fa-list"></i> Listar Produtos
+        </button>
+        <button class="admin-tab" data-tab="tab-users">
+            <i class="fa-solid fa-users"></i> Usuários
+        </button>
+    </div>
+
+    <!-- TAB 1 - ADICIONAR PRODUTO -->
+    <div class="tab-content active" id="tab-add">
+        <div class="admin-form">
+            <h2><i class="fa-solid fa-plus-circle"></i> Novo Produto</h2>
+            <p class="form-subtitle">Preencha todos os campos para adicionar um novo produto</p>
+
+            <form method="POST" enctype="multipart/form-data">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Nome do Produto</label>
+                        <input type="text" name="nome" placeholder="Ex: Sérum Facial" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Preço (R$)</label>
+                        <input type="number" step="0.01" name="preco" placeholder="0.00" required>
+                    </div>
                 </div>
+                <div class="form-group">
+                    <label>Categoria</label>
+                    <select name="categoria" required>
+                        <option value="Cuidados Faciais">Cuidados Faciais</option>
+                        <option value="Cuidados Corporais">Cuidados Corporais</option>
+                        <option value="Perfumes">Perfumes</option>
+                        <option value="Cuidados Capilares">Cuidados Capilares</option>
+                        <option value="Maquiagem">Maquiagem</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Descrição Curta</label>
+                    <input type="text" name="descricao" placeholder="Breve descrição do produto" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Imagem do Produto</label>
+                    <input type="file" name="imagem" accept="image/*" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Descrição Completa</label>
+                    <textarea name="descricao_completa" placeholder="Descrição detalhada do produto..." rows="4" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Modo de Uso</label>
+                    <textarea name="modo_uso" placeholder="Como usar o produto..." rows="4" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Benefícios</label>
+                    <textarea name="beneficios" placeholder="Liste os benefícios (um por linha)" rows="4" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Ingredientes</label>
+                    <textarea name="ingredientes" placeholder="Lista de ingredientes separados por vírgula" rows="4" required></textarea>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    <i class="fa-solid fa-plus"></i> Adicionar Produto
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- TAB 2 - LISTAR PRODUTOS -->
+    <div class="tab-content" id="tab-list">
+        <div class="admin-list-header">
+            <h2><i class="fa-solid fa-list"></i> Todos os Produtos</h2>
+            <div class="search-box">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" id="searchProduto" placeholder="Buscar produto...">
             </div>
         </div>
+
+        <div class="table-responsive">
+            <table class="admin-table">
+<thead>
+        <tr>
+            <th onclick="ordenarTabela(0, 'produtos')" class="sortable">ID <i class="fa-solid fa-sort"></i></th>
+            <th>Imagem</th>
+            <th onclick="ordenarTabela(2, 'produtos')" class="sortable">Nome <i class="fa-solid fa-sort"></i></th>
+            <th onclick="ordenarTabela(3, 'produtos')" class="sortable">Categoria <i class="fa-solid fa-sort"></i></th>
+            <th onclick="ordenarTabela(4, 'produtos')" class="sortable">Preço <i class="fa-solid fa-sort"></i></th>
+            <th>Ações</th>
+        </tr>
+</thead>
+    <tbody id="tableProdutos">
+                {% for produto in produtos %}
+                <tr>
+                    <td>#{{ produto[0] }}</td>
+                    <td>
+                        <img src="{{ url_for('static', filename='img/' + produto[4]) }}" 
+                            alt="{{ produto[1] }}" 
+                            class="produto-thumb">
+                    </td>
+                    <td><strong>{{ produto[1] }}</strong></td>
+                    <td><span class="badge-categoria">{{ produto[9] or 'Outros' }}</span></td>
+                    <td>R$ {{ "%.2f"|format(produto[3]) }}</td>
+                    <td>
+                        <div class="table-actions">
+                            <a href="/editar_produto/{{ produto[0] }}" class="btn-edit">
+                                <i class="fa-solid fa-pen"></i>
+                            </a>
+                            <a href="/deletar_produto/{{ produto[0] }}" class="btn-delete">
+                                <i class="fa-solid fa-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
         {% endfor %}
+    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- TAB 3 - LISTAR USUÁRIOS -->
+    <div class="tab-content" id="tab-users">
+        <div class="admin-list-header">
+            <h2><i class="fa-solid fa-users"></i> Usuários Cadastrados</h2>
+            <div class="search-box">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" id="searchUsuario" placeholder="Buscar usuário...">
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th onclick="ordenarTabela(0, 'usuarios')" class="sortable">ID <i class="fa-solid fa-sort"></i></th>
+                        <th onclick="ordenarTabela(1, 'usuarios')" class="sortable">Nome <i class="fa-solid fa-sort"></i></th>
+                        <th onclick="ordenarTabela(2, 'usuarios')" class="sortable">E-mail <i class="fa-solid fa-sort"></i></th>
+                        <th>Tipo</th>
+                    </tr>
+                </thead>
+                <tbody id="tableUsuarios">
+                    {% for usuario in usuarios %}
+                    <tr>
+                        <td>#{{ usuario[0] }}</td>
+                        <td><strong>{{ usuario[1] }}</strong></td>
+                        <td>{{ usuario[2] }}</td>
+                        <td>
+                            {% if usuario[3] == 1 %}
+                                <span class="badge-admin">👑 Admin</span>
+                            {% else %}
+                                <span class="badge-user">👤 Usuário</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ============================================
+// ADMIN - TABS, BUSCA E CONFIGURAÇÕES
+// ============================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    if (!document.querySelector('.admin-dashboard')) return;
+
+    // ===== TABS =====
+    const tabs = document.querySelectorAll('.admin-tab');
+    const contents = document.querySelectorAll('.tab-content');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            tabs.forEach(t => t.classList.remove('active'));
+            contents.forEach(c => c.classList.remove('active'));
+
+            this.classList.add('active');
+            const target = document.getElementById(this.dataset.tab);
+            if (target) target.classList.add('active');
+        });
+    });
+
+    // ===== BUSCA DE PRODUTOS =====
+    const searchInput = document.getElementById('searchProduto');
+    const tableRows = document.querySelectorAll('#tableProdutos tr');
+
+    if (searchInput) {
+        searchInput.addEventListener('keyup', function() {
+            const term = this.value.toLowerCase().trim();
+            tableRows.forEach(row => {
+                const nome = row.querySelector('td:nth-child(3)')?.textContent?.toLowerCase() || '';
+                const id = row.querySelector('td:nth-child(1)')?.textContent?.toLowerCase() || '';
+                row.style.display = (nome.includes(term) || id.includes(term)) ? '' : 'none';
+            });
+        });
+    }
+
+    // ===== BUSCA DE USUÁRIOS =====
+    const searchUsuario = document.getElementById('searchUsuario');
+    const userRows = document.querySelectorAll('#tableUsuarios tr');
+
+    if (searchUsuario) {
+        searchUsuario.addEventListener('keyup', function() {
+            const term = this.value.toLowerCase().trim();
+            userRows.forEach(row => {
+                const nome = row.querySelector('td:nth-child(2)')?.textContent?.toLowerCase() || '';
+                const email = row.querySelector('td:nth-child(3)')?.textContent?.toLowerCase() || '';
+                row.style.display = (nome.includes(term) || email.includes(term)) ? '' : 'none';
+            });
+        });
+    }
+
+    // ===== CONFIRMAÇÃO DE EXCLUSÃO =====
+    document.querySelectorAll('.btn-delete').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            if (!confirm('Tem certeza que deseja excluir este produto?')) {
+                e.preventDefault();
+            }
+        });
+    });
+
+    // ============================================
+    // GRÁFICOS - VERSÃO SIMPLIFICADA E SEGURA
+    // ============================================
+    
+    function criarGraficos() {
+        // GRÁFICO 1 - Vendas
+        const canvasVendas = document.getElementById('chartVendas');
+        if (canvasVendas) {
+            try {
+                // Remove o canvas antigo e recria
+                const parent = canvasVendas.parentNode;
+                const newCanvas = document.createElement('canvas');
+                newCanvas.id = 'chartVendas';
+                parent.replaceChild(newCanvas, canvasVendas);
+                
+                const vendasSemana = {{ vendas_semana|tojson }} || [];
+                
+                let labels = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+                let valores = [0, 0, 0, 0, 0, 0, 0];
+                
+                if (vendasSemana && vendasSemana.length > 0) {
+                    const mapaVendas = {};
+                    vendasSemana.forEach(item => {
+                        if (item.dia) {
+                            const dia = new Date(item.dia).getDay();
+                            mapaVendas[dia] = parseFloat(item.valor_total || 0);
+                        }
+                    });
+                    for (let i = 0; i < 7; i++) {
+                        const diaIndex = (i + 1) % 7;
+                        valores[i] = mapaVendas[diaIndex] || 0;
+                    }
+                }
+
+                new Chart(newCanvas, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Vendas (R$)',
+                            data: valores,
+                            backgroundColor: 'rgba(143, 107, 207, 0.7)',
+                            borderColor: '#8F6BCF',
+                            borderWidth: 2,
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { 
+                                beginAtZero: true,
+                                ticks: { callback: function(v) { return 'R$ ' + v; } }
+                            }
+                        }
+                    }
+                });
+            } catch(e) {
+                console.log('Erro no gráfico de vendas:', e);
+            }
+        }
+
+        // GRÁFICO 2 - Distribuição
+        const canvasDistrib = document.getElementById('chartProdutos');
+        if (canvasDistrib) {
+            try {
+                // Remove o canvas antigo e recria
+                const parent = canvasDistrib.parentNode;
+                const newCanvas = document.createElement('canvas');
+                newCanvas.id = 'chartProdutos';
+                parent.replaceChild(newCanvas, canvasDistrib);
+                
+                const distribuicao = {{ distribuicao|tojson }} || [];
+                const coresPaleta = ['#8F6BCF', '#B49CFF', '#6d4eb0', '#D4C4F0', '#E8D5FF'];
+                
+                let labels = ['Nenhum produto cadastrado'];
+                let dados = [1];
+                let cores = ['#e0d4f0'];
+                
+                if (distribuicao && distribuicao.length > 0) {
+                    labels = [];
+                    dados = [];
+                    cores = [];
+                    distribuicao.forEach((item, index) => {
+                        if (item.categoria && item.total > 0) {
+                            labels.push(item.categoria);
+                            dados.push(item.total);
+                            cores.push(coresPaleta[index % coresPaleta.length]);
+                        }
+                    });
+                    if (labels.length === 0) {
+                        labels = ['Nenhum produto cadastrado'];
+                        dados = [1];
+                        cores = ['#e0d4f0'];
+                    }
+                }
+
+                new Chart(newCanvas, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: dados,
+                            backgroundColor: cores,
+                            borderWidth: 2,
+                            borderColor: 'white'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 15,
+                                    usePointStyle: true,
+                                    pointStyle: 'circle',
+                                    font: { size: 12 }
+                                }
+                            }
+                        },
+                        cutout: '60%'
+                    }
+                });
+            } catch(e) {
+                console.log('Erro no gráfico de distribuição:', e);
+            }
+        }
+    }
+
+    // Aguarda um pequeno delay para garantir que tudo foi carregado
+    setTimeout(criarGraficos, 300);
+
+    // Recria os gráficos quando a página é totalmente carregada
+    window.addEventListener('load', function() {
+        setTimeout(criarGraficos, 100);
+    });
+});
+
+// ============================================
+// ORDENAÇÃO DE TABELAS
+// ============================================
+function ordenarTabela(coluna, tabela) {
+    const tbody = tabela === 'produtos' 
+        ? document.getElementById('tableProdutos') 
+        : document.getElementById('tableUsuarios');
+    
+    if (!tbody) return;
+
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    const header = tbody.closest('table').querySelectorAll('th')[coluna];
+    const isAsc = header.classList.contains('asc');
+
+    document.querySelectorAll('.sortable').forEach(th => {
+        th.classList.remove('asc', 'desc');
+    });
+
+    rows.sort((a, b) => {
+        const valA = a.querySelectorAll('td')[coluna]?.textContent?.trim() || '';
+        const valB = b.querySelectorAll('td')[coluna]?.textContent?.trim() || '';
+
+        const numA = parseFloat(valA.replace('R$', '').replace('#', '').trim());
+        const numB = parseFloat(valB.replace('R$', '').replace('#', '').trim());
+
+        if (!isNaN(numA) && !isNaN(numB)) {
+            return isAsc ? numA - numB : numB - numA;
+        }
+        return isAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+    });
+
+    header.classList.add(isAsc ? 'desc' : 'asc');
+    rows.forEach(row => tbody.appendChild(row));
+}
+
+// ============================================
+// NOTIFICAÇÕES
+// ============================================
+function fecharNotificacao(botao) {
+    const alert = botao.closest('.alert');
+    alert.style.animation = 'slideOutRight 0.4s ease';
+    setTimeout(() => alert.remove(), 400);
+}
+</script>
 {% endblock %}

@@ -9,9 +9,11 @@
     position: sticky;
     top: 0;
     z-index: 1000;
-    background: rgba(255, 255, 255, .92);
-    backdrop-filter: blur(12px);
-    box-shadow: 0 2px 15px rgba(0, 0, 0, .05);
+    background: rgba(255, 255, 255, 0.6);  
+    backdrop-filter: blur(20px);            
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 2px 30px rgba(143, 107, 207, 0.04); 
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3); 
 }
 
 .logo-area {

@@ -3,41 +3,54 @@
 {% block title %}Delicatto{% endblock %}
 
 {% block content %}
-<!-- HERO -->
-<section class="hero">
+<section class="hero reveal">
     <div class="hero-text">
-        <h1>
-            A <span class="gold-script">delicadeza</span> que transforma
-            sua rotina de <span class="gold-script">beleza</span>
-        </h1>
+<h1>
+    A <span class="gold-script gold-intense">Delicadeza</span> que transforma sua rotina de <span class="gold-script gold-intense">Beleza</span>
+</h1>
         <p>
             Cosméticos premium para realçar sua beleza natural.
         </p>
-        <a href="produtos" class="hero-products-btn">
-            Conheça nossos produtos
-        </a>
+        <div class="hero-buttons">
+            <a href="/produtos" class="hero-products-btn">
+                Conheça nossos produtos
+            </a>
+            <a href="/skinmatch" class="hero-secondary-btn">
+                Fazer teste dermatológico
+            </a>
+        </div>
     </div>
+ <div class="hero-image-wrapper">
+    <div class="gold-glow"></div>  
+    <div class="hero-glow"></div>
     <img src="{{ url_for('static', filename='img/model.png') }}" class="hero-img">
+</div>
 </section>
 
 <!-- BENEFITS -->
-<section class="benefits">
+<section class="benefits reveal">
     <div class="card">
-        <i class="fa-solid fa-heart"></i>
+        <div class="card-icon">
+            <i class="fa-solid fa-heart"></i>
+        </div>
         <div>
             <h3>Cruelty Free</h3>
             <p>Não testado em animais</p>
         </div>
     </div>
     <div class="card">
-        <i class="fa-solid fa-droplet"></i>
+        <div class="card-icon">
+            <i class="fa-solid fa-droplet"></i>
+        </div>
         <div>
             <h3>Dermatologicamente Testado</h3>
             <p>Seguro para sua pele</p>
         </div>
     </div>
     <div class="card">
-        <i class="fa-solid fa-spa"></i>
+        <div class="card-icon">
+            <i class="fa-solid fa-spa"></i>
+        </div>
         <div>
             <h3>Ingredientes Premium</h3>
             <p>Fórmulas de alta qualidade</p>
@@ -45,66 +58,78 @@
     </div>
 </section>
 
-<!-- function q faz PRODUTOS EM DESTAQUE -->
+<!-- PRODUTOS EM DESTAQUE -->
 <section class="products">
-    <div class="title">
+    <div class="title reveal">
         <span>PRODUTOS PREMIUM</span>
-        <h2>Nossos Destaques</h2>  
+        <h2>Nossos Destaques</h2>
+        <p class="title-sub">Os favoritos da nossa comunidade</p>
     </div>
 
     <div class="products-grid">
         {% for produto in produtos_destaque %}
-        <div class="product-card">
+        <div class="product-card reveal" style="transition-delay: {{ loop.index0 * 0.1 }}s;">
+            <div class="product-badge">Destaque</div>
             <div class="product-image">
                 <img src="{{ url_for('static', filename='img/' + produto[4]) }}" alt="{{ produto[1] }}">
             </div>
             <div class="product-info">
                 <h3>{{ produto[1] }}</h3>
                 <p>{{ produto[2] }}</p>
-                <span>R$ {{ "%.2f"|format(produto[3]) }}</span>
+                <div class="product-price">
+                    <span>R$ {{ "%.2f"|format(produto[3]) }}</span>
+                    <span class="product-installment">ou 3x de R$ {{ "%.2f"|format(produto[3]/3) }}</span>
+                </div>
                 <a href="/produto/{{ produto[0] }}" class="primary-btn">Ver Produto</a>
             </div>
         </div>
         {% endfor %}
     </div>
 
-    <!-- BOTÃO VER TODOS OS PRODUTOS -->
-    <div style="text-align: center; margin-top: 50px;">
-        <a href="/produtos" class="primary-btn" style="padding: 16px 50px; font-size: 18px;">
-            <i class="fa-solid fa-store"></i> Ver todos os produtos
+    <div class="products-footer reveal">
+        <a href="/produtos" class="primary-btn btn-all">
+            Ver todos os produtos
         </a>
     </div>
 </section>
 
 <!-- SKINMATCH -->
 <section class="skinmatch-home">
-    <div class="skinmatch-home-text">
+    <div class="skinmatch-home-text reveal">
         <span>SKINMATCH</span>
-        <h2>Uma análise inteligente para sua pele</h2>
+        <h2>Uma análise inteligente <br> para sua pele</h2>
         <p>
             Descubra sua rotina ideal através do nosso sistema de recomendação
             personalizado.
         </p>
-        <a href="/skinmatch">Fazer SkinMatch</a>
+        <a href="/skinmatch" class="skinmatch-btn">
+            Fazer SkinMatch
+        </a>
     </div>
 
     <div class="skinmatch-home-card">
-        <div class="mini-card">
-            <i class="fa-solid fa-droplet"></i>
+        <div class="mini-card reveal" style="transition-delay: 0.1s;">
+            <div class="mini-icon">
+                <i class="fa-solid fa-droplet"></i>
+            </div>
             <div>
                 <h3>Análise de Pele</h3>
                 <p>Identifique necessidades específicas.</p>
             </div>
         </div>
-        <div class="mini-card">
-            <i class="fa-solid fa-spa"></i>
+        <div class="mini-card reveal" style="transition-delay: 0.2s;">
+            <div class="mini-icon">
+                <i class="fa-solid fa-spa"></i>
+            </div>
             <div>
                 <h3>Rotina Personalizada</h3>
                 <p>Produtos ideais para você.</p>
             </div>
         </div>
-        <div class="mini-card">
-            <i class="fa-solid fa-wand-magic-sparkles"></i>
+        <div class="mini-card reveal" style="transition-delay: 0.3s;">
+            <div class="mini-icon">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </div>
             <div>
                 <h3>Resultados Inteligentes</h3>
                 <p>Recomendações premium Delicatto.</p>
