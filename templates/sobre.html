@@ -5,56 +5,164 @@
 {% block content %}
 <!-- HERO -->
 <section class="page-hero reveal">
-    <h1>Sobre a Delicatto</h1>
-    <p>Beleza, ciência e delicadeza em cada fórmula.</p>
-</section>
-
-<!-- HISTÓRIA -->
-<section class="text-section reveal">
-    <h2>Um pouco de nossa História...</h2>
-    <p>
-        A Delicatto nasceu com o propósito de unir tecnologia, dermatologia e autoestima.
-        Criamos cosméticos premium pensados para todos os tipos de pele, com foco em resultados reais e uma experiência de cuidado única.
-    </p>
-
-    <h2>Nosso Propósito</h2>
-    <p>
-        Acreditamos que beleza não é padrão, é cuidado!
-        Cada produto é desenvolvido para valorizar a sua pele natural, respeitando suas necessidades e promovendo bem-estar.
-    </p>
-</section>
-
-<!-- MISSÃO VISÃO VALORES -->
-<section class="mvv">
-    <div class="mvv-card reveal" style="transition-delay: 0.1s;">
-        <h2>Missão</h2>
-        <p>
-            Promover cuidados com a pele através de cosméticos premium
-            que valorizam a beleza natural e o bem-estar.
-        </p>
-    </div>
-
-    <div class="mvv-card reveal" style="transition-delay: 0.2s;">
-        <h2>Visão</h2>
-        <p>
-            Ser referência em skincare inteligente e personalizado não somente no Brasil, mas no mundo todo,
-            unindo tecnologia e beleza.
-        </p>
-    </div>
-
-    <div class="mvv-card reveal" style="transition-delay: 0.3s;">
-        <h2>Valores</h2>
-        <p>
-            • Qualidade<br>
-            • Inovação<br>
-            • Transparência<br>
-            • Respeito à pele<br>
-            • Sustentabilidade
-        </p>
+    <div class="hero-content">
+        <h1>Sobre a Delicatto</h1>
+        <p>Beleza, ciência e delicadeza em cada fórmula.</p>
+        <div class="hero-decoration">
+            <span class="deco-line"></span>
+            <span class="deco-diamond">✦</span>
+            <span class="deco-line"></span>
+        </div>
     </div>
 </section>
 
-<!-- EQUIPE -->
+<!-- TIMELINE / HISTÓRIA (MANTIDA) -->
+<section class="timeline-section reveal">
+    <div class="container">
+        <div class="timeline-header">
+            <span class="section-tag">Nossa Jornada</span>
+            <h2>Conheça a história da Delicatto</h2>
+        </div>
+
+        <div class="timeline">
+            <!-- 1 -->
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="timeline-year">Início</span>
+                    <h3>Como tudo começou</h3>
+                    <p>
+                        A Delicatto Cosméticos nasceu como um projeto escolar com o objetivo de criar uma marca que unisse beleza, inovação e empreendedorismo em uma experiência completa.
+                    </p>
+                </div>
+            </div>
+
+            <!-- 2 -->
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="timeline-year">Origem</span>
+                    <h3>O significado do nome</h3>
+                    <p>
+                        O nome <strong>Delicatto</strong> vem do italiano, na qual significa delicado. Refletindo a proposta de valorizar a beleza natural e o bem-estar de cada pessoa.
+                    </p>
+                </div>
+            </div>
+
+            <!-- 3 -->
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="timeline-year">Identidade</span>
+                    <h3>As cores da marca</h3>
+                    <p>
+                        A identidade visual da Delicatto combina tons de roxo, azul e dourado. O roxo representa sofisticação e criatividade, o azul transmite confiança e bem-estar, enquanto o dourado simboliza qualidade, elegância e exclusividade.
+                    </p>
+                </div>
+            </div>
+
+            <!-- 4 -->
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="timeline-year">Símbolos</span>
+                    <h3>Os elementos da logomarca</h3>
+                    <p>
+                        A logomarca reúne elementos que representam a essência da Delicatto. A flor de lótus simboliza renovação e equilíbrio, a silhueta feminina destaca a autoestima e a beleza natural, enquanto a rosa reforça a delicadeza e a elegância presentes em nossa marca.
+                    </p>
+                </div>
+            </div>
+
+            <!-- 5 -->
+            <div class="timeline-item">
+                <div class="timeline-dot"></div>
+                <div class="timeline-content">
+                    <span class="timeline-year">Diferencial</span>
+                    <h3>SkinMatch</h3>
+                    <p>
+                        O SkinMatch foi criado para recomendar produtos conforme as necessidades de cada pele, tornando a experiência de compra mais prática e personalizada.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- MISSÃO VISÃO VALORES - CARROSSEL -->
+<section class="mvv-section reveal">
+    <div class="container">
+        <div class="mvv-header">
+            <span class="section-tag">Nossos Pilares</span>
+            <h2>Missão, Visão e Valores</h2>
+            <p class="mvv-subtitle">Deslize para conhecer nossos pilares</p>
+        </div>
+
+        <div class="carousel-container">
+            <button class="carousel-btn prev-btn" id="prevBtn">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+
+            <div class="carousel-track" id="carouselTrack">
+                <!-- Slide 1 - Missão -->
+                <div class="carousel-slide">
+                    <div class="slide-content">
+                        <div class="slide-icon">
+                            <i class="fa-solid fa-bullseye"></i>
+                        </div>
+                        <span class="slide-tag">Missão</span>
+                        <h3>Nossa Missão</h3>
+                        <p>
+                            Promover cuidados com a pele através de cosméticos premium
+                            que valorizam a beleza natural e o bem-estar.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Slide 2 - Visão -->
+                <div class="carousel-slide">
+                    <div class="slide-content">
+                        <div class="slide-icon">
+                            <i class="fa-solid fa-eye"></i>
+                        </div>
+                        <span class="slide-tag">Visão</span>
+                        <h3>Nossa Visão</h3>
+                        <p>
+                            Ser referência em skincare inteligente e personalizado não somente no Brasil, mas no mundo todo,
+                            unindo tecnologia e beleza.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Slide 3 - Valores -->
+                <div class="carousel-slide">
+                    <div class="slide-content">
+                        <div class="slide-icon">
+                            <i class="fa-solid fa-heart"></i>
+                        </div>
+                        <span class="slide-tag">Valores</span>
+                        <h3>Nossos Valores</h3>
+                        <ul class="values-list-carousel">
+                            <li><i class="fa-solid fa-check"></i> Qualidade</li>
+                            <li><i class="fa-solid fa-check"></i> Inovação</li>
+                            <li><i class="fa-solid fa-check"></i> Transparência</li>
+                            <li><i class="fa-solid fa-check"></i> Respeito à pele</li>
+                            <li><i class="fa-solid fa-check"></i> Sustentabilidade</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <button class="carousel-btn next-btn" id="nextBtn">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+        </div>
+
+        <!-- Dots -->
+        <div class="carousel-dots" id="carouselDots"></div>
+    </div>
+</section>
+
+<!-- EQUIPE (MANTIDA) -->
 <section class="team-section">
     <div class="team-heading reveal">
         <span>QUEM FAZ A DELICATTO?</span>

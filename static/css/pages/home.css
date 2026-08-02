@@ -781,6 +781,11 @@
         font-size: 34px;
     }
     
+ 
+    .hero-text h1 .gold-script {
+        font-size: 30px !important;
+    }
+    
     .hero-text p {
         font-size: 14px;
         margin-top: 10px;
@@ -909,6 +914,11 @@
     
     .hero-text h1 {
         font-size: 26px;
+    }
+    
+    /* 👇 DIMINUI AINDA MAIS NO CELULAR PEQUENO 👇 */
+    .hero-text h1 .gold-script {
+        font-size: 24px !important;
     }
     
     .hero-text p {
