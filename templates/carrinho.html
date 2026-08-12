@@ -3,40 +3,180 @@
 {% block title %}Carrinho | Delicatto{% endblock %}
 
 {% block content %}
-<section class="products">
-    <div class="title">
-        <h2>Seu Carrinho</h2>
+<section class="cart-page">
+    <div class="cart-header">
+        <h1><i class="fa-solid fa-bag-shopping"></i> Seu Carrinho</h1>
+        <p class="cart-subtitle">Revise seus produtos antes de finalizar a compra</p>
     </div>
 
-    <div class="carrinho-container">
-        {% for produto in produtos %}
-        <div class="cart-card">
-            <div class="product-image">
-                <img
-                    src="{{ url_for('static', filename='img/' + produto[4]) }}"
-                    alt="{{ produto[1] }}">
+    {% if produtos %}
+    <div class="cart-grid">
+        <!-- LISTA DE PRODUTOS -->
+        <div class="cart-items">
+            {% for produto in produtos %}
+            <div class="cart-card">
+                <div class="cart-card-image">
+                    <img src="{{ url_for('static', filename='img/' + produto[4]) }}" alt="{{ produto[1] }}">
+                </div>
+                <div class="cart-card-info">
+                    <h3>{{ produto[1] }}</h3>
+                    <p>{{ produto[2] }}</p>
+                    <div class="cart-card-price">
+                        <span class="price">R$ {{ "%.2f"|format(produto[3]) }}</span>
+                        <span class="installment">ou 3x de R$ {{ "%.2f"|format(produto[3]/3) }}</span>
+                    </div>
+                    <a href="/remover_carrinho/{{ produto[0] }}" class="btn-remove">
+                        <i class="fa-solid fa-trash-can"></i> Remover
+                    </a>
+                </div>
             </div>
-            <div class="product-info">
-                <h3>{{ produto[1] }}</h3>
-                <p>{{ produto[2] }}</p>
-                <span>R$ {{ produto[3] }}</span>
-                <br><br>
-                <a href="/remover_carrinho/{{ produto[0] }}" class="delete-btn">
-                    Remover
-                </a>
-            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
+
+        <!-- RESUMO DO PEDIDO -->
+        <div class="cart-summary">
+            <h3>Resumo do Pedido</h3>
+
+            <!-- Subtotal -->
+            <div class="summary-row">
+                <span>Produtos ({{ produtos|length }})</span>
+                <span id="subtotalValor">R$ {{ "%.2f"|format(total) }}</span>
+            </div>
+
+            <!-- Frete -->
+            <div class="summary-row">
+                <span>Frete</span>
+                <span class="free-shipping">Grátis</span>
+            </div>
+
+            <!-- ===== CUPOM DE DESCONTO ===== -->
+            <div class="summary-coupon">
+                <div class="coupon-header">
+                    <i class="fa-solid fa-ticket"></i>
+                    <span>Cupom de desconto</span>
+                </div>
+                
+                <form method="GET" action="/carrinho" class="coupon-input-group">
+                    <input type="text" name="cupom" placeholder="Digite seu cupom" class="coupon-input" value="{{ cupom_aplicado or '' }}" {% if cupom_valido %}disabled{% endif %}>
+                    {% if cupom_valido %}
+                        <a href="/carrinho?remover=true" class="coupon-btn-remove">Cancelar</a>
+                    {% else %}
+                        <button type="submit" class="coupon-btn">Aplicar</button>
+                    {% endif %}
+                </form>
+                
+                {% if mensagem_cupom %}
+                    <div class="coupon-message {{ 'success' if cupom_valido else 'error' }}">
+                        {{ mensagem_cupom }}
+                    </div>
+                {% endif %}
+                
+                <div class="coupon-hint">
+                    <i class="fa-solid fa-lightbulb"></i>
+                    <span>Use <strong>DELICATTO10</strong> para 10% de desconto</span>
+                </div>
+            </div>
+
+            <!-- ===== DESCONTO APLICADO ===== -->
+            {% if desconto > 0 %}
+            <div class="summary-discount">
+                <span>Desconto</span>
+                <span>- R$ {{ "%.2f"|format(desconto) }}</span>
+            </div>
+            {% endif %}
+
+            <div class="summary-divider"></div>
+
+            <!-- Total -->
+            <div class="summary-total">
+                <span>Total</span>
+                <span>R$ {{ "%.2f"|format(total_com_desconto if desconto > 0 else total) }}</span>
+            </div>
+
+            <!-- ===== FORMAS DE PAGAMENTO ===== -->
+            <div class="summary-payment">
+                <span class="payment-label"><i class="fa-solid fa-credit-card"></i> Formas de pagamento</span>
+                
+                <div class="payment-options">
+                    <!-- PIX -->
+                    <label class="payment-option">
+                        <input type="radio" name="payment_method" value="pix" checked>
+                        <span class="payment-option-content">
+                            <i class="fa-solid fa-qrcode"></i>
+                            <span class="payment-option-name">PIX</span>
+                            <span class="payment-option-badge">À vista</span>
+                            <span class="payment-option-discount">5% OFF</span>
+                        </span>
+                    </label>
+
+                    <!-- Cartão de Crédito -->
+                    <label class="payment-option">
+                        <input type="radio" name="payment_method" value="cartao">
+                        <span class="payment-option-content">
+                            <i class="fa-solid fa-credit-card"></i>
+                            <span class="payment-option-name">Cartão de Crédito</span>
+                            <span class="payment-option-badge">3x sem juros</span>
+                        </span>
+                    </label>
+
+                    <!-- Boleto -->
+                    <label class="payment-option">
+                        <input type="radio" name="payment_method" value="boleto">
+                        <span class="payment-option-content">
+                            <i class="fa-solid fa-barcode"></i>
+                            <span class="payment-option-name">Boleto Bancário</span>
+                            <span class="payment-option-badge">À vista</span>
+                            <span class="payment-option-discount">3% OFF</span>
+                        </span>
+                    </label>
+                </div>
+
+                <!-- Ícones dos bancos aceitos -->
+                <div class="payment-icons">
+                    <span class="payment-icon" title="Visa">
+                        <i class="fa-brands fa-cc-visa"></i>
+                    </span>
+                    <span class="payment-icon" title="Mastercard">
+                        <i class="fa-brands fa-cc-mastercard"></i>
+                    </span>
+                    <span class="payment-icon" title="American Express">
+                        <i class="fa-brands fa-cc-amex"></i>
+                    </span>
+                    <span class="payment-icon" title="Elo">
+                        <i class="fa-solid fa-credit-card"></i> Elo
+                    </span>
+                    <span class="payment-icon" title="Hipercard">
+                        <i class="fa-solid fa-credit-card"></i> Hiper
+                    </span>
+                </div>
+
+                <div class="payment-installment">
+                    <i class="fa-solid fa-tag"></i>
+                    <span>Parcele em até <strong>3x sem juros</strong> no cartão</span>
+                </div>
+            </div>
+
+            <!-- Botões -->
+            <a href="/finalizar_compra" class="btn-checkout">
+                <i class="fa-solid fa-lock"></i> Finalizar Compra
+            </a>
+            <a href="/produtos" class="btn-continue">
+                <i class="fa-solid fa-arrow-left"></i> Continuar comprando
+            </a>
+        </div>
     </div>
-
-    <h2 class="cart-total">
-        Total: R$ {{ "%.2f"|format(total) }}
-    </h2>
-
-    <div class="cart-actions">
-        <a href="/finalizar_compra" class="checkout-btn">
-            Finalizar Compra
+    {% else %}
+    <!-- CARRINHO VAZIO -->
+    <div class="cart-empty">
+        <div class="empty-icon">
+            <i class="fa-solid fa-bag-shopping"></i>
+        </div>
+        <h2>Seu carrinho está vazio</h2>
+        <p>Parece que você ainda não adicionou nenhum produto.</p>
+        <a href="/produtos" class="btn-continue">
+            <i class="fa-solid fa-store"></i> Começar a comprar
         </a>
     </div>
+    {% endif %}
 </section>
 {% endblock %}

@@ -3,6 +3,7 @@ from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 import mysql.connector
 import os
+from dotenv import load_dotenv
 
 app = Flask(__name__)
 
@@ -10,14 +11,12 @@ UPLOAD_FOLDER = 'static/img'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.secret_key = 'delicatto2026'
 
+# Carrega variáveis de ambiente
+load_dotenv()
+
 # ============================================
 # FUNÇÃO DE CONEXÃO COM O BANCO
 # ============================================
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
-
 def conectar():
     conexao = mysql.connector.connect(
         host=os.environ.get('DB_HOST'),
@@ -33,9 +32,32 @@ def conectar():
 @app.context_processor
 def inject_usuario():
     carrinho = session.get('carrinho', [])
+    total_valor = 0
+    produtos_carrinho = []
+    
+    if carrinho:
+        conexao = conectar()
+        cursor = conexao.cursor()
+        for id in carrinho:
+            cursor.execute("SELECT id, nome, preco, imagem FROM produtos WHERE id = %s", (id,))
+            produto = cursor.fetchone()
+            if produto:
+                # Converte para dicionário para facilitar
+                produtos_carrinho.append({
+                    'id': produto[0],
+                    'nome': produto[1],
+                    'preco': float(produto[2]),
+                    'imagem': produto[3]
+                })
+                total_valor += float(produto[2])
+        cursor.close()
+        conexao.close()
+    
     return dict(
         usuario=session.get('usuario'),
-        total_carrinho=len(carrinho)
+        total_carrinho=len(carrinho),
+        total_carrinho_valor=total_valor,
+        produtos_carrinho_resumo=produtos_carrinho  
     )
 
 # ============================================
@@ -46,7 +68,6 @@ def home():
     conexao = conectar()
     cursor = conexao.cursor()
     
-    # Pega os 3 primeiros produtos como destaque
     cursor.execute("SELECT * FROM produtos LIMIT 3")
     produtos_destaque = cursor.fetchall()
     
@@ -137,7 +158,6 @@ def produtos():
     conexao.close()
     return render_template('produtos.html', produtos=produtos)
 
-
 # ============================================
 # PRODUTO DETALHE
 # ============================================
@@ -148,6 +168,11 @@ def produto(id):
 
     cursor.execute("SELECT * FROM produtos WHERE id=%s", (id,))
     produto = cursor.fetchone()
+
+    if not produto:
+        cursor.close()
+        conexao.close()
+        return redirect('/produtos')
 
     cursor.execute("""
         SELECT usuario, nota, comentario
@@ -181,7 +206,7 @@ def produto(id):
 # ============================================
 # CARRINHO
 # ============================================
-@app.route('/carrinho')
+@app.route('/carrinho', methods=['GET', 'POST'])
 def carrinho():
     ids = session.get('carrinho', [])
     produtos_carrinho = []
@@ -201,7 +226,57 @@ def carrinho():
         cursor.close()
         conexao.close()
 
-    return render_template('carrinho.html', produtos=produtos_carrinho, total=total)
+    # ===== CUPOM DE DESCONTO =====
+    cupom = request.args.get('cupom') or request.form.get('cupom')
+    remover = request.args.get('remover')
+    
+    desconto = 0
+    total_com_desconto = total
+    cupom_valido = False
+    mensagem_cupom = ''
+    cupom_aplicado = None
+
+    if remover == 'true':
+        mensagem_cupom = 'Cupom removido!'
+        cupom_aplicado = None
+    
+    elif cupom:
+        cupom = cupom.upper()
+        cupom_aplicado = cupom
+        
+        if cupom == 'DELICATTO10':
+            desconto = total * 0.10
+            total_com_desconto = total - desconto
+            cupom_valido = True
+            mensagem_cupom = f'Cupom {cupom} aplicado! 10% de desconto'
+            
+        elif cupom == 'DELICATTO20':
+            desconto = total * 0.20
+            total_com_desconto = total - desconto
+            cupom_valido = True
+            mensagem_cupom = f'Cupom {cupom} aplicado! 20% de desconto'
+            
+        elif cupom == 'MIGUELLINDO':
+            desconto = total * 1
+            total_com_desconto = total - desconto
+            cupom_valido = True
+            mensagem_cupom = f'😈 Cupom {cupom} aplicado! Esse é nosso segredinho >:)'
+            
+        else:
+            mensagem_cupom = 'Cupom inválido'
+            cupom_aplicado = None
+
+    return render_template(
+        'carrinho.html', 
+        produtos=produtos_carrinho, 
+        total=total,
+        total_com_desconto=total_com_desconto,
+        desconto=desconto,
+        cupom_valido=cupom_valido,
+        mensagem_cupom=mensagem_cupom,
+        cupom_aplicado=cupom_aplicado
+    )
+
 
 @app.route('/adicionar_carrinho/<int:id>')
 def adicionar_carrinho(id):
@@ -213,6 +288,7 @@ def adicionar_carrinho(id):
     session['carrinho'] = carrinho
 
     return redirect('/produtos')
+
 
 @app.route('/remover_carrinho/<int:id>')
 def remover_carrinho(id):
@@ -372,7 +448,7 @@ def admin():
     except:
         vendas_semana = []
 
-    # ===== 7. DISTRIBUIÇÃO DE PRODUTOS POR CATEGORIA =====
+    # 7. Distribuição de produtos por categoria
     try:
         cursor.execute("""
             SELECT categoria, COUNT(*) as total
@@ -403,6 +479,7 @@ def admin():
         vendas_semana=vendas_semana,
         distribuicao=distribuicao
     )
+
 # ============================================
 # DELETAR PRODUTO
 # ============================================
@@ -449,9 +526,9 @@ def editar_produto(id):
         cursor.execute("""
             UPDATE produtos
             SET nome=%s, descricao=%s, preco=%s, imagem=%s,
-                descricao_completa=%s, modo_uso=%s, beneficios=%s, ingredientes=%s
+                descricao_completa=%s, modo_uso=%s, beneficios=%s, ingredientes=%s, categoria=%s
             WHERE id=%s
-        """, (nome, descricao, preco, nome_arquivo, descricao_completa, modo_uso, beneficios, ingredientes, id))
+        """, (nome, descricao, preco, nome_arquivo, descricao_completa, modo_uso, beneficios, ingredientes, categoria, id))
 
         conexao.commit()
         cursor.close()

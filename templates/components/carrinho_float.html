@@ -1,0 +1,56 @@
+<!-- CARRINHO FLUTUANTE - POPUP -->
+<div class="floating-cart-wrapper">
+    <!-- ÍCONE DO CARRINHO -->
+    <a href="/carrinho" class="floating-cart" id="floatingCartBtn">
+        <i class="fa-solid fa-bag-shopping"></i>
+        {% if total_carrinho > 0 %}
+            <span class="cart-badge">{{ total_carrinho }}</span>
+        {% endif %}
+    </a>
+
+    <!-- POPUP DE RESUMO DO CARRINHO -->
+    <div class="floating-cart-popup" id="floatingCartPopup">
+        <div class="popup-header">
+            <span><i class="fa-solid fa-bag-shopping"></i> Seu Carrinho</span>
+            <span class="popup-count">{{ total_carrinho }} itens</span>
+            <button class="popup-close" id="closePopup">&times;</button>
+        </div>
+        <div class="popup-body">
+            {% if total_carrinho > 0 %}
+                <div class="popup-items">
+                    {% for id in session.get('carrinho', [])[:4] %}
+                        {% set produto = produtos_carrinho_resumo|selectattr('id', 'equalto', id)|first %}
+                        {% if produto %}
+                        <div class="popup-item">
+                            <div class="popup-item-info">
+                                <span class="popup-item-name">{{ produto.nome }}</span>
+                                <span class="popup-item-price">R$ {{ "%.2f"|format(produto.preco) }}</span>
+                                <span class="popup-item-qty">Qtd: 1</span>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                    {% if total_carrinho > 4 %}
+                        <div class="popup-more">+ {{ total_carrinho - 4 }} outro(s) produto(s)</div>
+                    {% endif %}
+                </div>
+                <div class="popup-total">
+                    <span>Total:</span>
+                    <span class="popup-total-price">R$ {{ "%.2f"|format(total_carrinho_valor) }}</span>
+                </div>
+                <a href="/carrinho" class="popup-checkout">
+                    <i class="fa-solid fa-arrow-right"></i> Ver Carrinho
+                </a>
+                <a href="/finalizar_compra" class="popup-checkout-finalizar">
+                    <i class="fa-solid fa-lock"></i> Finalizar Compra
+                </a>
+            {% else %}
+                <div class="popup-empty">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                    <p>Seu carrinho está vazio</p>
+                    <a href="/produtos" class="popup-empty-btn">Começar a comprar</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>

@@ -1,62 +1,732 @@
 /* ============================================
-   CARRINHO
+   CARRINHO - VERSÃO PREMIUM
 ============================================ */
+
+.cart-page {
+    max-width: 1200px;
+    margin: 40px auto 80px;
+    padding: 0 40px;
+}
+
+/* ===== HEADER ===== */
+.cart-header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.cart-header h1 {
+    font-size: 42px;
+    font-family: 'Playfair Display', serif;
+    color: #2d1f42;
+}
+
+.cart-header h1 i {
+    color: #8F6BCF;
+    margin-right: 12px;
+}
+
+.cart-subtitle {
+    color: #8a7a9e;
+    font-size: 16px;
+    margin-top: 6px;
+}
+
+/* ===== GRID ===== */
+.cart-grid {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 40px;
+    align-items: start;
+}
+
+/* ===== ITENS DO CARRINHO ===== */
+.cart-items {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
 .cart-card {
     display: flex;
     align-items: center;
-    gap: 25px;
-    padding: 20px;
-    margin-bottom: 20px;
+    gap: 24px;
+    padding: 24px;
     background: white;
-    border-radius: 24px;
-    box-shadow: 0 10px 30px rgba(143, 107, 207, .08);
+    border-radius: 20px;
+    box-shadow: 0 4px 25px rgba(0,0,0,0.04);
+    border: 1px solid rgba(143, 107, 207, 0.04);
+    transition: all 0.3s ease;
 }
 
-.cart-card .product-image {
-    width: 140px;
-    height: 140px;
+.cart-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 40px rgba(143, 107, 207, 0.06);
+}
+
+.cart-card-image {
+    width: 120px;
+    height: 120px;
     flex-shrink: 0;
+    background: #faf8ff;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
 }
 
-.cart-card .product-image img {
+.cart-card-image img {
     width: 100%;
     height: 100%;
     object-fit: contain;
 }
 
-.cart-card .product-info {
+.cart-card-info {
     flex: 1;
 }
 
-.cart-total {
-    text-align: center;
-    margin-top: 40px;
-    margin-bottom: 25px;
-    font-size: 32px;
-    color: #5A3E9B;
-    font-weight: 700;
+.cart-card-info h3 {
+    font-size: 18px;
+    color: #2d1f42;
+    font-family: 'Playfair Display', serif;
+    margin-bottom: 4px;
 }
 
-.cart-actions {
+.cart-card-info p {
+    color: #8a7a9e;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.cart-card-price {
     display: flex;
-    justify-content: center;
-    margin-top: 30px;
-    margin-bottom: 60px;
+    flex-direction: column;
+    margin-bottom: 10px;
 }
 
-/* Responsivo */
+.cart-card-price .price {
+    font-size: 24px;
+    font-weight: 700;
+    color: #8F6BCF;
+}
+
+.cart-card-price .installment {
+    font-size: 13px;
+    color: #8a7a9e;
+}
+
+.btn-remove {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #dc3545;
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    padding: 6px 12px;
+    border-radius: 8px;
+    background: rgba(220, 53, 69, 0.04);
+}
+
+.btn-remove:hover {
+    background: rgba(220, 53, 69, 0.1);
+    transform: translateX(-2px);
+}
+
+.btn-remove i {
+    font-size: 14px;
+}
+
+/* ============================================
+   RESUMO DO PEDIDO
+============================================ */
+.cart-summary {
+    background: white;
+    padding: 28px 24px;
+    border-radius: 20px;
+    border: 1px solid rgba(143, 107, 207, 0.04);
+    box-shadow: 0 4px 25px rgba(0,0,0,0.04);
+    position: sticky;
+    top: 100px;
+}
+
+.cart-summary h3 {
+    font-size: 20px;
+    font-family: 'Playfair Display', serif;
+    color: #2d1f42;
+    margin-bottom: 16px;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    color: #6f6878;
+    font-size: 15px;
+}
+
+.summary-row .free-shipping {
+    color: #2d7a2d;
+    font-weight: 600;
+}
+
+.summary-divider {
+    height: 1px;
+    background: #f0ebff;
+    margin: 12px 0;
+}
+
+.summary-total {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: #2d1f42;
+}
+
+.summary-total span:last-child {
+    color: #8F6BCF;
+}
+
+/* ============================================
+   CUPOM DE DESCONTO
+============================================ */
+.summary-coupon {
+    background: #faf8ff;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin: 12px 0 8px;
+    border: 1px solid rgba(143, 107, 207, 0.04);
+}
+
+.coupon-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #2d1f42;
+    margin-bottom: 10px;
+}
+
+.coupon-header i {
+    color: #8F6BCF;
+}
+
+.coupon-input-group {
+    display: flex;
+    gap: 8px;
+}
+
+.coupon-input {
+    flex: 1;
+    padding: 10px 14px;
+    border: 1px solid #e8e0f0;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: 'Poppins', sans-serif;
+    background: white;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.coupon-input:focus {
+    border-color: #8F6BCF;
+    box-shadow: 0 0 0 3px rgba(143, 107, 207, 0.06);
+}
+
+.coupon-input:disabled {
+    background: #f5f0ff;
+    opacity: 0.7;
+}
+
+.coupon-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #8F6BCF, #6d4eb0);
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.coupon-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(143, 107, 207, 0.2);
+}
+
+.coupon-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    background: #8a7a9e;
+}
+
+.coupon-message {
+    margin-top: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    min-height: 20px;
+}
+
+.coupon-message.success {
+    color: #2d7a2d;
+}
+
+.coupon-message.error {
+    color: #dc3545;
+}
+
+.coupon-hint {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    font-size: 12px;
+    color: #8a7a9e;
+    background: rgba(143, 107, 207, 0.04);
+    padding: 8px 12px;
+    border-radius: 8px;
+}
+
+.coupon-hint i {
+    color: #8F6BCF;
+}
+
+.coupon-hint strong {
+    color: #6d4eb0;
+}
+
+/* ===== DESCONTO APLICADO ===== */
+.summary-discount {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0 4px;
+    font-size: 15px;
+    color: #2d7a2d;
+    font-weight: 500;
+}
+
+/* ===== BOTÃO CANCELAR CUPOM ===== */
+.coupon-btn-remove {
+    padding: 10px 9px;
+    border: none;
+    border-radius: 10px;
+    background: #dc3545;
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.coupon-btn-remove:hover {
+    background: #b02a37;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(220, 53, 70, 0.342);
+}
+
+/* ===== INPUT DESABILITADO ===== */
+.coupon-input:disabled {
+    background: #f5f0ff;
+    opacity: 0.7;
+}
+
+/* ============================================
+   FORMAS DE PAGAMENTO
+============================================ */
+.summary-payment {
+    background: #faf8ff;
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin: 12px 0 16px;
+    border: 1px solid rgba(143, 107, 207, 0.04);
+}
+
+.payment-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #2d1f42;
+    margin-bottom: 12px;
+}
+
+.payment-label i {
+    color: #8F6BCF;
+    margin-right: 6px;
+}
+
+/* ===== OPÇÕES DE PAGAMENTO ===== */
+.payment-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.payment-option {
+    display: block;
+    cursor: pointer;
+    border-radius: 10px;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.payment-option input[type="radio"] {
+    display: none;
+}
+
+.payment-option-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid #e8e0f0;
+    transition: all 0.3s ease;
+}
+
+.payment-option:hover .payment-option-content {
+    border-color: #d4c4f0;
+    background: #faf8ff;
+}
+
+.payment-option input[type="radio"]:checked + .payment-option-content {
+    border-color: #8F6BCF;
+    background: #f5ebff;
+    box-shadow: 0 0 0 3px rgba(143, 107, 207, 0.06);
+}
+
+.payment-option-content i {
+    font-size: 20px;
+    color: #8F6BCF;
+    width: 24px;
+    text-align: center;
+}
+
+.payment-option-name {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 500;
+    color: #2d1f42;
+}
+
+.payment-option-badge {
+    font-size: 11px;
+    color: #6f6878;
+    background: #f0ebff;
+    padding: 2px 10px;
+    border-radius: 50px;
+}
+
+.payment-option-discount {
+    font-size: 11px;
+    font-weight: 700;
+    color: #2d7a2d;
+    background: #e8f5e9;
+    padding: 2px 10px;
+    border-radius: 50px;
+}
+
+/* ===== ÍCONES DOS BANCOS ===== */
+.payment-icons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+    padding-top: 12px;
+    border-top: 1px solid #f0ebff;
+}
+
+.payment-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    background: white;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #3d3052;
+    border: 1px solid #e8e0f0;
+    transition: all 0.3s ease;
+    cursor: default;
+}
+
+.payment-icon:hover {
+    border-color: #8F6BCF;
+    transform: translateY(-2px);
+}
+
+.payment-icon i {
+    font-size: 16px;
+}
+
+.payment-installment {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    font-size: 13px;
+    color: #6f6878;
+    padding: 8px 12px;
+    background: white;
+    border-radius: 8px;
+}
+
+.payment-installment i {
+    color: #8F6BCF;
+}
+
+.payment-installment strong {
+    color: #2d1f42;
+}
+
+/* ===== BOTÕES ===== */
+.btn-checkout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #8F6BCF, #6d4eb0);
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.4s ease;
+    box-shadow: 0 8px 30px rgba(143, 107, 207, 0.2);
+}
+
+.btn-checkout:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 14px 45px rgba(143, 107, 207, 0.3);
+}
+
+.btn-continue {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    margin-top: 12px;
+    padding: 14px;
+    border-radius: 14px;
+    border: 2px solid rgba(143, 107, 207, 0.12);
+    color: #6d4eb0;
+    font-size: 15px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    background: transparent;
+}
+
+.btn-continue:hover {
+    background: rgba(143, 107, 207, 0.04);
+    transform: translateY(-2px);
+}
+
+/* ============================================
+   CARRINHO VAZIO
+============================================ */
+.cart-empty {
+    text-align: center;
+    padding: 80px 20px;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.empty-icon {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: #faf8ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 30px;
+    font-size: 48px;
+    color: #d4c4f0;
+}
+
+.cart-empty h2 {
+    font-family: 'Playfair Display', serif;
+    color: #2d1f42;
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.cart-empty p {
+    color: #8a7a9e;
+    font-size: 16px;
+    margin-bottom: 30px;
+}
+
+.cart-empty .btn-continue {
+    max-width: 280px;
+    margin: 0 auto;
+}
+
+/* ============================================
+   RESPONSIVO
+============================================ */
+@media (max-width: 992px) {
+    .cart-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+
+    .cart-summary {
+        position: static;
+        max-width: 500px;
+        margin: 0 auto;
+        width: 100%;
+    }
+
+    .cart-card-image {
+        width: 100px;
+        height: 100px;
+    }
+}
+
 @media (max-width: 768px) {
+    .cart-page {
+        padding: 0 20px;
+        margin: 20px auto 60px;
+    }
+
+    .cart-header h1 {
+        font-size: 32px;
+    }
+
     .cart-card {
         flex-direction: column;
         text-align: center;
-        gap: 15px;
-        padding: 15px;
+        gap: 16px;
+        padding: 20px;
     }
-    .cart-card .product-image {
+
+    .cart-card-image {
+        width: 140px;
+        height: 140px;
+    }
+
+    .cart-card-info h3 {
+        font-size: 16px;
+    }
+
+    .cart-card-price .price {
+        font-size: 20px;
+    }
+
+    .btn-remove {
+        justify-content: center;
+    }
+
+    .cart-summary {
+        padding: 24px 20px;
+    }
+
+    .summary-total {
+        font-size: 18px;
+    }
+
+    .btn-checkout {
+        font-size: 15px;
+        padding: 14px;
+    }
+
+    .cart-empty h2 {
+        font-size: 26px;
+    }
+
+    .payment-option-content {
+        padding: 10px 12px;
+        flex-wrap: wrap;
+    }
+
+    .payment-option-name {
+        flex: 1;
+        min-width: 80px;
+    }
+
+    .payment-option-badge,
+    .payment-option-discount {
+        font-size: 10px;
+        padding: 2px 8px;
+    }
+
+    .payment-icons {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .cart-header h1 {
+        font-size: 26px;
+    }
+
+    .cart-card {
+        padding: 16px;
+    }
+
+    .cart-card-image {
         width: 120px;
         height: 120px;
     }
-    .cart-total {
-        font-size: 26px;
+
+    .cart-card-price .price {
+        font-size: 18px;
+    }
+
+    .cart-summary {
+        padding: 20px 16px;
+    }
+
+    .empty-icon {
+        width: 90px;
+        height: 90px;
+        font-size: 36px;
+    }
+
+    .cart-empty h2 {
+        font-size: 22px;
+    }
+
+    .payment-option-content {
+        padding: 8px 10px;
+        gap: 8px;
+    }
+
+    .payment-option-name {
+        font-size: 13px;
+    }
+
+    .payment-option-content i {
+        font-size: 16px;
+        width: 20px;
+    }
+
+    .btn-checkout {
+        font-size: 14px;
+        padding: 12px;
+    }
+
+    .btn-continue {
+        font-size: 14px;
+        padding: 12px;
     }
 }

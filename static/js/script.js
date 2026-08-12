@@ -509,6 +509,46 @@ document.addEventListener('DOMContentLoaded', function() {
     }, { passive: true });
 });
 // ============================================
+// CARRINHO FLUTUANTE COM POPUP
+// ============================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    const cartBtn = document.getElementById('floatingCartBtn');
+    const popup = document.getElementById('floatingCartPopup');
+    const closeBtn = document.getElementById('closePopup');
+
+    if (!cartBtn || !popup) return;
+
+    // Abrir ao clicar no botão
+    cartBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        popup.classList.toggle('active');
+    });
+
+    // Fechar ao clicar no X
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            popup.classList.remove('active');
+        });
+    }
+
+    // Fechar ao clicar fora
+    document.addEventListener('click', function(e) {
+        if (!popup.contains(e.target) && !cartBtn.contains(e.target)) {
+            popup.classList.remove('active');
+        }
+    });
+
+    // Fechar ao pressionar ESC
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            popup.classList.remove('active');
+        }
+    });
+});
+
+// ============================================
 // SCROLL REVEAL - ANIMAÇÃO AO ROLAR A PÁGINA
 // ============================================
 
