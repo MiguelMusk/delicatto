@@ -32,24 +32,40 @@ def conectar():
 @app.context_processor
 def inject_usuario():
     carrinho = session.get('carrinho', [])
+    personalizacoes = session.get('personalizacoes', [])
     total_valor = 0
     produtos_carrinho = []
     
     if carrinho:
         conexao = conectar()
         cursor = conexao.cursor()
+        
         for id in carrinho:
-            cursor.execute("SELECT id, nome, preco, imagem FROM produtos WHERE id = %s", (id,))
-            produto = cursor.fetchone()
-            if produto:
-                # Converte para dicionário para facilitar
-                produtos_carrinho.append({
-                    'id': produto[0],
-                    'nome': produto[1],
-                    'preco': float(produto[2]),
-                    'imagem': produto[3]
-                })
-                total_valor += float(produto[2])
+            if id < 0:
+                personalizacao = next((p for p in personalizacoes if p.get('id') == id), None)
+                if personalizacao:
+                    produtos_carrinho.append({
+                        'id': id,
+                        'nome': f"{personalizacao.get('produto_nome', 'Produto Personalizado')}",
+                        'preco': personalizacao.get('preco', 89.90),
+                        'imagem': 'personalizado.png',
+                        'is_personalizado': True,
+                        'detalhes': personalizacao
+                    })
+                    total_valor += personalizacao.get('preco', 89.90)
+            else:
+                cursor.execute("SELECT id, nome, preco, imagem FROM produtos WHERE id = %s", (id,))
+                produto = cursor.fetchone()
+                if produto:
+                    produtos_carrinho.append({
+                        'id': produto[0],
+                        'nome': produto[1],
+                        'preco': float(produto[2]),
+                        'imagem': produto[3],
+                        'is_personalizado': False
+                    })
+                    total_valor += float(produto[2])
+        
         cursor.close()
         conexao.close()
     
@@ -57,7 +73,7 @@ def inject_usuario():
         usuario=session.get('usuario'),
         total_carrinho=len(carrinho),
         total_carrinho_valor=total_valor,
-        produtos_carrinho_resumo=produtos_carrinho  
+        produtos_carrinho_resumo=produtos_carrinho
     )
 
 # ============================================
@@ -209,6 +225,7 @@ def produto(id):
 @app.route('/carrinho', methods=['GET', 'POST'])
 def carrinho():
     ids = session.get('carrinho', [])
+    personalizacoes = session.get('personalizacoes', [])
     produtos_carrinho = []
     total = 0
 
@@ -217,15 +234,36 @@ def carrinho():
         cursor = conexao.cursor()
 
         for id in ids:
-            cursor.execute("SELECT * FROM produtos WHERE id=%s", (id,))
-            produto = cursor.fetchone()
-            if produto:
-                produtos_carrinho.append(produto)
-                total += float(produto[3])
+            if id < 0:
+                # Busca a personalização na lista
+                personalizacao = next((p for p in personalizacoes if p.get('id') == id), None)
+                if personalizacao:
+                    produtos_carrinho.append({
+                        'id': id,
+                        'nome': f"{personalizacao.get('produto_nome', 'Produto Personalizado')}",
+                        'descricao': f"Personalizado para {personalizacao.get('nome', '')}",
+                        'preco': personalizacao.get('preco', 89.90),
+                        'imagem': 'personalizado.png',
+                        'is_personalizado': True,
+                        'detalhes': personalizacao
+                    })
+                    total += personalizacao.get('preco', 89.90)
+            else:
+                cursor.execute("SELECT * FROM produtos WHERE id=%s", (id,))
+                produto = cursor.fetchone()
+                if produto:
+                    produtos_carrinho.append({
+                        'id': produto[0],
+                        'nome': produto[1],
+                        'descricao': produto[2],
+                        'preco': float(produto[3]),
+                        'imagem': produto[4],
+                        'is_personalizado': False
+                    })
+                    total += float(produto[3])
 
         cursor.close()
         conexao.close()
-
     # ===== CUPOM DE DESCONTO =====
     cupom = request.args.get('cupom') or request.form.get('cupom')
     remover = request.args.get('remover')
@@ -237,7 +275,7 @@ def carrinho():
     cupom_aplicado = None
 
     if remover == 'true':
-        mensagem_cupom = 'Cupom removido!'
+        mensagem_cupom = 'Cupom removido com sucesso!'
         cupom_aplicado = None
     
     elif cupom:
@@ -278,16 +316,64 @@ def carrinho():
     )
 
 
-@app.route('/adicionar_carrinho/<int:id>')
-def adicionar_carrinho(id):
+@app.route('/adicionar_personalizado', methods=['POST'])
+def adicionar_personalizado():
     if 'carrinho' not in session:
         session['carrinho'] = []
 
-    carrinho = session['carrinho']
-    carrinho.append(id)
-    session['carrinho'] = carrinho
+    if 'personalizacoes' not in session:
+        session['personalizacoes'] = []
 
-    return redirect('/produtos')
+    produto_base = request.form.get('produto_base')
+    nome = request.form.get('nome_rotulo')
+    pele = request.form.get('pele')
+    fragrancia = request.form.get('fragrancia')
+    objetivo = request.form.get('objetivo')
+    mensagem = request.form.get('mensagem')
+    cor = request.form.get('cor_embalagem', 'roxo')
+    cor_fonte = request.form.get('cor_fonte', 'branco')
+
+    nomes_produtos = {
+        'hidratante_corporal': 'Hidratante Corporal',
+        'serum_facial': 'Sérum Facial',
+        'creme_revitalizante': 'Creme Revitalizante',
+        'body_splash': 'Body Splash'
+    }
+    
+    precos_produtos = {
+        'hidratante_corporal': 89.90,
+        'serum_facial': 129.90,
+        'creme_revitalizante': 99.90,
+        'body_splash': 79.90
+    }
+
+    nome_produto = nomes_produtos.get(produto_base, 'Produto Personalizado')
+    preco_produto = precos_produtos.get(produto_base, 89.90)
+
+    import time
+    produto_id = int(time.time()) * -1
+
+    # Adiciona ao carrinho
+    session['carrinho'].append(produto_id)
+
+    # Adiciona a personalização na lista
+    personalizacao = {
+        'id': produto_id,
+        'nome': nome or 'Seu Nome',
+        'pele': pele,
+        'fragrancia': fragrancia,
+        'objetivo': objetivo,
+        'mensagem': mensagem,
+        'cor': cor,
+        'cor_fonte': cor_fonte,
+        'produto_nome': nome_produto,
+        'preco': preco_produto
+    }
+    
+    session['personalizacoes'].append(personalizacao)
+    session.modified = True
+
+    return redirect('/carrinho')
 
 
 @app.route('/remover_carrinho/<int:id>')
@@ -296,6 +382,23 @@ def remover_carrinho(id):
     if id in carrinho:
         carrinho.remove(id)
     session['carrinho'] = carrinho
+    return redirect('/carrinho')
+
+
+@app.route('/remover_personalizado/<int:id>')
+def remover_personalizado(id):
+    carrinho = session.get('carrinho', [])
+    personalizacoes = session.get('personalizacoes', [])
+    
+    # Remove do carrinho
+    if id in carrinho:
+        carrinho.remove(id)
+        session['carrinho'] = carrinho
+    
+    # Remove da lista de personalizações
+    session['personalizacoes'] = [p for p in personalizacoes if p.get('id') != id]
+    session.modified = True
+    
     return redirect('/carrinho')
 
 # ============================================
@@ -314,10 +417,15 @@ def finalizar_compra():
         cursor = conexao.cursor()
 
         for id in ids:
-            cursor.execute("SELECT * FROM produtos WHERE id=%s", (id,))
-            produto = cursor.fetchone()
-            if produto:
-                total += float(produto[3])
+            if id < 0:
+                personalizacao = session.get('personalizacao')
+                if personalizacao and personalizacao.get('id') == id:
+                    total += personalizacao.get('preco', 89.90)
+            else:
+                cursor.execute("SELECT * FROM produtos WHERE id=%s", (id,))
+                produto = cursor.fetchone()
+                if produto:
+                    total += float(produto[3])
 
         cursor.execute("""
             INSERT INTO pedidos (usuario, total)
@@ -329,11 +437,21 @@ def finalizar_compra():
         conexao.close()
 
     session['carrinho'] = []
+    session.pop('personalizacao', None)
     return redirect('/pedido_sucesso')
+
 
 @app.route('/pedido_sucesso')
 def pedido_sucesso():
     return render_template('pedido_sucesso.html')
+
+
+# ============================================
+# PERSONALIZAÇÃO
+# ============================================
+@app.route('/personalizacao')
+def personalizacao():
+    return render_template('personalizacao.html')
 
 # ============================================
 # PERFIL
@@ -368,6 +486,7 @@ def perfil():
         total_pedidos=total_pedidos,
         total_gasto=total_gasto
     )
+
 
 # ============================================
 # ADMIN
@@ -408,31 +527,24 @@ def admin():
 
         mensagem = 'Produto adicionado com sucesso!'
 
-    # ===== BUSCAR DADOS PARA O ADMIN =====
     conexao = conectar()
     cursor = conexao.cursor()
 
-    # 1. Produtos
     cursor.execute("SELECT * FROM produtos ORDER BY id DESC")
     produtos = cursor.fetchall()
 
-    # 2. Total de usuários
     cursor.execute("SELECT COUNT(*) FROM usuarios")
     total_usuarios = cursor.fetchone()[0]
 
-    # 3. Total de pedidos
     cursor.execute("SELECT COUNT(*) FROM pedidos")
     total_pedidos = cursor.fetchone()[0]
 
-    # 4. Total de avaliações
     cursor.execute("SELECT COUNT(*) FROM avaliacoes")
     total_avaliacoes = cursor.fetchone()[0]
 
-    # 5. Lista de usuários
     cursor.execute("SELECT id, nome, email, admin FROM usuarios ORDER BY id DESC")
     usuarios = cursor.fetchall()
 
-    # 6. Vendas dos últimos 7 dias
     try:
         cursor.execute("""
             SELECT 
@@ -448,7 +560,6 @@ def admin():
     except:
         vendas_semana = []
 
-    # 7. Distribuição de produtos por categoria
     try:
         cursor.execute("""
             SELECT categoria, COUNT(*) as total
@@ -480,6 +591,7 @@ def admin():
         distribuicao=distribuicao
     )
 
+
 # ============================================
 # DELETAR PRODUTO
 # ============================================
@@ -492,6 +604,7 @@ def deletar_produto(id):
     cursor.close()
     conexao.close()
     return redirect('/admin')
+
 
 # ============================================
 # EDITAR PRODUTO
@@ -511,14 +624,12 @@ def editar_produto(id):
         ingredientes = request.form.get('ingredientes')
         categoria = request.form.get('categoria')
 
-        # Verifica se uma nova imagem foi enviada
         imagem = request.files.get('imagem')
         
         if imagem and imagem.filename != '':
             nome_arquivo = secure_filename(imagem.filename)
             imagem.save(os.path.join(app.config['UPLOAD_FOLDER'], nome_arquivo))
         else:
-            # Mantém a imagem atual
             cursor.execute("SELECT imagem FROM produtos WHERE id = %s", (id,))
             resultado = cursor.fetchone()
             nome_arquivo = resultado[0] if resultado else None
@@ -542,6 +653,7 @@ def editar_produto(id):
     conexao.close()
 
     return render_template('editar_produto.html', produto=produto)
+
 
 # ============================================
 # AVALIAÇÕES
@@ -568,12 +680,14 @@ def avaliar(produto_id):
 
     return redirect(f'/produto/{produto_id}')
 
+
 # ============================================
 # SKINMATCH
 # ============================================
 @app.route('/skinmatch')
 def skinmatch():
     return render_template('skinmatch.html')
+
 
 # ============================================
 # SOBRE
@@ -582,12 +696,14 @@ def skinmatch():
 def sobre():
     return render_template('sobre.html')
 
+
 # ============================================
 # CONTATO
 # ============================================
 @app.route('/contato')
 def contato():
     return render_template('contato.html')
+
 
 # ============================================
 # PÁGINAS LEGAIS
@@ -596,9 +712,11 @@ def contato():
 def politica_privacidade():
     return render_template('politica_privacidade.html')
 
+
 @app.route('/termos_condicoes')
 def termos_condicoes():
     return render_template('termos_condicoes.html')
+
 
 # ============================================
 # INICIALIZAÇÃO

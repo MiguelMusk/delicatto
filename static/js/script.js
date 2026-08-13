@@ -92,56 +92,197 @@ function showResult() {
     if (skinFeel === "repuxando" && skinType === "seca") score += 10;
     if (sun === "alta") score += 3;
 
+    // ===== DEFINIÇÃO DOS RESULTADOS =====
     let title = "";
     let description = "";
     let routine = [];
+    let explicacao = "";
+    let produtos = [];
 
-    if (goal === "hidratação" && skinType === "seca") {
+    // CASE 1: Pele Seca + Hidratação
+    if (goal === "hidratacao" && skinType === "seca") {
         title = "Rotina Ultra Hidratação";
-        description = "Recupera profundamente a barreira da pele.";
+        description = "Recupera profundamente a barreira da pele, devolvendo maciez e viço.";
         routine = [
             "Gel de limpeza suave",
             "Sérum ácido hialurônico",
             "Creme reparador",
             "Protetor solar hidratante"
         ];
-    } else if (goal === "glow") {
+        explicacao = "Sua pele seca precisa de hidratação intensa e reparação da barreira cutânea. A falta de água e lipídios pode causar descamação e sensação de repuxamento. A rotina Ultra Hidratação foca em restaurar a umidade natural da pele, usando ingredientes como ácido hialurônico e manteigas vegetais.";
+        produtos = [
+            { nome: "Hidratante Corporal", preco: "R$ 89,90", link: "/produto/1" },
+            { nome: "Sérum Facial", preco: "R$ 129,90", link: "/produto/2" },
+            { nome: "Creme Revitalizante", preco: "R$ 99,90", link: "/produto/3" }
+        ];
+    }
+    // CASE 2: Glow
+    else if (goal === "glow") {
         title = "Rotina Glow Natural";
-        description = "Realça luminosidade com leveza.";
+        description = "Realça luminosidade com leveza, deixando sua pele radiante e uniforme.";
         routine = [
             "Gel iluminador",
             "Sérum vitamina C",
             "Hidratante glow",
             "Protetor solar iluminador"
         ];
-    } else {
-        title = "Rotina Equilibrada";
-        description = "Controle e equilíbrio para sua pele.";
+        explicacao = "Sua pele pede luminosidade e viço! A rotina Glow Natural combina ingredientes que estimulam o brilho natural da pele, como vitamina C e extratos iluminadores. Ideal para quem quer uma pele mais uniforme, com aspecto saudável e radiante.";
+        produtos = [
+            { nome: "Glow Skin Essence", preco: "R$ 94,90", link: "/produto/4" },
+            { nome: "Sérum Facial", preco: "R$ 129,90", link: "/produto/2" }
+        ];
+    }
+    // CASE 3: Controle de Oleosidade
+    else if (goal === "oleosidade" && skinType === "oleosa") {
+        title = "Rotina Equilíbrio e Controle";
+        description = "Controla a oleosidade sem agredir a pele, mantendo o equilíbrio natural.";
         routine = [
-            "Gel equilibrante",
+            "Gel de limpeza profunda",
+            "Tônico adstringente",
+            "Sérum matificante",
+            "Protetor solar oil-free"
+        ];
+        explicacao = "Sua pele oleosa precisa de controle sem ressecar! A rotina Equilíbrio e Controle regula a produção de sebo, reduz o brilho e previne o aparecimento de cravos e espinhas. Ingredientes como niacinamida e ácido salicílico são ótimos aliados.";
+        produtos = [
+            { nome: "Sérum Facial", preco: "R$ 129,90", link: "/produto/2" },
+            { nome: "Body Splash", preco: "R$ 79,90", link: "/produto/5" }
+        ];
+    }
+    // CASE 4: Anti-idade
+    else if (goal === "antiidade") {
+        title = "Rotina Anti-idade";
+        description = "Combate os sinais do envelhecimento com ativos poderosos e nutrição profunda.";
+        routine = [
+            "Gel de limpeza suave",
+            "Sérum retinol",
+            "Creme rejuvenescedor",
+            "Protetor solar com FPS 50"
+        ];
+        explicacao = "O envelhecimento é natural, mas podemos retardar seus sinais! A rotina Anti-idade combina ativos como retinol, vitamina C e antioxidantes para estimular a produção de colágeno, reduzir linhas finas e proteger contra radicais livres.";
+        produtos = [
+            { nome: "Creme Revitalizante", preco: "R$ 99,90", link: "/produto/3" },
+            { nome: "Sérum Facial", preco: "R$ 129,90", link: "/produto/2" }
+        ];
+    }
+    // CASE 5: Pele Mista
+    else if (skinType === "mista") {
+        title = "Rotina Equilibrada";
+        description = "Combina hidratação e controle para peles mistas, tratando cada área de forma específica.";
+        routine = [
+            "Gel de limpeza equilibrador",
             "Sérum multifuncional",
             "Hidratante leve",
             "Protetor solar diário"
         ];
+        explicacao = "Pele mista precisa de equilíbrio! A zona T (testa, nariz e queixo) tende a ser mais oleosa, enquanto as bochechas podem ser mais secas. A Rotina Equilibrada atua em cada área de forma personalizada, com ingredientes que hidratam onde é necessário e controlam a oleosidade onde há excesso.";
+        produtos = [
+            { nome: "Hidratante Corporal", preco: "R$ 89,90", link: "/produto/1" },
+            { nome: "Body Splash", preco: "R$ 79,90", link: "/produto/5" }
+        ];
+    }
+    // CASE 6: Padrão
+    else {
+        title = "Rotina Essencial";
+        description = "Cuidados básicos para manter sua pele saudável e protegida.";
+        routine = [
+            "Gel de limpeza suave",
+            "Sérum multifuncional",
+            "Hidratante leve",
+            "Protetor solar diário"
+        ];
+        explicacao = "Sua pele está equilibrada, mas precisa de cuidados consistentes para se manter saudável. A Rotina Essencial oferece os passos fundamentais de skincare: limpeza, tratamento, hidratação e proteção solar. Simples, eficaz e adaptável ao seu dia a dia.";
+        produtos = [
+            { nome: "Hidratante Corporal", preco: "R$ 89,90", link: "/produto/1" }
+        ];
     }
 
+    // ===== EXIBE O RESULTADO =====
     let compatibility = Math.min(score, 99);
 
     result.innerHTML = `
         <div class="skin-result-card">
-            <h2>${title}</h2>
-            <p class="skin-desc">${description}</p>
+            <div class="result-header">
+                <span class="result-badge">Sua rotina personalizada</span>
+                <h2>${title}</h2>
+                <p class="skin-desc">${description}</p>
+            </div>
+
+            <div class="result-explicacao">
+                <h4>Por que essa rotina?</h4>
+                <p>${explicacao}</p>
+            </div>
+
             <div class="routine">
+                <h4>Passos da rotina</h4>
                 ${routine.map((item, i) => `
-                    <div class="step">${i+1}. ${item}</div>
+                    <div class="step">
+                        <span class="step-number">${i+1}</span>
+                        <span class="step-text">${item}</span>
+                    </div>
                 `).join('')}
             </div>
-            <div class="compatibility-bar">
-                <div style="width:${compatibility}%"></div>
+
+            <div class="produtos-recomendados">
+                <h4>Produtos recomendados</h4>
+                <div class="produtos-grid">
+                    ${produtos.map(produto => `
+                        <div class="produto-item">
+                            <span class="produto-nome">${produto.nome}</span>
+                            <a href="${produto.link}" class="produto-btn">Ver Produto</a>
+                        </div>
+                    `).join('')}
+                </div>
             </div>
-            <p>${compatibility}% de compatibilidade</p>
+
+            <div class="compatibility-section">
+                <div class="compatibility-label">
+                    <span>Compatibilidade</span>
+                    <span>${compatibility}%</span>
+                </div>
+                <div class="compatibility-bar">
+                    <div style="width:${compatibility}%"></div>
+                </div>
+                <p class="compatibility-text">Essa rotina é altamente compatível com seu perfil de pele.</p>
+            </div>
+
+            <div class="result-actions">
+                <a href="/produtos" class="btn-primary">Ver todos os produtos</a>
+                <button class="btn-secondary" onclick="reiniciarSkinmatch()">Refazer o teste</button>
+            </div>
         </div>
     `;
+}
+
+// ===== FUNÇÃO PARA REINICIAR =====
+function reiniciarSkinmatch() {
+    // Limpa as variáveis
+    skinType = '';
+    sensitive = '';
+    goal = '';
+    acne = '';
+    skinFeel = '';
+    makeup = '';
+    sun = '';
+    currentStep = 0;
+
+    // Reseta o progresso
+    const progress = document.getElementById('progress');
+    if (progress) progress.style.width = '0%';
+
+    // Mostra o primeiro passo
+    const steps = document.querySelectorAll('.quiz-step');
+    steps.forEach((step, index) => {
+        step.classList.toggle('active', index === 0);
+    });
+
+    // Limpa o resultado
+    const result = document.getElementById('result');
+    if (result) result.innerHTML = '';
+
+    // Remove a classe active-option de todos os botões
+    document.querySelectorAll('.options button').forEach(btn => {
+        btn.classList.remove('active-option');
+    });
 }
 
 
@@ -547,7 +688,159 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+// ============================================
+// PERSONALIZAÇÃO - PREVIEW AO VIVO
+// ============================================
 
+document.addEventListener('DOMContentLoaded', function() {
+    // Elementos
+    const nomeInput = document.getElementById('nomeRotulo');
+    const mensagemInput = document.getElementById('mensagemRotulo');
+    const previewNome = document.getElementById('previewNome');
+    const previewProduto = document.getElementById('previewProduto');
+    const previewPele = document.getElementById('previewPele');
+    const previewFragrancia = document.getElementById('previewFragrancia');
+    const previewObjetivo = document.getElementById('previewObjetivo');
+    const previewMensagem = document.getElementById('previewMensagem');
+    const previewPreco = document.getElementById('previewPreco');
+    const previewProdutoContainer = document.getElementById('produtoPreview');
+    const previewRotulo = document.getElementById('previewRotulo');
+    const charCounter = document.getElementById('charCounter');
+    const msgCounter = document.getElementById('msgCounter');
+
+    // ===== CONTADOR DE CARACTERES =====
+    if (nomeInput && charCounter) {
+        nomeInput.addEventListener('input', function() {
+            const length = this.value.length;
+            charCounter.textContent = length + '/20';
+            charCounter.style.color = length > 18 ? '#dc3545' : '#8a7a9e';
+        });
+    }
+
+    if (mensagemInput && msgCounter) {
+        mensagemInput.addEventListener('input', function() {
+            const length = this.value.length;
+            msgCounter.textContent = length + '/100';
+            msgCounter.style.color = length > 90 ? '#dc3545' : '#8a7a9e';
+        });
+    }
+
+    // ===== NOME =====
+    if (nomeInput && previewNome) {
+        nomeInput.addEventListener('input', function() {
+            previewNome.textContent = this.value.trim() || 'Seu Nome';
+        });
+    }
+
+    // ===== MENSAGEM =====
+    if (mensagemInput && previewMensagem) {
+        mensagemInput.addEventListener('input', function() {
+            previewMensagem.textContent = this.value.trim() || '';
+        });
+    }
+
+    // ===== PRODUTO BASE =====
+    document.querySelectorAll('input[name="produto_base"]').forEach(function(radio) {
+        radio.addEventListener('change', function() {
+            if (this.checked) {
+                const nome = this.getAttribute('data-nome') || 'Produto';
+                const preco = this.getAttribute('data-preco') || '0.00';
+                previewProduto.textContent = nome.toUpperCase();
+                previewPreco.textContent = 'R$ ' + parseFloat(preco).toFixed(2).replace('.', ',');
+            }
+        });
+    });
+
+    // ===== TIPO DE PELE =====
+    const peleSelect = document.getElementById('selectPele');
+    if (peleSelect && previewPele) {
+        peleSelect.addEventListener('change', function() {
+            previewPele.textContent = this.options[this.selectedIndex].text;
+        });
+    }
+
+    // ===== FRAGRÂNCIA =====
+    const fragranciaSelect = document.getElementById('selectFragrancia');
+    if (fragranciaSelect && previewFragrancia) {
+        fragranciaSelect.addEventListener('change', function() {
+            previewFragrancia.textContent = this.options[this.selectedIndex].text;
+        });
+    }
+
+    // ===== OBJETIVO =====
+    const objetivoSelect = document.getElementById('selectObjetivo');
+    if (objetivoSelect && previewObjetivo) {
+        objetivoSelect.addEventListener('change', function() {
+            previewObjetivo.textContent = this.options[this.selectedIndex].text;
+        });
+    }
+
+    // ===== COR DA EMBALAGEM =====
+    document.querySelectorAll('input[name="cor_embalagem"]').forEach(function(radio) {
+        radio.addEventListener('change', function() {
+            if (this.checked) {
+                const cor = this.getAttribute('data-cor') || '#6d4eb0';
+                previewProdutoContainer.style.background = cor;
+            }
+        });
+    });
+
+    // ===== COR DA FONTE =====
+    document.querySelectorAll('input[name="cor_fonte"]').forEach(function(radio) {
+        radio.addEventListener('change', function() {
+            if (this.checked) {
+                const corTexto = this.getAttribute('data-texto') || '#ffffff';
+                
+                // Aplica a cor em todos os elementos do rótulo
+                previewRotulo.style.color = corTexto;
+                previewNome.style.color = corTexto;
+                previewProduto.style.color = corTexto;
+                previewPele.style.color = corTexto;
+                previewFragrancia.style.color = corTexto;
+                previewObjetivo.style.color = corTexto;
+                previewMensagem.style.color = corTexto;
+                
+                // Aplica nos divisores com opacidade
+                document.querySelectorAll('.preview-divider').forEach(function(el) {
+                    el.style.color = corTexto;
+                    el.style.opacity = '0.3';
+                });
+            }
+        });
+    });
+
+    // ===== INICIALIZAÇÃO =====
+    setTimeout(function() {
+        // Produto inicial
+        const checkedProduto = document.querySelector('input[name="produto_base"]:checked');
+        if (checkedProduto) {
+            const nome = checkedProduto.getAttribute('data-nome') || 'Produto';
+            const preco = checkedProduto.getAttribute('data-preco') || '0.00';
+            previewProduto.textContent = nome.toUpperCase();
+            previewPreco.textContent = 'R$ ' + parseFloat(preco).toFixed(2).replace('.', ',');
+        }
+        
+        // Cor da embalagem inicial
+        const corInicial = document.querySelector('input[name="cor_embalagem"]:checked');
+        if (corInicial) {
+            const cor = corInicial.getAttribute('data-cor') || '#6d4eb0';
+            previewProdutoContainer.style.background = cor;
+        }
+        
+        // Cor da fonte inicial
+        const fonteInicial = document.querySelector('input[name="cor_fonte"]:checked');
+        if (fonteInicial) {
+            const corTexto = fonteInicial.getAttribute('data-texto') || '#ffffff';
+            previewRotulo.style.color = corTexto;
+            previewNome.style.color = corTexto;
+            previewProduto.style.color = corTexto;
+            previewPele.style.color = corTexto;
+            previewFragrancia.style.color = corTexto;
+            previewObjetivo.style.color = corTexto;
+            previewMensagem.style.color = corTexto;
+        }
+    }, 100);
+});
 // ============================================
 // SCROLL REVEAL - ANIMAÇÃO AO ROLAR A PÁGINA
 // ============================================

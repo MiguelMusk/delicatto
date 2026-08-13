@@ -1,0 +1,225 @@
+{% extends 'base.html' %}
+
+{% block title %}Personalize seu Produto | Delicatto{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/personalizacao.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="personalizacao-section">
+    <div class="personalizacao-container">
+        <div class="personalizacao-header">
+            <span class="section-tag">EXCLUSIVO</span>
+            <h2>Crie seu produto <span class="gold-script">personalizado</span></h2>
+            <p>Escolha cada detalhe e tenha um produto feito especialmente para você</p>
+        </div>
+
+        <form method="POST" action="/adicionar_personalizado" id="formPersonalizacao">
+            <div class="personalizacao-grid">
+                <!-- PASSO 1 - PRODUTO BASE -->
+                <div class="personalizacao-step">
+                    <div class="step-number">1</div>
+                    <h3>Escolha o Produto</h3>
+                    <div class="produto-options">
+                        <label class="produto-option">
+                            <input type="radio" name="produto_base" value="hidratante_corporal" data-nome="Hidratante Corporal" data-preco="89.90" checked>
+                            <span class="produto-option-content">
+                                <i class="fa-solid fa-droplet"></i>
+                                <span class="produto-name">Hidratante Corporal</span>
+                                <span class="produto-price">R$ 89,90</span>
+                            </span>
+                        </label>
+                        <label class="produto-option">
+                            <input type="radio" name="produto_base" value="serum_facial" data-nome="Sérum Facial" data-preco="129.90">
+                            <span class="produto-option-content">
+                                <i class="fa-solid fa-flask"></i>
+                                <span class="produto-name">Sérum Facial</span>
+                                <span class="produto-price">R$ 129,90</span>
+                            </span>
+                        </label>
+                        <label class="produto-option">
+                            <input type="radio" name="produto_base" value="creme_revitalizante" data-nome="Creme Revitalizante" data-preco="99.90">
+                            <span class="produto-option-content">
+                                <i class="fa-solid fa-jar"></i>
+                                <span class="produto-name">Creme Revitalizante</span>
+                                <span class="produto-price">R$ 99,90</span>
+                            </span>
+                        </label>
+                        <label class="produto-option">
+                            <input type="radio" name="produto_base" value="body_splash" data-nome="Body Splash" data-preco="79.90">
+                            <span class="produto-option-content">
+                                <i class="fa-solid fa-spray-can"></i>
+                                <span class="produto-name">Body Splash</span>
+                                <span class="produto-price">R$ 79,90</span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- PASSO 2 - PERSONALIZAÇÃO -->
+                <div class="personalizacao-step">
+                    <div class="step-number">2</div>
+                    <h3>Personalize seu produto</h3>
+                    
+                    <div class="custom-group">
+                        <label>Tipo de Pele</label>
+                        <select name="pele" class="custom-select" id="selectPele">
+                            <option value="Pele Seca">Pele Seca</option>
+                            <option value="Pele Oleosa">Pele Oleosa</option>
+                            <option value="Pele Mista">Pele Mista</option>
+                            <option value="Pele Normal">Pele Normal</option>
+                            <option value="Pele Sensível">Pele Sensível</option>
+                        </select>
+                    </div>
+
+                    <div class="custom-group">
+                        <label>Fragrância</label>
+                        <select name="fragrancia" class="custom-select" id="selectFragrancia">
+                            <option value="Baunilha com Avelã">Baunilha com Avelã</option>
+                            <option value="Lavanda">Lavanda</option>
+                            <option value="Citrus">Citrus</option>
+                            <option value="Floral">Floral</option>
+                            <option value="Almíscar">Almíscar</option>
+                            <option value="Sem Fragrância">Sem Fragrância</option>
+                        </select>
+                    </div>
+
+                    <div class="custom-group">
+                        <label>Objetivo</label>
+                        <select name="objetivo" class="custom-select" id="selectObjetivo">
+                            <option value="Hidratação Profunda">Hidratação Profunda</option>
+                            <option value="Anti-idade">Anti-idade</option>
+                            <option value="Clareamento">Clareamento</option>
+                            <option value="Reparação">Reparação</option>
+                            <option value="Luminosidade">Luminosidade</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- PASSO 3 - EMBALAGEM -->
+                <div class="personalizacao-step">
+                    <div class="step-number">3</div>
+                    <h3>Escolha a embalagem</h3>
+                    
+                    <div class="custom-group">
+                        <label>Nome no rótulo</label>
+                        <input type="text" name="nome_rotulo" class="custom-input" placeholder="Digite seu nome" id="nomeRotulo" maxlength="20">
+                        <span class="char-counter" id="charCounter">0/20</span>
+                    </div>
+
+                    <div class="custom-group">
+                        <label>Mensagem (opcional)</label>
+                        <textarea name="mensagem" class="custom-textarea" placeholder="Uma mensagem especial..." id="mensagemRotulo" maxlength="100"></textarea>
+                        <span class="char-counter" id="msgCounter">0/100</span>
+                    </div>
+
+                    <div class="custom-group">
+                        <label>Cor da Embalagem</label>
+                        <div class="color-options">
+                            <label class="color-option">
+                                <input type="radio" name="cor_embalagem" value="roxo" data-cor="#6d4eb0" checked>
+                                <span class="color-swatch" style="background: #6d4eb0;"></span>
+                                <span class="color-name">Roxo</span>
+                            </label>
+                            <label class="color-option">
+                                <input type="radio" name="cor_embalagem" value="dourado" data-cor="#d4af37">
+                                <span class="color-swatch" style="background: #d4af37;"></span>
+                                <span class="color-name">Dourado</span>
+                            </label>
+                            <label class="color-option">
+                                <input type="radio" name="cor_embalagem" value="rosa" data-cor="#e8a0b4">
+                                <span class="color-swatch" style="background: #e8a0b4;"></span>
+                                <span class="color-name">Rosa</span>
+                            </label>
+                            <label class="color-option">
+                                <input type="radio" name="cor_embalagem" value="azul" data-cor="#6b8cae">
+                                <span class="color-swatch" style="background: #6b8cae;"></span>
+                                <span class="color-name">Azul</span>
+                            </label>
+                            <label class="color-option">
+                                <input type="radio" name="cor_embalagem" value="verde" data-cor="#7baa7b">
+                                <span class="color-swatch" style="background: #7baa7b;"></span>
+                                <span class="color-name">Verde</span>
+                            </label>
+                            <label class="color-option">
+                                <input type="radio" name="cor_embalagem" value="preto" data-cor="#2d2d2d">
+                                <span class="color-swatch" style="background: #2d2d2d;"></span>
+                                <span class="color-name">Preto</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- ✅ NOVO: COR DA FONTE -->
+                    <div class="custom-group">
+                        <label>Cor da Fonte</label>
+                        <div class="color-options">
+                            <label class="color-option">
+                                <input type="radio" name="cor_fonte" value="branco" data-texto="#ffffff" checked>
+                                <span class="color-swatch" style="background: #ffffff; border: 2px solid #ddd;"></span>
+                                <span class="color-name">Branco</span>
+                            </label>
+                            <label class="color-option">
+                                <input type="radio" name="cor_fonte" value="preto" data-texto="#2d1f42">
+                                <span class="color-swatch" style="background: #2d1f42;"></span>
+                                <span class="color-name">Preto</span>
+                            </label>
+                            <label class="color-option">
+                                <input type="radio" name="cor_fonte" value="dourado" data-texto="#d4af37">
+                                <span class="color-swatch" style="background: #d4af37;"></span>
+                                <span class="color-name">Dourado</span>
+                            </label>
+                            <label class="color-option">
+                                <input type="radio" name="cor_fonte" value="rosa" data-texto="#e8a0b4">
+                                <span class="color-swatch" style="background: #e8a0b4;"></span>
+                                <span class="color-name">Rosa</span>
+                            </label>
+                            <label class="color-option">
+                                <input type="radio" name="cor_fonte" value="roxo" data-texto="#6d4eb0">
+                                <span class="color-swatch" style="background: #6d4eb0;"></span>
+                                <span class="color-name">Roxo</span>
+                            </label>
+                            <label class="color-option">
+                                <input type="radio" name="cor_fonte" value="azul" data-texto="#6b8cae">
+                                <span class="color-swatch" style="background: #6b8cae;"></span>
+                                <span class="color-name">Azul</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PASSO 4 - PREVIEW -->
+                <div class="personalizacao-step preview-step">
+                    <div class="step-number">4</div>
+                    <h3>Seu produto exclusivo</h3>
+                    
+                    <div class="produto-preview" id="produtoPreview" style="background: #6d4eb0;">
+                        <div class="preview-rotulo" id="previewRotulo" style="color: #ffffff;">
+                            <div class="preview-marca" id="previewMarca">✦ DELICATTO</div>
+                            <div class="preview-nome" id="previewNome">Seu Nome</div>
+                            <div class="preview-produto" id="previewProduto">HIDRATANTE CORPORAL</div>
+                            <div class="preview-detalhes">
+                                <span id="previewPele">Pele Seca</span>
+                                <span class="preview-divider">•</span>
+                                <span id="previewFragrancia">Baunilha</span>
+                            </div>
+                            <div class="preview-objetivo" id="previewObjetivo">Hidratação Profunda</div>
+                            <div class="preview-mensagem" id="previewMensagem"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="preview-preco" id="previewPreco">R$ 89,90</div>
+
+                    <button type="submit" class="btn-add-custom">
+                        <i class="fa-solid fa-cart-plus"></i> Adicionar ao Carrinho
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/personalizacao.js') }}"></script>
+{% endblock %}

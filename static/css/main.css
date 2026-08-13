@@ -12,6 +12,7 @@
 @import url('components/buttons.css');
 @import url('components/cards.css');
 @import url('components/floating-cart.css');
+@import url('components/carrinho_float.css');
 
 /* PÁGINAS */
 @import url('pages/home.css');
@@ -26,4 +27,4 @@
 @import url('pages/sobre.css');
 @import url('pages/termos_politicas.css');
 @import url('pages/sucesso.css');
-@import url('components/carrinho_float.css');
+@import url('pages/personalizacao.css');

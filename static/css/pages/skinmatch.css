@@ -1,6 +1,8 @@
 /* ============================================
-   SKINMATCH
+   SKINMATCH - COMPLETO
 ============================================ */
+
+/* ===== HOME - SKINMATCH ===== */
 .skinmatch-home {
     padding: 120px 80px;
     display: flex;
@@ -89,7 +91,7 @@
     line-height: 1.6;
 }
 
-/* QUIZ */
+/* ===== QUIZ ===== */
 .skinmatch-page {
     min-height: 100vh;
     padding: 120px 80px;
@@ -250,59 +252,261 @@
     box-shadow: 0 10px 25px rgba(143, 107, 207, .25);
 }
 
+/* ============================================
+   RESULTADO
+============================================ */
 .skin-result-card {
     margin-top: 30px;
-    padding: 25px;
+    padding: 35px 30px;
     background: white;
-    border-radius: 20px;
-    box-shadow: 0 15px 40px rgba(0, 0, 0, .08);
+    border-radius: 24px;
+    box-shadow: 0 10px 40px rgba(143, 107, 207, 0.08);
+    animation: fadeIn 0.6s ease;
+}
+
+.result-header {
     text-align: center;
+    margin-bottom: 24px;
+}
+
+.result-badge {
+    display: inline-block;
+    padding: 4px 16px;
+    background: linear-gradient(135deg, #f5ebff, #ead6ff);
+    color: #6d4eb0;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 8px;
 }
 
 .skin-result-card h2 {
     font-family: 'Playfair Display', serif;
-    color: #3d3052;
-    margin-bottom: 10px;
+    color: #2d1f42;
+    font-size: 28px;
+    margin-bottom: 6px;
 }
 
 .skin-desc {
     color: #6f6878;
+    font-size: 15px;
     margin-bottom: 20px;
 }
 
-.routine {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+/* ===== EXPLICAÇÃO ===== */
+.result-explicacao {
+    background: #faf8ff;
+    border-radius: 12px;
+    padding: 16px 20px;
     margin-bottom: 20px;
+    border-left: 4px solid #8F6BCF;
+}
+
+.result-explicacao h4 {
+    font-size: 14px;
+    color: #6d4eb0;
+    margin-bottom: 6px;
+}
+
+.result-explicacao p {
+    color: #5a4a6e;
+    font-size: 14px;
+    line-height: 1.7;
+    margin: 0;
+}
+
+/* ===== ROTINA ===== */
+.routine {
+    background: #faf8ff;
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+}
+
+.routine h4 {
+    font-size: 14px;
+    color: #6d4eb0;
+    margin-bottom: 12px;
 }
 
 .step {
-    padding: 10px;
-    border-radius: 10px;
-    background: #f6f2ff;
-    color: #3d3052;
-    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(143, 107, 207, 0.04);
 }
 
-.compatibility {
-    font-weight: bold;
+.step:last-child {
+    border-bottom: none;
+}
+
+.step-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #8F6BCF;
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.step-text {
+    font-size: 14px;
+    color: #2d1f42;
+}
+
+/* ===== PRODUTOS RECOMENDADOS ===== */
+.produtos-recomendados {
+    margin-bottom: 20px;
+}
+
+.produtos-recomendados h4 {
+    font-size: 14px;
+    color: #6d4eb0;
+    margin-bottom: 12px;
+}
+
+.produtos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+}
+
+.produto-item {
+    background: #faf8ff;
+    border-radius: 12px;
+    padding: 14px 16px;
+    text-align: center;
+    border: 1px solid rgba(143, 107, 207, 0.04);
+    transition: all 0.3s ease;
+}
+
+.produto-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(143, 107, 207, 0.06);
+}
+
+.produto-nome {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #2d1f42;
+    margin-bottom: 2px;
+}
+
+.produto-preco {
+    display: block;
+    font-size: 15px;
+    font-weight: 700;
     color: #8F6BCF;
-    font-size: 1.1rem;
+    margin-bottom: 8px;
 }
 
-#result {
-    margin-top: 30px;
-    padding: 25px;
-    border-radius: 18px;
-    background: linear-gradient(135deg, #f8f1ff, #f2e7ff);
-    color: #5d4a79;
-    line-height: 1.8;
-    font-size: 17px;
-    box-shadow: 0 10px 25px rgba(143, 107, 207, .08);
+.produto-btn {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 50px;
+    background: linear-gradient(135deg, #8F6BCF, #6d4eb0);
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
 }
 
-/* Responsivo */
+.produto-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(143, 107, 207, 0.2);
+}
+
+/* ===== COMPATIBILIDADE ===== */
+.compatibility-section {
+    margin-bottom: 20px;
+}
+
+.compatibility-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    font-weight: 600;
+    color: #2d1f42;
+    margin-bottom: 6px;
+}
+
+.compatibility-bar {
+    width: 100%;
+    height: 8px;
+    background: #f0ebff;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.compatibility-bar div {
+    height: 100%;
+    background: linear-gradient(90deg, #8F6BCF, #b49cff);
+    border-radius: 10px;
+    transition: width 1s ease;
+}
+
+.compatibility-text {
+    font-size: 13px;
+    color: #6f6878;
+    margin-top: 6px;
+}
+
+/* ===== BOTÕES DO RESULTADO ===== */
+.result-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+}
+
+.result-actions .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 28px;
+    border: none;
+    border-radius: 50px;
+    background: linear-gradient(135deg, #8F6BCF, #6d4eb0);
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    flex: 1;
+}
+
+.result-actions .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(143, 107, 207, 0.2);
+}
+
+.result-actions .btn-secondary {
+    padding: 12px 28px;
+    border: 2px solid #e8e0f0;
+    border-radius: 50px;
+    background: transparent;
+    color: #6d4eb0;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex: 1;
+}
+
+.result-actions .btn-secondary:hover {
+    background: #f5ebff;
+    border-color: #8F6BCF;
+}
+
+/* ===== RESPONSIVO ===== */
 @media (max-width: 1100px) {
     .skinmatch-home {
         flex-direction: column;
@@ -320,6 +524,7 @@
     .skinmatch-home-text h2 {
         font-size: 42px;
     }
+
     .skinmatch-page {
         padding: 100px 25px;
     }
@@ -328,5 +533,56 @@
     }
     .quiz-box {
         padding: 30px 20px;
+    }
+
+    .produtos-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .result-actions {
+        flex-direction: column;
+    }
+
+    .skin-result-card {
+        padding: 20px 16px;
+    }
+
+    .skin-result-card h2 {
+        font-size: 22px;
+    }
+
+    .result-explicacao {
+        padding: 12px 16px;
+    }
+
+    .result-explicacao p {
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 480px) {
+    .skinmatch-header h1 {
+        font-size: 36px;
+    }
+    .skinmatch-home-text h2 {
+        font-size: 32px;
+    }
+    .skinmatch-home-text p {
+        font-size: 15px;
+    }
+    .quiz-box {
+        padding: 20px 16px;
+    }
+    .options button {
+        padding: 12px 18px;
+        font-size: 13px;
+    }
+    .skin-result-card h2 {
+        font-size: 20px;
+    }
+    .result-actions .btn-primary,
+    .result-actions .btn-secondary {
+        font-size: 13px;
+        padding: 10px 20px;
     }
 }

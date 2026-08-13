@@ -342,6 +342,38 @@
     opacity: 0.7;
 }
 
+/* ===== PRODUTO PERSONALIZADO ===== */
+.cart-card-personalizado {
+    border: 2px solid #8F6BCF;
+    background: linear-gradient(135deg, #faf8ff, #f5ebff);
+}
+
+.personalizacao-detalhes {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    font-size: 13px;
+    color: #6f6878;
+    margin: 6px 0 10px;
+}
+
+.personalizacao-detalhes span {
+    background: rgba(143, 107, 207, 0.06);
+    padding: 2px 12px;
+    border-radius: 50px;
+}
+
+.personalizacao-mensagem {
+    font-style: italic;
+    color: #6d4eb0;
+    font-size: 14px;
+    margin: 4px 0 10px;
+    padding: 6px 14px;
+    background: rgba(143, 107, 207, 0.04);
+    border-radius: 8px;
+    border-left: 3px solid #8F6BCF;
+}
+
 /* ============================================
    FORMAS DE PAGAMENTO
 ============================================ */

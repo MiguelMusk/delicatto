@@ -11,6 +11,7 @@
     <nav>
         <a href="/">Início</a>
         <a href="/produtos">Produtos</a>
+        <a href="/personalizacao">Personalize</a>
         <a href="/skinmatch">SkinMatch</a>
         <a href="/sobre">Sobre Nós</a>
         <a href="/contato">Contato</a>
@@ -58,10 +59,3 @@
         {% endif %}
     </div>
 </header>
-
-<a href="/carrinho" class="floating-cart">
-    <i class="fa-solid fa-bag-shopping"></i>
-    {% if total_carrinho > 0 %}
-        <span>{{ total_carrinho }}</span>
-    {% endif %}
-</a>

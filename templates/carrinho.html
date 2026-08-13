@@ -14,20 +14,44 @@
         <!-- LISTA DE PRODUTOS -->
         <div class="cart-items">
             {% for produto in produtos %}
-            <div class="cart-card">
-                <div class="cart-card-image">
-                    <img src="{{ url_for('static', filename='img/' + produto[4]) }}" alt="{{ produto[1] }}">
+            <div class="cart-card {% if produto.is_personalizado %}cart-card-personalizado{% endif %}">
+                <div class="cart-card-image" {% if produto.is_personalizado %}style="background: linear-gradient(135deg, #6d4eb0, #4a3570); display: flex; align-items: center; justify-content: center;"{% endif %}>
+                    {% if produto.is_personalizado %}
+                        <i class="fa-solid fa-star" style="font-size: 40px; color: rgba(255,255,255,0.3);"></i>
+                    {% else %}
+                        <img src="{{ url_for('static', filename='img/' + produto.imagem) }}" alt="{{ produto.nome }}">
+                    {% endif %}
                 </div>
                 <div class="cart-card-info">
-                    <h3>{{ produto[1] }}</h3>
-                    <p>{{ produto[2] }}</p>
-                    <div class="cart-card-price">
-                        <span class="price">R$ {{ "%.2f"|format(produto[3]) }}</span>
-                        <span class="installment">ou 3x de R$ {{ "%.2f"|format(produto[3]/3) }}</span>
+                    <h3>{{ produto.nome }}</h3>
+                    <p>{{ produto.descricao }}</p>
+                    
+                    {% if produto.is_personalizado and produto.detalhes %}
+                    <div class="personalizacao-detalhes">
+                        <span><strong>Pele:</strong> {{ produto.detalhes.pele }}</span>
+                        <span><strong>Fragrância:</strong> {{ produto.detalhes.fragrancia }}</span>
+                        <span><strong>Objetivo:</strong> {{ produto.detalhes.objetivo }}</span>
+                        <span><strong>Cor:</strong> {{ produto.detalhes.cor }}</span>
                     </div>
-                    <a href="/remover_carrinho/{{ produto[0] }}" class="btn-remove">
-                        <i class="fa-solid fa-trash-can"></i> Remover
-                    </a>
+                    {% if produto.detalhes.mensagem %}
+                        <p class="personalizacao-mensagem">"{{ produto.detalhes.mensagem }}"</p>
+                    {% endif %}
+                    {% endif %}
+                    
+                    <div class="cart-card-price">
+                        <span class="price">R$ {{ "%.2f"|format(produto.preco) }}</span>
+                        <span class="installment">ou 3x de R$ {{ "%.2f"|format(produto.preco/3) }}</span>
+                    </div>
+                    
+                    {% if produto.is_personalizado %}
+                        <a href="/remover_personalizado" class="btn-remove">
+                            <i class="fa-solid fa-trash-can"></i> Remover
+                        </a>
+                    {% else %}
+                        <a href="/remover_carrinho/{{ produto.id }}" class="btn-remove">
+                            <i class="fa-solid fa-trash-can"></i> Remover
+                        </a>
+                    {% endif %}
                 </div>
             </div>
             {% endfor %}
@@ -37,19 +61,17 @@
         <div class="cart-summary">
             <h3>Resumo do Pedido</h3>
 
-            <!-- Subtotal -->
             <div class="summary-row">
                 <span>Produtos ({{ produtos|length }})</span>
                 <span id="subtotalValor">R$ {{ "%.2f"|format(total) }}</span>
             </div>
 
-            <!-- Frete -->
             <div class="summary-row">
                 <span>Frete</span>
                 <span class="free-shipping">Grátis</span>
             </div>
 
-            <!-- ===== CUPOM DE DESCONTO ===== -->
+            <!-- ===== CUPOM ===== -->
             <div class="summary-coupon">
                 <div class="coupon-header">
                     <i class="fa-solid fa-ticket"></i>
@@ -77,7 +99,7 @@
                 </div>
             </div>
 
-            <!-- ===== DESCONTO APLICADO ===== -->
+            <!-- ===== DESCONTO ===== -->
             {% if desconto > 0 %}
             <div class="summary-discount">
                 <span>Desconto</span>
@@ -87,18 +109,17 @@
 
             <div class="summary-divider"></div>
 
-            <!-- Total -->
+            <!-- ===== TOTAL ===== -->
             <div class="summary-total">
                 <span>Total</span>
                 <span>R$ {{ "%.2f"|format(total_com_desconto if desconto > 0 else total) }}</span>
             </div>
 
-            <!-- ===== FORMAS DE PAGAMENTO ===== -->
+            <!-- ===== PAGAMENTO ===== -->
             <div class="summary-payment">
                 <span class="payment-label"><i class="fa-solid fa-credit-card"></i> Formas de pagamento</span>
                 
                 <div class="payment-options">
-                    <!-- PIX -->
                     <label class="payment-option">
                         <input type="radio" name="payment_method" value="pix" checked>
                         <span class="payment-option-content">
@@ -109,7 +130,6 @@
                         </span>
                     </label>
 
-                    <!-- Cartão de Crédito -->
                     <label class="payment-option">
                         <input type="radio" name="payment_method" value="cartao">
                         <span class="payment-option-content">
@@ -119,7 +139,6 @@
                         </span>
                     </label>
 
-                    <!-- Boleto -->
                     <label class="payment-option">
                         <input type="radio" name="payment_method" value="boleto">
                         <span class="payment-option-content">
@@ -131,7 +150,6 @@
                     </label>
                 </div>
 
-                <!-- Ícones dos bancos aceitos -->
                 <div class="payment-icons">
                     <span class="payment-icon" title="Visa">
                         <i class="fa-brands fa-cc-visa"></i>
@@ -156,7 +174,6 @@
                 </div>
             </div>
 
-            <!-- Botões -->
             <a href="/finalizar_compra" class="btn-checkout">
                 <i class="fa-solid fa-lock"></i> Finalizar Compra
             </a>
