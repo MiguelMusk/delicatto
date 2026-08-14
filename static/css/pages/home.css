@@ -760,16 +760,43 @@
 
 @media (max-width: 768px) {
     .hero {
-        padding: 30px 20px;
-        min-height: 70vh;
-        gap: 10px;
+        padding: 20px 16px;
+        min-height: auto;
+        gap: 5px;
         margin-top: 0;
         overflow: hidden !important;
         text-align: center;
     }
     
+    /* ✅ MODELO NO MOBILE - GRANDE */
     .hero-image-wrapper {
-        display: none !important;
+        display: flex !important;
+        max-width: 100%;
+        min-height: auto;
+        margin: 5px 0 0;
+        justify-content: center;
+        padding: 0;
+    }
+    
+    .hero-img {
+        max-width: 90%;
+        max-height: 55vh;
+        width: auto;
+        height: auto;
+        transform: scale(1);
+        margin: 0 auto;
+        animation: float 4s ease-in-out infinite;
+    }
+    
+    .hero-img:hover {
+        transform: scale(1.02);
+    }
+    
+    .hero-glow {
+        width: 90%;
+        height: 90%;
+        max-width: 400px;
+        max-height: 400px;
     }
     
     .hero-text {
@@ -778,166 +805,52 @@
     }
     
     .hero-text h1 {
-        font-size: 34px;
+        font-size: 30px;
     }
     
- 
     .hero-text h1 .gold-script {
-        font-size: 30px !important;
+        font-size: 28px !important;
     }
     
     .hero-text p {
         font-size: 14px;
-        margin-top: 10px;
+        margin-top: 8px;
     }
     
     .hero-buttons {
         flex-direction: column;
         align-items: center;
         width: 100%;
-        gap: 10px;
-        margin-top: 18px;
+        gap: 8px;
+        margin-top: 14px;
     }
     
     .hero-products-btn,
     .hero-secondary-btn {
         width: 100%;
         text-align: center;
-        padding: 13px 18px;
+        padding: 12px 16px;
         font-size: 13px;
     }
     
     .benefits {
         width: 96%;
-        padding: 20px 16px;
-        gap: 18px;
-        margin: -20px auto 40px;
-        border-radius: 20px;
+        padding: 18px 14px;
+        gap: 16px;
+        margin: -10px auto 30px;
+        border-radius: 18px;
     }
     
     .card {
         flex-direction: column;
         text-align: center;
-        gap: 10px;
+        gap: 8px;
     }
     
     .card-icon {
-        width: 46px;
-        height: 46px;
-        font-size: 16px;
-    }
-    
-    .card h3 {
+        width: 42px;
+        height: 42px;
         font-size: 14px;
-    }
-    
-    .card p {
-        font-size: 12px;
-    }
-    
-    .products {
-        padding: 30px 16px 50px;
-    }
-    
-    .title h2 {
-        font-size: 32px;
-    }
-    
-    .title-sub {
-        font-size: 13px;
-    }
-    
-    .products-grid {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-    
-    .product-image {
-        height: 220px;
-    }
-    
-    .product-info h3 {
-        font-size: 18px;
-    }
-    
-    .product-price span:first-child {
-        font-size: 22px;
-    }
-    
-    .btn-all {
-        padding: 12px 24px !important;
-        font-size: 14px !important;
-        width: 100%;
-    }
-    
-    .skinmatch-home {
-        padding: 30px 16px;
-    }
-    
-    .skinmatch-home-text h2 {
-        font-size: 32px;
-    }
-    
-    .skinmatch-home-text p {
-        font-size: 14px;
-    }
-    
-    .skinmatch-home-text a {
-        padding: 12px 24px;
-        font-size: 13px;
-        width: 100%;
-        text-align: center;
-    }
-    
-    .mini-card {
-        padding: 14px 16px;
-        flex-direction: column;
-        text-align: center;
-        gap: 10px;
-    }
-    
-    .mini-icon {
-        width: 44px;
-        height: 44px;
-        font-size: 16px;
-    }
-    
-    .mini-card h3 {
-        font-size: 15px;
-    }
-}
-
-@media (max-width: 480px) {
-    .hero {
-        padding: 16px 12px;
-    }
-    
-    .hero-text h1 {
-        font-size: 26px;
-    }
-    
-    /* 👇 DIMINUI AINDA MAIS NO CELULAR PEQUENO 👇 */
-    .hero-text h1 .gold-script {
-        font-size: 24px !important;
-    }
-    
-    .hero-text p {
-        font-size: 13px;
-    }
-    
-    .hero-products-btn,
-    .hero-secondary-btn {
-        font-size: 12px;
-        padding: 10px 14px;
-    }
-    
-    .hero-image-wrapper {
-        display: none !important;
-    }
-    
-    .benefits {
-        padding: 14px 12px;
-        gap: 12px;
     }
     
     .card h3 {
@@ -948,23 +861,147 @@
         font-size: 11px;
     }
     
-    .title h2 {
-        font-size: 24px;
+    .products {
+        padding: 30px 16px 50px;
     }
     
-    .product-info {
-        padding: 12px;
+    .title h2 {
+        font-size: 28px;
+    }
+    
+    .title-sub {
+        font-size: 12px;
+    }
+    
+    .products-grid {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+    
+    .product-image {
+        height: 200px;
+    }
+    
+    .product-info h3 {
+        font-size: 17px;
     }
     
     .product-price span:first-child {
         font-size: 20px;
     }
     
-    .product-image {
-        height: 180px;
+    .btn-all {
+        padding: 12px 20px !important;
+        font-size: 14px !important;
+        width: 100%;
+    }
+    
+    .skinmatch-home {
+        padding: 30px 16px;
     }
     
     .skinmatch-home-text h2 {
+        font-size: 28px;
+    }
+    
+    .skinmatch-home-text p {
+        font-size: 14px;
+    }
+    
+    .skinmatch-home-text a {
+        padding: 12px 20px;
+        font-size: 13px;
+        width: 100%;
+        text-align: center;
+    }
+    
+    .mini-card {
+        padding: 14px 16px;
+        flex-direction: column;
+        text-align: center;
+        gap: 8px;
+    }
+    
+    .mini-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 14px;
+    }
+    
+    .mini-card h3 {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero {
+        padding: 12px 10px;
+    }
+    
+    .hero-text h1 {
         font-size: 24px;
+    }
+    
+    .hero-text h1 .gold-script {
+        font-size: 22px !important;
+    }
+    
+    .hero-text p {
+        font-size: 12px;
+    }
+    
+    .hero-products-btn,
+    .hero-secondary-btn {
+        font-size: 11px;
+        padding: 10px 12px;
+    }
+    
+    /* ✅ MODELO NO MOBILE PEQUENO - MUITO GRANDE */
+    .hero-image-wrapper {
+        max-width: 100%;
+        margin: 0;
+    }
+    
+    .hero-img {
+        max-width: 95%;
+        max-height: 45vh;
+    }
+    
+    .hero-glow {
+        max-width: 300px;
+        max-height: 300px;
+    }
+    
+    .benefits {
+        padding: 12px 10px;
+        gap: 10px;
+    }
+    
+    .card h3 {
+        font-size: 12px;
+    }
+    
+    .card p {
+        font-size: 10px;
+    }
+    
+    .title h2 {
+        font-size: 22px;
+    }
+    
+    .product-info {
+        padding: 10px;
+    }
+    
+    .product-price span:first-child {
+        font-size: 18px;
+    }
+    
+    .product-image {
+        height: 160px;
+    }
+    
+    .skinmatch-home-text h2 {
+        font-size: 22px;
     }
 }

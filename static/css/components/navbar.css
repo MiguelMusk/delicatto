@@ -168,7 +168,7 @@
 
 .mobile-link {
     text-decoration: none;
-    color: #333;
+    color: #ffffff;
     font-weight: 500;
     padding: 10px 14px;
     border-radius: 10px;
@@ -190,7 +190,7 @@
 
 .cadastro-mobile {
     background: rgba(143, 107, 207, .06);
-    color: #6E4CC9;
+    color: #fdfdfd;
     font-weight: 600;
 }
 
@@ -199,8 +199,8 @@
 }
 
 .login-mobile {
-    background: #6E4CC9;
-    color: white;
+    background: rgba(143, 107, 207, .06);
+    color: #fdfdfd;
     font-weight: 600;
 }
 
