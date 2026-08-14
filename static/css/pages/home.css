@@ -768,14 +768,14 @@
         text-align: center;
     }
     
-    /* ✅ MODELO NO MOBILE - GRANDE */
-    .hero-image-wrapper {
-        display: flex !important;
-        max-width: 100%;
-        min-height: auto;
-        margin: 5px 0 0;
-        justify-content: center;
-        padding: 0;
+    /* ✅ REMOVE OS BRILHOS E ANIMAÇÃO NO MOBILE */
+    .hero-glow {
+        display: none !important;
+    }
+    
+    .hero::before,
+    .hero::after {
+        display: none !important;
     }
     
     .hero-img {
@@ -785,18 +785,20 @@
         height: auto;
         transform: scale(1);
         margin: 0 auto;
-        animation: float 4s ease-in-out infinite;
+        animation: none !important;  /* ✅ REMOVE A ANIMAÇÃO */
     }
     
     .hero-img:hover {
         transform: scale(1.02);
     }
     
-    .hero-glow {
-        width: 90%;
-        height: 90%;
-        max-width: 400px;
-        max-height: 400px;
+    .hero-image-wrapper {
+        display: flex !important;
+        max-width: 100%;
+        min-height: auto;
+        margin: 5px 0 0;
+        justify-content: center;
+        padding: 0;
     }
     
     .hero-text {
@@ -956,20 +958,25 @@
         padding: 10px 12px;
     }
     
-    /* ✅ MODELO NO MOBILE PEQUENO - MUITO GRANDE */
-    .hero-image-wrapper {
-        max-width: 100%;
-        margin: 0;
+    /* ✅ BRILHOS E ANIMAÇÃO CONTINUAM REMOVIDOS */
+    .hero-glow {
+        display: none !important;
+    }
+    
+    .hero::before,
+    .hero::after {
+        display: none !important;
     }
     
     .hero-img {
         max-width: 95%;
         max-height: 45vh;
+        animation: none !important;
     }
     
-    .hero-glow {
-        max-width: 300px;
-        max-height: 300px;
+    .hero-image-wrapper {
+        max-width: 100%;
+        margin: 0;
     }
     
     .benefits {
