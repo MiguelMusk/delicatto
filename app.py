@@ -235,7 +235,6 @@ def carrinho():
 
         for id in ids:
             if id < 0:
-                # Busca a personalização na lista
                 personalizacao = next((p for p in personalizacoes if p.get('id') == id), None)
                 if personalizacao:
                     produtos_carrinho.append({
@@ -264,6 +263,7 @@ def carrinho():
 
         cursor.close()
         conexao.close()
+
     # ===== CUPOM DE DESCONTO =====
     cupom = request.args.get('cupom') or request.form.get('cupom')
     remover = request.args.get('remover')
@@ -286,22 +286,22 @@ def carrinho():
             desconto = total * 0.10
             total_com_desconto = total - desconto
             cupom_valido = True
-            mensagem_cupom = f'Cupom {cupom} aplicado! 10% de desconto'
+            mensagem_cupom = f'✅ Cupom {cupom} aplicado! 10% de desconto'
             
         elif cupom == 'DELICATTO20':
             desconto = total * 0.20
             total_com_desconto = total - desconto
             cupom_valido = True
-            mensagem_cupom = f'Cupom {cupom} aplicado! 20% de desconto'
+            mensagem_cupom = f'✅ Cupom {cupom} aplicado! 20% de desconto'
             
         elif cupom == 'MIGUELLINDO':
             desconto = total * 1
             total_com_desconto = total - desconto
             cupom_valido = True
-            mensagem_cupom = f'😈 Cupom {cupom} aplicado! Esse é nosso segredinho >:)'
+            mensagem_cupom = f'🔥 Cupom {cupom} aplicado! Esse é nosso segredinho >:)'
             
         else:
-            mensagem_cupom = 'Cupom inválido'
+            mensagem_cupom = '❌ Cupom inválido'
             cupom_aplicado = None
 
     return render_template(
@@ -316,6 +316,36 @@ def carrinho():
     )
 
 
+# ============================================
+# ADICIONAR AO CARRINHO (PRODUTOS NORMAIS)
+# ============================================
+@app.route('/adicionar_carrinho/<int:id>')
+def adicionar_carrinho(id):
+    if 'carrinho' not in session:
+        session['carrinho'] = []
+
+    carrinho = session['carrinho']
+    carrinho.append(id)
+    session['carrinho'] = carrinho
+
+    return redirect('/produtos')
+
+
+# ============================================
+# REMOVER DO CARRINHO (PRODUTOS NORMAIS)
+# ============================================
+@app.route('/remover_carrinho/<int:id>')
+def remover_carrinho(id):
+    carrinho = session.get('carrinho', [])
+    if id in carrinho:
+        carrinho.remove(id)
+    session['carrinho'] = carrinho
+    return redirect('/carrinho')
+
+
+# ============================================
+# ADICIONAR PERSONALIZADO
+# ============================================
 @app.route('/adicionar_personalizado', methods=['POST'])
 def adicionar_personalizado():
     if 'carrinho' not in session:
@@ -353,10 +383,8 @@ def adicionar_personalizado():
     import time
     produto_id = int(time.time()) * -1
 
-    # Adiciona ao carrinho
     session['carrinho'].append(produto_id)
 
-    # Adiciona a personalização na lista
     personalizacao = {
         'id': produto_id,
         'nome': nome or 'Seu Nome',
@@ -376,30 +404,23 @@ def adicionar_personalizado():
     return redirect('/carrinho')
 
 
-@app.route('/remover_carrinho/<int:id>')
-def remover_carrinho(id):
-    carrinho = session.get('carrinho', [])
-    if id in carrinho:
-        carrinho.remove(id)
-    session['carrinho'] = carrinho
-    return redirect('/carrinho')
-
-
+# ============================================
+# REMOVER PERSONALIZADO
+# ============================================
 @app.route('/remover_personalizado/<int:id>')
 def remover_personalizado(id):
     carrinho = session.get('carrinho', [])
     personalizacoes = session.get('personalizacoes', [])
     
-    # Remove do carrinho
     if id in carrinho:
         carrinho.remove(id)
         session['carrinho'] = carrinho
     
-    # Remove da lista de personalizações
     session['personalizacoes'] = [p for p in personalizacoes if p.get('id') != id]
     session.modified = True
     
     return redirect('/carrinho')
+
 
 # ============================================
 # FINALIZAR COMPRA
@@ -410,6 +431,7 @@ def finalizar_compra():
         return redirect('/login')
 
     ids = session.get('carrinho', [])
+    personalizacoes = session.get('personalizacoes', [])
     total = 0
 
     if ids:
@@ -418,8 +440,8 @@ def finalizar_compra():
 
         for id in ids:
             if id < 0:
-                personalizacao = session.get('personalizacao')
-                if personalizacao and personalizacao.get('id') == id:
+                personalizacao = next((p for p in personalizacoes if p.get('id') == id), None)
+                if personalizacao:
                     total += personalizacao.get('preco', 89.90)
             else:
                 cursor.execute("SELECT * FROM produtos WHERE id=%s", (id,))
@@ -437,7 +459,7 @@ def finalizar_compra():
         conexao.close()
 
     session['carrinho'] = []
-    session.pop('personalizacao', None)
+    session.pop('personalizacoes', None)
     return redirect('/pedido_sucesso')
 
 
@@ -452,6 +474,7 @@ def pedido_sucesso():
 @app.route('/personalizacao')
 def personalizacao():
     return render_template('personalizacao.html')
+
 
 # ============================================
 # PERFIL
