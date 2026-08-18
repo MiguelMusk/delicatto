@@ -68,7 +68,7 @@
 
     <div class="products-grid">
         {% for produto in produtos_destaque %}
-        <div class="product-card reveal" style="transition-delay: {{ loop.index0 * 0.1 }}s;">
+        <div class="product-card reveal" style="transition-delay: {{ loop.index0 * 0.1 }}s;>
             <div class="product-badge">Destaque</div>
             <div class="product-image">
                 <img src="{{ url_for('static', filename='img/' + produto[4]) }}" alt="{{ produto[1] }}">

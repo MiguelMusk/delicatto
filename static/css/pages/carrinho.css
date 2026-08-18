@@ -336,12 +336,6 @@
     box-shadow: 0 4px 20px rgba(220, 53, 70, 0.342);
 }
 
-/* ===== INPUT DESABILITADO ===== */
-.coupon-input:disabled {
-    background: #f5f0ff;
-    opacity: 0.7;
-}
-
 /* ===== PRODUTO PERSONALIZADO ===== */
 .cart-card-personalizado {
     border: 2px solid #8F6BCF;
@@ -613,7 +607,7 @@
 }
 
 /* ============================================
-   RESPONSIVO
+   RESPONSIVO - CORRIGIDO
 ============================================ */
 @media (max-width: 992px) {
     .cart-grid {
@@ -636,83 +630,29 @@
 
 @media (max-width: 768px) {
     .cart-page {
-        padding: 0 20px;
-        margin: 20px auto 60px;
+        padding: 0 16px;
+        margin: 20px auto 40px;
     }
 
     .cart-header h1 {
-        font-size: 32px;
+        font-size: 28px;
+    }
+
+    .cart-header .cart-subtitle {
+        font-size: 14px;
+    }
+
+    .cart-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
     }
 
     .cart-card {
         flex-direction: column;
         text-align: center;
-        gap: 16px;
-        padding: 20px;
-    }
-
-    .cart-card-image {
-        width: 140px;
-        height: 140px;
-    }
-
-    .cart-card-info h3 {
-        font-size: 16px;
-    }
-
-    .cart-card-price .price {
-        font-size: 20px;
-    }
-
-    .btn-remove {
-        justify-content: center;
-    }
-
-    .cart-summary {
-        padding: 24px 20px;
-    }
-
-    .summary-total {
-        font-size: 18px;
-    }
-
-    .btn-checkout {
-        font-size: 15px;
-        padding: 14px;
-    }
-
-    .cart-empty h2 {
-        font-size: 26px;
-    }
-
-    .payment-option-content {
-        padding: 10px 12px;
-        flex-wrap: wrap;
-    }
-
-    .payment-option-name {
-        flex: 1;
-        min-width: 80px;
-    }
-
-    .payment-option-badge,
-    .payment-option-discount {
-        font-size: 10px;
-        padding: 2px 8px;
-    }
-
-    .payment-icons {
-        justify-content: center;
-    }
-}
-
-@media (max-width: 480px) {
-    .cart-header h1 {
-        font-size: 26px;
-    }
-
-    .cart-card {
+        gap: 14px;
         padding: 16px;
+        border-radius: 16px;
     }
 
     .cart-card-image {
@@ -720,36 +660,253 @@
         height: 120px;
     }
 
+    .cart-card-image img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+
+    .cart-card-info h3 {
+        font-size: 16px;
+    }
+
+    .cart-card-info p {
+        font-size: 13px;
+    }
+
     .cart-card-price .price {
-        font-size: 18px;
+        font-size: 20px;
+    }
+
+    .cart-card-price .installment {
+        font-size: 12px;
+    }
+
+    .btn-remove {
+        font-size: 12px;
+        padding: 5px 10px;
+        justify-content: center;
     }
 
     .cart-summary {
         padding: 20px 16px;
+        border-radius: 16px;
+        position: static;
+        max-width: 100%;
+        margin: 0 auto;
+        width: 100%;
     }
 
-    .empty-icon {
-        width: 90px;
-        height: 90px;
-        font-size: 36px;
+    .cart-summary h3 {
+        font-size: 18px;
     }
 
-    .cart-empty h2 {
-        font-size: 22px;
+    .summary-row {
+        font-size: 14px;
+        padding: 6px 0;
     }
 
-    .payment-option-content {
-        padding: 8px 10px;
+    .summary-total {
+        font-size: 18px;
+        padding: 10px 0;
+        flex-wrap: wrap;
+    }
+
+    .summary-total span:last-child {
+        font-size: 20px;
+    }
+
+    .summary-coupon {
+        padding: 12px 14px;
+        margin: 10px 0 6px;
+    }
+
+    .coupon-header {
+        font-size: 12px;
+    }
+
+    .coupon-input-group {
+        flex-direction: column;
         gap: 8px;
     }
 
-    .payment-option-name {
+    .coupon-input {
+        width: 100%;
+        padding: 10px 14px;
         font-size: 13px;
+    }
+
+    .coupon-btn,
+    .coupon-btn-remove {
+        width: 100%;
+        padding: 10px;
+        font-size: 13px;
+    }
+
+    .coupon-message {
+        font-size: 12px;
+    }
+
+    .coupon-hint {
+        font-size: 11px;
+        padding: 6px 10px;
+    }
+
+    .summary-payment {
+        padding: 12px 14px;
+        margin: 10px 0 14px;
+    }
+
+    .payment-label {
+        font-size: 12px;
+    }
+
+    .payment-options {
+        gap: 6px;
+    }
+
+    .payment-option-content {
+        padding: 8px 12px;
+        gap: 10px;
+        flex-wrap: wrap;
     }
 
     .payment-option-content i {
         font-size: 16px;
         width: 20px;
+    }
+
+    .payment-option-name {
+        font-size: 13px;
+        min-width: 60px;
+    }
+
+    .payment-option-badge,
+    .payment-option-discount {
+        font-size: 10px;
+        padding: 1px 8px;
+    }
+
+    .payment-icons {
+        gap: 6px;
+        padding-top: 10px;
+        justify-content: center;
+    }
+
+    .payment-icon {
+        font-size: 12px;
+        padding: 3px 10px;
+    }
+
+    .payment-installment {
+        font-size: 12px;
+        padding: 6px 10px;
+    }
+
+    .btn-checkout {
+        font-size: 15px;
+        padding: 14px;
+        border-radius: 12px;
+    }
+
+    .btn-continue {
+        font-size: 14px;
+        padding: 12px;
+        margin-top: 10px;
+    }
+
+    .cart-empty {
+        padding: 50px 20px;
+    }
+
+    .empty-icon {
+        width: 80px;
+        height: 80px;
+        font-size: 32px;
+        margin-bottom: 20px;
+    }
+
+    .cart-empty h2 {
+        font-size: 24px;
+    }
+
+    .cart-empty p {
+        font-size: 14px;
+    }
+
+    .cart-empty .btn-continue {
+        max-width: 100%;
+        padding: 12px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .cart-page {
+        padding: 0 12px;
+        margin: 10px auto 30px;
+    }
+
+    .cart-header h1 {
+        font-size: 22px;
+    }
+
+    .cart-header .cart-subtitle {
+        font-size: 12px;
+    }
+
+    .cart-card {
+        padding: 12px;
+        gap: 10px;
+        border-radius: 12px;
+    }
+
+    .cart-card-image {
+        width: 100px;
+        height: 100px;
+    }
+
+    .cart-card-info h3 {
+        font-size: 14px;
+    }
+
+    .cart-card-info p {
+        font-size: 12px;
+    }
+
+    .cart-card-price .price {
+        font-size: 18px;
+    }
+
+    .cart-card-price .installment {
+        font-size: 11px;
+    }
+
+    .btn-remove {
+        font-size: 11px;
+        padding: 4px 8px;
+    }
+
+    .cart-summary {
+        padding: 16px 12px;
+    }
+
+    .cart-summary h3 {
+        font-size: 16px;
+    }
+
+    .summary-row {
+        font-size: 13px;
+        padding: 4px 0;
+    }
+
+    .summary-total {
+        font-size: 16px;
+        padding: 8px 0;
+    }
+
+    .summary-total span:last-child {
+        font-size: 18px;
     }
 
     .btn-checkout {
@@ -758,7 +915,17 @@
     }
 
     .btn-continue {
-        font-size: 14px;
-        padding: 12px;
+        font-size: 13px;
+        padding: 10px;
+    }
+
+    .cart-empty h2 {
+        font-size: 20px;
+    }
+
+    .empty-icon {
+        width: 70px;
+        height: 70px;
+        font-size: 28px;
     }
 }

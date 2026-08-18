@@ -18,17 +18,32 @@
         <div class="popup-body">
             {% if total_carrinho > 0 %}
                 <div class="popup-items">
-                    {% for id in session.get('carrinho', [])[:4] %}
-                        {% set produto = produtos_carrinho_resumo|selectattr('id', 'equalto', id)|first %}
-                        {% if produto %}
-                        <div class="popup-item">
+                    {% for produto in produtos_carrinho_resumo[:4] %}
+                        <div class="popup-item {% if produto.is_personalizado %}popup-item-personalizado{% endif %}">
                             <div class="popup-item-info">
-                                <span class="popup-item-name">{{ produto.nome }}</span>
+                                <span class="popup-item-name">
+                                    {% if produto.is_personalizado %}
+                                         {{ produto.nome }}
+                                    {% else %}
+                                        {{ produto.nome }}
+                                    {% endif %}
+                                </span>
                                 <span class="popup-item-price">R$ {{ "%.2f"|format(produto.preco) }}</span>
-                                <span class="popup-item-qty">Qtd: 1</span>
+                                {% if produto.is_personalizado %}
+                                    <span class="popup-item-badge">Personalizado</span>
+                                {% endif %}
                             </div>
+                            <!-- ✅ BOTÃO REMOVER CORRETO -->
+                            {% if produto.is_personalizado %}
+                                <a href="/remover_perso/{{ produto.id|string }}" class="popup-item-remove" onclick="event.stopPropagation();">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </a>
+                            {% else %}
+                                <a href="/remover_carrinho/{{ produto.id }}" class="popup-item-remove" onclick="event.stopPropagation();">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </a>
+                            {% endif %}
                         </div>
-                        {% endif %}
                     {% endfor %}
                     {% if total_carrinho > 4 %}
                         <div class="popup-more">+ {{ total_carrinho - 4 }} outro(s) produto(s)</div>

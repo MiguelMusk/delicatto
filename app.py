@@ -46,7 +46,7 @@ def inject_usuario():
                 if personalizacao:
                     produtos_carrinho.append({
                         'id': id,
-                        'nome': f"{personalizacao.get('produto_nome', 'Produto Personalizado')}",
+                        'nome': f" {personalizacao.get('produto_nome', 'Produto Personalizado')}",
                         'preco': personalizacao.get('preco', 89.90),
                         'imagem': 'personalizado.png',
                         'is_personalizado': True,
@@ -239,7 +239,7 @@ def carrinho():
                 if personalizacao:
                     produtos_carrinho.append({
                         'id': id,
-                        'nome': f"{personalizacao.get('produto_nome', 'Produto Personalizado')}",
+                        'nome': f" {personalizacao.get('produto_nome', 'Produto Personalizado')}",
                         'descricao': f"Personalizado para {personalizacao.get('nome', '')}",
                         'preco': personalizacao.get('preco', 89.90),
                         'imagem': 'personalizado.png',
@@ -315,7 +315,6 @@ def carrinho():
         cupom_aplicado=cupom_aplicado
     )
 
-
 # ============================================
 # ADICIONAR AO CARRINHO (PRODUTOS NORMAIS)
 # ============================================
@@ -330,7 +329,6 @@ def adicionar_carrinho(id):
 
     return redirect('/produtos')
 
-
 # ============================================
 # REMOVER DO CARRINHO (PRODUTOS NORMAIS)
 # ============================================
@@ -341,7 +339,6 @@ def remover_carrinho(id):
         carrinho.remove(id)
     session['carrinho'] = carrinho
     return redirect('/carrinho')
-
 
 # ============================================
 # ADICIONAR PERSONALIZADO
@@ -403,25 +400,41 @@ def adicionar_personalizado():
 
     return redirect('/carrinho')
 
-
 # ============================================
-# REMOVER PERSONALIZADO
+# REMOVER PERSONALIZADO - ROTA CORRIGIDA
 # ============================================
-@app.route('/remover_personalizado/<int:id>')
-def remover_personalizado(id):
+@app.route('/remover_perso/<id>')
+def remover_perso(id):
+    print(f"🔴 REMOVENDO PERSONALIZADO - ID: {id}")
+    
     carrinho = session.get('carrinho', [])
     personalizacoes = session.get('personalizacoes', [])
     
-    if id in carrinho:
-        carrinho.remove(id)
-        session['carrinho'] = carrinho
+    print(f"📦 Carrinho antes: {carrinho}")
+    print(f"📋 Personalizações antes: {personalizacoes}")
     
-    session['personalizacoes'] = [p for p in personalizacoes if p.get('id') != id]
+    # Converte para int
+    try:
+        id_int = int(id)
+    except:
+        id_int = id
+    
+    # Remove do carrinho
+    if id_int in carrinho:
+        carrinho.remove(id_int)
+        session['carrinho'] = carrinho
+        print(f"✅ ID {id_int} removido do carrinho")
+    else:
+        print(f"⚠️ ID {id_int} NÃO encontrado no carrinho")
+    
+    # Remove da lista de personalizações
+    session['personalizacoes'] = [p for p in personalizacoes if str(p.get('id')) != str(id)]
     session.modified = True
     
+    print(f"📦 Carrinho depois: {session.get('carrinho', [])}")
+    print(f"📋 Personalizações depois: {session.get('personalizacoes', [])}")
+    
     return redirect('/carrinho')
-
-
 # ============================================
 # FINALIZAR COMPRA
 # ============================================
@@ -462,11 +475,12 @@ def finalizar_compra():
     session.pop('personalizacoes', None)
     return redirect('/pedido_sucesso')
 
-
+# ============================================
+# PEDIDO SUCESSO
+# ============================================
 @app.route('/pedido_sucesso')
 def pedido_sucesso():
     return render_template('pedido_sucesso.html')
-
 
 # ============================================
 # PERSONALIZAÇÃO
@@ -474,7 +488,6 @@ def pedido_sucesso():
 @app.route('/personalizacao')
 def personalizacao():
     return render_template('personalizacao.html')
-
 
 # ============================================
 # PERFIL
@@ -509,7 +522,6 @@ def perfil():
         total_pedidos=total_pedidos,
         total_gasto=total_gasto
     )
-
 
 # ============================================
 # ADMIN
@@ -614,7 +626,6 @@ def admin():
         distribuicao=distribuicao
     )
 
-
 # ============================================
 # DELETAR PRODUTO
 # ============================================
@@ -627,7 +638,6 @@ def deletar_produto(id):
     cursor.close()
     conexao.close()
     return redirect('/admin')
-
 
 # ============================================
 # EDITAR PRODUTO
@@ -677,7 +687,6 @@ def editar_produto(id):
 
     return render_template('editar_produto.html', produto=produto)
 
-
 # ============================================
 # AVALIAÇÕES
 # ============================================
@@ -703,14 +712,12 @@ def avaliar(produto_id):
 
     return redirect(f'/produto/{produto_id}')
 
-
 # ============================================
 # SKINMATCH
 # ============================================
 @app.route('/skinmatch')
 def skinmatch():
     return render_template('skinmatch.html')
-
 
 # ============================================
 # SOBRE
@@ -719,14 +726,12 @@ def skinmatch():
 def sobre():
     return render_template('sobre.html')
 
-
 # ============================================
 # CONTATO
 # ============================================
 @app.route('/contato')
 def contato():
     return render_template('contato.html')
-
 
 # ============================================
 # PÁGINAS LEGAIS
@@ -735,11 +740,9 @@ def contato():
 def politica_privacidade():
     return render_template('politica_privacidade.html')
 
-
 @app.route('/termos_condicoes')
 def termos_condicoes():
     return render_template('termos_condicoes.html')
-
 
 # ============================================
 # INICIALIZAÇÃO

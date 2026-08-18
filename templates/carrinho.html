@@ -32,6 +32,7 @@
                         <span><strong>Fragrância:</strong> {{ produto.detalhes.fragrancia }}</span>
                         <span><strong>Objetivo:</strong> {{ produto.detalhes.objetivo }}</span>
                         <span><strong>Cor:</strong> {{ produto.detalhes.cor }}</span>
+                        <span><strong>Cor da Fonte:</strong> {{ produto.detalhes.cor_fonte }}</span>
                     </div>
                     {% if produto.detalhes.mensagem %}
                         <p class="personalizacao-mensagem">"{{ produto.detalhes.mensagem }}"</p>
@@ -43,8 +44,9 @@
                         <span class="installment">ou 3x de R$ {{ "%.2f"|format(produto.preco/3) }}</span>
                     </div>
                     
+                    <!-- ✅ BOTÃO REMOVER CORRETO -->
                     {% if produto.is_personalizado %}
-                        <a href="/remover_personalizado" class="btn-remove">
+                        <a href="/remover_perso/{{ produto.id|string }}" class="btn-remove">
                             <i class="fa-solid fa-trash-can"></i> Remover
                         </a>
                     {% else %}
