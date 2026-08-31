@@ -285,6 +285,33 @@ function reiniciarSkinmatch() {
     });
 }
 
+// ============================================
+// TELA DE CARREGAMENTO
+// ============================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    const loadingScreen = document.getElementById('loading-screen');
+
+    if (loadingScreen) {
+        setTimeout(function() {
+            loadingScreen.classList.add('hidden');
+        }, 800);
+    }
+
+    // Mostra loading ao clicar em links internos
+    const links = document.querySelectorAll('a:not([target="_blank"]):not([href^="#"]):not([href^="http"])');
+    links.forEach(function(link) {
+        link.addEventListener('click', function() {
+            const href = this.getAttribute('href');
+            if (href && href !== '' && href !== '#' && !href.startsWith('http')) {
+                loadingScreen.classList.remove('hidden');
+            }
+        });
+    });
+});
+
+
+
 
 // MENU HABURGUER MOBLIE
 document.addEventListener('DOMContentLoaded', function() {

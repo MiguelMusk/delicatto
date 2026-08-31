@@ -13,6 +13,7 @@
 @import url('components/cards.css');
 @import url('components/floating-cart.css');
 @import url('components/carrinho_float.css');
+@import url('components/loading.css');
 
 /* PÁGINAS */
 @import url('pages/home.css');

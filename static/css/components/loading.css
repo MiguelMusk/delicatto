@@ -1,0 +1,85 @@
+/* ============================================
+   TELA DE CARREGAMENTO
+============================================ */
+
+#loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #faf8ff 0%, #f0ebff 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+
+#loading-screen.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.loader-container {
+    text-align: center;
+    animation: fadeInUp 0.8s ease;
+}
+
+.loader-logo {
+    width: 320px;
+    height: 320px;
+    margin: 0 auto 30px;
+    animation: pulseLogo 1.5s ease-in-out infinite;
+}
+
+.loader-logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.loader-spinner {
+    width: 50px;
+    height: 50px;
+    margin: 0 auto 20px;
+    border: 3px solid rgba(143, 107, 207, 0.1);
+    border-top-color: #8F6BCF;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+.loader-text {
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: #6d4eb0;
+    letter-spacing: 2px;
+    animation: pulseText 1.5s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes pulseLogo {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@keyframes pulseText {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

@@ -7,7 +7,12 @@
     <title>{% block title %}Delicatto{% endblock %}</title>
     <!-- FONTES -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;500;600&family=Great+Vibes&display=swap" rel="stylesheet">
-    
+    <!-- FAVICON -->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='img/favicon/favicon.ico') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='img/favicon/favicon-16x16.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='img/favicon/favicon-32x32.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='img/favicon/apple-touch-icon.png') }}">
+    <link rel="manifest" href="{{ url_for('static', filename='img/favicon/site.webmanifest') }}">
     <!-- FONT AWESOME -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
@@ -27,8 +32,18 @@
     {% block content %}{% endblock %}
     
     {% include 'components/footer.html' %}
-    
+    <!-- ===== TELA DE CARREGAMENTO ===== -->
+        <div id="loading-screen">
+            <div class="loader-container">
+                <div class="loader-logo">
+                    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Delicatto">
+                </div>
+                <div class="loader-spinner"></div>
+                <p class="loader-text">Carregando...</p>
+            </div>
+        </div> 
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
     {% block extra_js %}{% endblock %}
+
 </body>
 </html>
