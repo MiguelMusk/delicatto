@@ -286,30 +286,59 @@ function reiniciarSkinmatch() {
 }
 
 // ============================================
-// TELA DE CARREGAMENTO
+// TELA DE CARREGAMENTO - CORRIGIDA
 // ============================================
 
 document.addEventListener('DOMContentLoaded', function() {
     const loadingScreen = document.getElementById('loading-screen');
 
+    // Esconde a tela de carregamento quando a página carregar
     if (loadingScreen) {
         setTimeout(function() {
             loadingScreen.classList.add('hidden');
-        }, 800);
+        }, 500);
     }
 
-    // Mostra loading ao clicar em links internos
+    // Mostra loading APENAS para links internos que não são o carrinho flutuante
     const links = document.querySelectorAll('a:not([target="_blank"]):not([href^="#"]):not([href^="http"])');
     links.forEach(function(link) {
-        link.addEventListener('click', function() {
+        link.addEventListener('click', function(e) {
             const href = this.getAttribute('href');
-            if (href && href !== '' && href !== '#' && !href.startsWith('http')) {
+            
+            // ✅ IGNORA ADICIONAR AO CARRINHO (AJAX)
+            if (href && href.includes('/adicionar_carrinho/')) {
+                return; // Não mostra loading
+            }
+            
+            // ✅ IGNORA API (AJAX)
+            if (href && href.includes('/api/')) {
+                return; // Não mostra loading
+            }
+            
+            // ✅ IGNORA O CARRINHO FLUTUANTE
+            if (this.id === 'floatingCartBtn') {
+                return;
+            }
+            
+            // ✅ IGNORA LINKS QUE ABREM EM MODAL
+            if (this.classList.contains('popup-checkout') || 
+                this.classList.contains('popup-checkout-finalizar') ||
+                this.classList.contains('popup-empty-btn')) {
+                return;
+            }
+            
+            // ✅ IGNORA BOTÕES DE ADICIONAR AO CARRINHO
+            if (this.classList.contains('btn-cart')) {
+                return;
+            }
+            
+            // Mostra loading para outros links internos
+            if (href && href !== '' && href !== '#' && !href.startsWith('http') && loadingScreen) {
                 loadingScreen.classList.remove('hidden');
             }
         });
     });
 });
-
 
 
 

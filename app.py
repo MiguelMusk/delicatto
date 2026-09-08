@@ -1,33 +1,37 @@
-from flask import Flask, render_template, request, redirect, session
+# ============================================
+# CONFIGURAÇÃO INICIAL
+# ============================================
+import os
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'  # Permite OAuth em HTTP (local)
+
+from flask import Flask, render_template, request, redirect, session, url_for
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 import mysql.connector
-import os
 from dotenv import load_dotenv
 
+# ============================================
+# APP E CONFIGURAÇÕES
+# ============================================
 app = Flask(__name__)
+app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
+app.config['UPLOAD_FOLDER'] = 'static/img'
 
-UPLOAD_FOLDER = 'static/img'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.secret_key = 'delicatto2026'
-
-# Carrega variáveis de ambiente
 load_dotenv()
 
 # ============================================
-# FUNÇÃO DE CONEXÃO COM O BANCO
+# BANCO DE DADOS
 # ============================================
 def conectar():
-    conexao = mysql.connector.connect(
+    return mysql.connector.connect(
         host=os.environ.get('DB_HOST'),
         user=os.environ.get('DB_USER'),
         password=os.environ.get('DB_PASSWORD'),
         database=os.environ.get('DB_DATABASE')
     )
-    return conexao
 
 # ============================================
-# CONTEXT PROCESSOR - INJETA VARIÁVEIS GLOBAIS
+# CONTEXT PROCESSOR - VARIÁVEIS GLOBAIS
 # ============================================
 @app.context_processor
 def inject_usuario():
@@ -77,68 +81,53 @@ def inject_usuario():
     )
 
 # ============================================
-# HOME
+# ROTAS PRINCIPAIS
 # ============================================
+
 @app.route('/')
 def home():
     conexao = conectar()
     cursor = conexao.cursor()
-    
     cursor.execute("SELECT * FROM produtos LIMIT 3")
     produtos_destaque = cursor.fetchall()
-    
     cursor.close()
     conexao.close()
-    
     return render_template('index.html', produtos_destaque=produtos_destaque)
 
 # ============================================
-# CADASTRO
+# AUTENTICAÇÃO
 # ============================================
+
 @app.route('/cadastro', methods=['GET', 'POST'])
 def cadastro():
     mensagem = ''
-
     if request.method == 'POST':
         nome = request.form.get('nome')
         email = request.form.get('email')
-        senha = request.form.get('senha')
-        senha_hash = generate_password_hash(senha)
+        senha_hash = generate_password_hash(request.form.get('senha'))
 
         conexao = conectar()
         cursor = conexao.cursor()
-
-        sql = """
-        INSERT INTO usuarios (nome, email, senha)
-        VALUES (%s, %s, %s)
-        """
-        cursor.execute(sql, (nome, email, senha_hash))
+        cursor.execute("INSERT INTO usuarios (nome, email, senha) VALUES (%s, %s, %s)", 
+                      (nome, email, senha_hash))
         conexao.commit()
-
         cursor.close()
         conexao.close()
-
         mensagem = 'Conta criada com sucesso!'
 
     return render_template('cadastro.html', mensagem=mensagem)
 
-# ============================================
-# LOGIN
-# ============================================
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     mensagem = ''
-
     if request.method == 'POST':
         email = request.form.get('email')
         senha = request.form.get('senha')
 
         conexao = conectar()
         cursor = conexao.cursor()
-
         cursor.execute("SELECT * FROM usuarios WHERE email = %s", (email,))
         usuario = cursor.fetchone()
-
         cursor.close()
         conexao.close()
 
@@ -151,19 +140,101 @@ def login():
 
     return render_template('login.html', mensagem=mensagem)
 
-# ============================================
-# LOGOUT
-# ============================================
 @app.route('/logout')
 def logout():
-    session.pop('usuario', None)
-    session.pop('admin', None)
-    session.pop('carrinho', None)
+    session.clear()
     return redirect('/')
+
+# ============================================
+# LOGIN COM GOOGLE
+# ============================================
+
+from requests_oauthlib import OAuth2Session
+import requests
+
+# Todas as credenciais vêm do .env
+GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_OAUTH_CLIENT_ID')
+GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_OAUTH_CLIENT_SECRET')
+GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
+
+# Verifica se as credenciais foram carregadas
+if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
+    print("ATENÇÃO: Credenciais do Google não encontradas no .env!")
+    print("Defina GOOGLE_OAUTH_CLIENT_ID e GOOGLE_OAUTH_CLIENT_SECRET")
+
+SCOPE = ["openid", "https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/userinfo.profile"]
+
+@app.route('/login/google')
+def login_google():
+    if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
+        return "Erro: Credenciais do Google não configuradas", 500
+    
+    discovery = requests.get(GOOGLE_DISCOVERY_URL).json()
+    oauth = OAuth2Session(GOOGLE_CLIENT_ID, scope=SCOPE, 
+                         redirect_uri='http://localhost:5000/login/google/authorized')
+    authorization_url, state = oauth.authorization_url(
+        discovery['authorization_endpoint'], access_type="offline", prompt="select_account"
+    )
+    session['oauth_state'] = state
+    return redirect(authorization_url)
+
+@app.route('/login/google/authorized')
+def google_authorized():
+    if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
+        return "Erro: Credenciais do Google não configuradas", 500
+    
+    code = request.args.get('code')
+    state = request.args.get('state')
+    
+    if not code:
+        return redirect('/login')
+    
+    try:
+        discovery = requests.get(GOOGLE_DISCOVERY_URL).json()
+        oauth = OAuth2Session(GOOGLE_CLIENT_ID, scope=SCOPE, 
+                             redirect_uri='http://localhost:5000/login/google/authorized',
+                             state=state)
+        
+        oauth.fetch_token(discovery['token_endpoint'], client_secret=GOOGLE_CLIENT_SECRET,
+                         authorization_response=request.url)
+        
+        user_info = oauth.get(discovery['userinfo_endpoint']).json()
+        email = user_info.get('email')
+        nome = user_info.get('name')
+        
+        if not email:
+            return redirect('/login')
+        
+        conexao = conectar()
+        cursor = conexao.cursor()
+        cursor.execute("SELECT * FROM usuarios WHERE email = %s", (email,))
+        usuario = cursor.fetchone()
+        
+        if not usuario:
+            cursor.execute("INSERT INTO usuarios (nome, email, senha, admin) VALUES (%s, %s, %s, %s)",
+                          (nome, email, '', 0))
+            conexao.commit()
+            cursor.execute("SELECT * FROM usuarios WHERE email = %s", (email,))
+            usuario = cursor.fetchone()
+        
+        cursor.close()
+        conexao.close()
+        
+        if usuario:
+            session['usuario'] = usuario[1]
+            session['admin'] = usuario[4]
+            session.pop('oauth_state', None)
+            return redirect('/')
+        
+    except Exception as e:
+        print(f"Erro no login com Google: {e}")
+    
+    return redirect('/login')
 
 # ============================================
 # PRODUTOS
 # ============================================
+
 @app.route('/produtos')
 def produtos():
     conexao = conectar()
@@ -174,9 +245,6 @@ def produtos():
     conexao.close()
     return render_template('produtos.html', produtos=produtos)
 
-# ============================================
-# PRODUTO DETALHE
-# ============================================
 @app.route('/produto/<int:id>')
 def produto(id):
     conexao = conectar()
@@ -190,38 +258,50 @@ def produto(id):
         conexao.close()
         return redirect('/produtos')
 
-    cursor.execute("""
-        SELECT usuario, nota, comentario
-        FROM avaliacoes
-        WHERE produto_id=%s
-        ORDER BY id DESC
-    """, (id,))
+    cursor.execute("SELECT usuario, nota, comentario FROM avaliacoes WHERE produto_id=%s ORDER BY id DESC", (id,))
     avaliacoes = cursor.fetchall()
 
-    cursor.execute("""
-        SELECT AVG(nota), COUNT(*)
-        FROM avaliacoes
-        WHERE produto_id=%s
-    """, (id,))
+    cursor.execute("SELECT AVG(nota), COUNT(*) FROM avaliacoes WHERE produto_id=%s", (id,))
     estatisticas = cursor.fetchone()
-
-    media = estatisticas[0] or 0
-    quantidade = estatisticas[1] or 0
 
     cursor.close()
     conexao.close()
 
-    return render_template(
-        'produto.html',
-        produto=produto,
-        avaliacoes=avaliacoes,
-        media=media,
-        quantidade=quantidade
-    )
+    return render_template('produto.html', produto=produto, avaliacoes=avaliacoes,
+                          media=estatisticas[0] or 0, quantidade=estatisticas[1] or 0)
+
+@app.route('/avaliar/<int:produto_id>', methods=['POST'])
+def avaliar(produto_id):
+    if not session.get('usuario'):
+        return redirect('/login')
+
+    conexao = conectar()
+    cursor = conexao.cursor()
+    cursor.execute("INSERT INTO avaliacoes (produto_id, usuario, nota, comentario) VALUES (%s, %s, %s, %s)",
+                   (produto_id, session['usuario'], request.form.get('nota'), request.form.get('comentario')))
+    conexao.commit()
+    cursor.close()
+    conexao.close()
+    
+    return redirect(f'/produto/{produto_id}')
 
 # ============================================
 # CARRINHO
 # ============================================
+
+@app.route('/adicionar_carrinho/<int:id>')
+def adicionar_carrinho(id):
+    session.setdefault('carrinho', []).append(id)
+    return redirect('/produtos')
+
+@app.route('/remover_carrinho/<int:id>')
+def remover_carrinho(id):
+    carrinho = session.get('carrinho', [])
+    if id in carrinho:
+        carrinho.remove(id)
+    session['carrinho'] = carrinho
+    return redirect('/carrinho')
+
 @app.route('/carrinho', methods=['GET', 'POST'])
 def carrinho():
     ids = session.get('carrinho', [])
@@ -239,7 +319,7 @@ def carrinho():
                 if personalizacao:
                     produtos_carrinho.append({
                         'id': id,
-                        'nome': f" {personalizacao.get('produto_nome', 'Produto Personalizado')}",
+                        'nome': f"{personalizacao.get('produto_nome', 'Produto Personalizado')}",
                         'descricao': f"Personalizado para {personalizacao.get('nome', '')}",
                         'preco': personalizacao.get('preco', 89.90),
                         'imagem': 'personalizado.png',
@@ -264,7 +344,7 @@ def carrinho():
         cursor.close()
         conexao.close()
 
-    # ===== CUPOM DE DESCONTO =====
+    # Cupom de desconto
     cupom = request.args.get('cupom') or request.form.get('cupom')
     remover = request.args.get('remover')
     
@@ -276,8 +356,6 @@ def carrinho():
 
     if remover == 'true':
         mensagem_cupom = 'Cupom removido com sucesso!'
-        cupom_aplicado = None
-    
     elif cupom:
         cupom = cupom.upper()
         cupom_aplicado = cupom
@@ -286,158 +364,26 @@ def carrinho():
             desconto = total * 0.10
             total_com_desconto = total - desconto
             cupom_valido = True
-            mensagem_cupom = f'✅ Cupom {cupom} aplicado! 10% de desconto'
-            
+            mensagem_cupom = f'Cupom {cupom} aplicado! 10% de desconto'
         elif cupom == 'DELICATTO20':
             desconto = total * 0.20
             total_com_desconto = total - desconto
             cupom_valido = True
-            mensagem_cupom = f'✅ Cupom {cupom} aplicado! 20% de desconto'
-            
+            mensagem_cupom = f'Cupom {cupom} aplicado! 20% de desconto'
         elif cupom == 'MIGUELLINDO':
-            desconto = total * 1
-            total_com_desconto = total - desconto
+            desconto = total
+            total_com_desconto = 0
             cupom_valido = True
-            mensagem_cupom = f'🔥 Cupom {cupom} aplicado! Esse é nosso segredinho >:)'
-            
+            mensagem_cupom = f'😈 Cupom {cupom} aplicado! se vc achou isso parebéns! esse é nosso segredinho...!'
         else:
-            mensagem_cupom = '❌ Cupom inválido'
+            mensagem_cupom = 'Cupom inválido'
             cupom_aplicado = None
 
-    return render_template(
-        'carrinho.html', 
-        produtos=produtos_carrinho, 
-        total=total,
-        total_com_desconto=total_com_desconto,
-        desconto=desconto,
-        cupom_valido=cupom_valido,
-        mensagem_cupom=mensagem_cupom,
-        cupom_aplicado=cupom_aplicado
-    )
+    return render_template('carrinho.html', produtos=produtos_carrinho, total=total,
+                          total_com_desconto=total_com_desconto, desconto=desconto,
+                          cupom_valido=cupom_valido, mensagem_cupom=mensagem_cupom,
+                          cupom_aplicado=cupom_aplicado)
 
-# ============================================
-# ADICIONAR AO CARRINHO (PRODUTOS NORMAIS)
-# ============================================
-@app.route('/adicionar_carrinho/<int:id>')
-def adicionar_carrinho(id):
-    if 'carrinho' not in session:
-        session['carrinho'] = []
-
-    carrinho = session['carrinho']
-    carrinho.append(id)
-    session['carrinho'] = carrinho
-
-    return redirect('/produtos')
-
-# ============================================
-# REMOVER DO CARRINHO (PRODUTOS NORMAIS)
-# ============================================
-@app.route('/remover_carrinho/<int:id>')
-def remover_carrinho(id):
-    carrinho = session.get('carrinho', [])
-    if id in carrinho:
-        carrinho.remove(id)
-    session['carrinho'] = carrinho
-    return redirect('/carrinho')
-
-# ============================================
-# ADICIONAR PERSONALIZADO
-# ============================================
-@app.route('/adicionar_personalizado', methods=['POST'])
-def adicionar_personalizado():
-    if 'carrinho' not in session:
-        session['carrinho'] = []
-
-    if 'personalizacoes' not in session:
-        session['personalizacoes'] = []
-
-    produto_base = request.form.get('produto_base')
-    nome = request.form.get('nome_rotulo')
-    pele = request.form.get('pele')
-    fragrancia = request.form.get('fragrancia')
-    objetivo = request.form.get('objetivo')
-    mensagem = request.form.get('mensagem')
-    cor = request.form.get('cor_embalagem', 'roxo')
-    cor_fonte = request.form.get('cor_fonte', 'branco')
-
-    nomes_produtos = {
-        'hidratante_corporal': 'Hidratante Corporal',
-        'serum_facial': 'Sérum Facial',
-        'creme_revitalizante': 'Creme Revitalizante',
-        'body_splash': 'Body Splash'
-    }
-    
-    precos_produtos = {
-        'hidratante_corporal': 89.90,
-        'serum_facial': 129.90,
-        'creme_revitalizante': 99.90,
-        'body_splash': 79.90
-    }
-
-    nome_produto = nomes_produtos.get(produto_base, 'Produto Personalizado')
-    preco_produto = precos_produtos.get(produto_base, 89.90)
-
-    import time
-    produto_id = int(time.time()) * -1
-
-    session['carrinho'].append(produto_id)
-
-    personalizacao = {
-        'id': produto_id,
-        'nome': nome or 'Seu Nome',
-        'pele': pele,
-        'fragrancia': fragrancia,
-        'objetivo': objetivo,
-        'mensagem': mensagem,
-        'cor': cor,
-        'cor_fonte': cor_fonte,
-        'produto_nome': nome_produto,
-        'preco': preco_produto
-    }
-    
-    session['personalizacoes'].append(personalizacao)
-    session.modified = True
-
-    return redirect('/carrinho')
-
-# ============================================
-# REMOVER PERSONALIZADO - ROTA CORRIGIDA
-# ============================================
-@app.route('/remover_perso/<id>')
-def remover_perso(id):
-    print(f"🔴 REMOVENDO PERSONALIZADO - ID: {id}")
-    
-    carrinho = session.get('carrinho', [])
-    personalizacoes = session.get('personalizacoes', [])
-    
-    print(f"📦 Carrinho antes: {carrinho}")
-    print(f"📋 Personalizações antes: {personalizacoes}")
-    
-    # Converte para int
-    try:
-        id_int = int(id)
-    except:
-        id_int = id
-    
-    # Remove do carrinho
-    if id_int in carrinho:
-        carrinho.remove(id_int)
-        session['carrinho'] = carrinho
-        print(f"✅ ID {id_int} removido do carrinho")
-    else:
-        print(f"⚠️ ID {id_int} NÃO encontrado no carrinho")
-    
-    # Remove da lista de personalizações
-    session['personalizacoes'] = [p for p in personalizacoes if str(p.get('id')) != str(id)]
-    session.modified = True
-    
-    print(f"📦 Carrinho depois: {session.get('carrinho', [])}")
-    print(f"📋 Personalizações depois: {session.get('personalizacoes', [])}")
-    
-    return redirect('/carrinho')
-# ============================================
-# FINALIZAR COMPRA
-# ============================================
 @app.route('/finalizar_compra')
 def finalizar_compra():
     if not session.get('usuario'):
@@ -462,11 +408,7 @@ def finalizar_compra():
                 if produto:
                     total += float(produto[3])
 
-        cursor.execute("""
-            INSERT INTO pedidos (usuario, total)
-            VALUES (%s, %s)
-        """, (session['usuario'], total))
-
+        cursor.execute("INSERT INTO pedidos (usuario, total) VALUES (%s, %s)", (session['usuario'], total))
         conexao.commit()
         cursor.close()
         conexao.close()
@@ -475,9 +417,6 @@ def finalizar_compra():
     session.pop('personalizacoes', None)
     return redirect('/pedido_sucesso')
 
-# ============================================
-# PEDIDO SUCESSO
-# ============================================
 @app.route('/pedido_sucesso')
 def pedido_sucesso():
     return render_template('pedido_sucesso.html')
@@ -485,13 +424,75 @@ def pedido_sucesso():
 # ============================================
 # PERSONALIZAÇÃO
 # ============================================
+
 @app.route('/personalizacao')
 def personalizacao():
     return render_template('personalizacao.html')
 
+@app.route('/adicionar_personalizado', methods=['POST'])
+def adicionar_personalizado():
+    session.setdefault('carrinho', [])
+    session.setdefault('personalizacoes', [])
+
+    produto_base = request.form.get('produto_base')
+    nome = request.form.get('nome_rotulo')
+    
+    nomes_produtos = {
+        'hidratante_corporal': 'Hidratante Corporal',
+        'serum_facial': 'Sérum Facial',
+        'creme_revitalizante': 'Creme Revitalizante',
+        'body_splash': 'Body Splash'
+    }
+    
+    precos_produtos = {
+        'hidratante_corporal': 89.90,
+        'serum_facial': 129.90,
+        'creme_revitalizante': 99.90,
+        'body_splash': 79.90
+    }
+
+    import time
+    produto_id = int(time.time()) * -1
+
+    session['carrinho'].append(produto_id)
+
+    session['personalizacoes'].append({
+        'id': produto_id,
+        'nome': nome or 'Seu Nome',
+        'pele': request.form.get('pele'),
+        'fragrancia': request.form.get('fragrancia'),
+        'objetivo': request.form.get('objetivo'),
+        'mensagem': request.form.get('mensagem'),
+        'cor': request.form.get('cor_embalagem', 'roxo'),
+        'cor_fonte': request.form.get('cor_fonte', 'branco'),
+        'produto_nome': nomes_produtos.get(produto_base, 'Produto Personalizado'),
+        'preco': precos_produtos.get(produto_base, 89.90)
+    })
+    
+    session.modified = True
+    return redirect('/carrinho')
+
+@app.route('/remover_perso/<id>')
+def remover_perso(id):
+    carrinho = session.get('carrinho', [])
+    
+    try:
+        id_int = int(id)
+        if id_int in carrinho:
+            carrinho.remove(id_int)
+            session['carrinho'] = carrinho
+    except:
+        pass
+    
+    session['personalizacoes'] = [p for p in session.get('personalizacoes', []) if str(p.get('id')) != str(id)]
+    session.modified = True
+    
+    return redirect('/carrinho')
+
 # ============================================
 # PERFIL
 # ============================================
+
 @app.route('/perfil')
 def perfil():
     if not session.get('usuario'):
@@ -503,29 +504,19 @@ def perfil():
     cursor.execute("SELECT * FROM usuarios WHERE nome = %s", (session['usuario'],))
     usuario = cursor.fetchone()
 
-    cursor.execute("""
-        SELECT COUNT(*), IFNULL(SUM(total),0)
-        FROM pedidos
-        WHERE usuario = %s
-    """, (session['usuario'],))
+    cursor.execute("SELECT COUNT(*), IFNULL(SUM(total),0) FROM pedidos WHERE usuario = %s", (session['usuario'],))
     dados = cursor.fetchone()
-
-    total_pedidos = dados[0]
-    total_gasto = dados[1]
 
     cursor.close()
     conexao.close()
 
-    return render_template(
-        'perfil.html',
-        usuario_db=usuario,
-        total_pedidos=total_pedidos,
-        total_gasto=total_gasto
-    )
+    return render_template('perfil.html', usuario_db=usuario, 
+                          total_pedidos=dados[0], total_gasto=dados[1])
 
 # ============================================
 # ADMIN
 # ============================================
+
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
     if not session.get('admin'):
@@ -538,28 +529,21 @@ def admin():
         descricao = request.form.get('descricao')
         preco = request.form.get('preco')
         imagem = request.files['imagem']
-        descricao_completa = request.form.get('descricao_completa')
-        modo_uso = request.form.get('modo_uso')
-        beneficios = request.form.get('beneficios')
-        ingredientes = request.form.get('ingredientes')
-        categoria = request.form.get('categoria')
-
+        
         nome_arquivo = secure_filename(imagem.filename)
         imagem.save(os.path.join(app.config['UPLOAD_FOLDER'], nome_arquivo))
 
         conexao = conectar()
         cursor = conexao.cursor()
-
-        sql = """
-        INSERT INTO produtos
-        (nome, descricao, preco, imagem, descricao_completa, modo_uso, beneficios, ingredientes, categoria)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """
-        cursor.execute(sql, (nome, descricao, preco, nome_arquivo, descricao_completa, modo_uso, beneficios, ingredientes, categoria))
+        cursor.execute("""
+            INSERT INTO produtos (nome, descricao, preco, imagem, descricao_completa, modo_uso, beneficios, ingredientes, categoria)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+        """, (nome, descricao, preco, nome_arquivo, 
+              request.form.get('descricao_completa'), request.form.get('modo_uso'),
+              request.form.get('beneficios'), request.form.get('ingredientes'), request.form.get('categoria')))
         conexao.commit()
         cursor.close()
         conexao.close()
-
         mensagem = 'Produto adicionado com sucesso!'
 
     conexao = conectar()
@@ -582,14 +566,10 @@ def admin():
 
     try:
         cursor.execute("""
-            SELECT 
-                DATE(data) as dia, 
-                COUNT(*) as total_pedidos, 
-                SUM(total) as valor_total
+            SELECT DATE(data) as dia, COUNT(*) as total_pedidos, SUM(total) as valor_total
             FROM pedidos 
             WHERE data >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
-            GROUP BY DATE(data) 
-            ORDER BY dia ASC
+            GROUP BY DATE(data) ORDER BY dia ASC
         """)
         vendas_semana = cursor.fetchall()
     except:
@@ -600,35 +580,20 @@ def admin():
             SELECT categoria, COUNT(*) as total
             FROM produtos
             WHERE categoria IS NOT NULL AND categoria != ''
-            GROUP BY categoria
-            ORDER BY total DESC
+            GROUP BY categoria ORDER BY total DESC
         """)
         distribuicao = cursor.fetchall()
-        
-        if not distribuicao:
-            distribuicao = []
-    except Exception as e:
-        print(f"Erro na consulta de distribuição: {e}")
+    except:
         distribuicao = []
 
     cursor.close()
     conexao.close()
 
-    return render_template(
-        'admin.html',
-        mensagem=mensagem,
-        produtos=produtos,
-        total_usuarios=total_usuarios,
-        total_pedidos=total_pedidos,
-        total_avaliacoes=total_avaliacoes,
-        usuarios=usuarios,
-        vendas_semana=vendas_semana,
-        distribuicao=distribuicao
-    )
+    return render_template('admin.html', mensagem=mensagem, produtos=produtos,
+                          total_usuarios=total_usuarios, total_pedidos=total_pedidos,
+                          total_avaliacoes=total_avaliacoes, usuarios=usuarios,
+                          vendas_semana=vendas_semana, distribuicao=distribuicao)
 
-# ============================================
-# DELETAR PRODUTO
-# ============================================
 @app.route('/deletar_produto/<int:id>')
 def deletar_produto(id):
     conexao = conectar()
@@ -639,9 +604,6 @@ def deletar_produto(id):
     conexao.close()
     return redirect('/admin')
 
-# ============================================
-# EDITAR PRODUTO
-# ============================================
 @app.route('/editar_produto/<int:id>', methods=['GET', 'POST'])
 def editar_produto(id):
     conexao = conectar()
@@ -651,33 +613,28 @@ def editar_produto(id):
         nome = request.form.get('nome')
         descricao = request.form.get('descricao')
         preco = request.form.get('preco')
-        descricao_completa = request.form.get('descricao_completa')
-        modo_uso = request.form.get('modo_uso')
-        beneficios = request.form.get('beneficios')
-        ingredientes = request.form.get('ingredientes')
-        categoria = request.form.get('categoria')
-
-        imagem = request.files.get('imagem')
         
+        imagem = request.files.get('imagem')
         if imagem and imagem.filename != '':
             nome_arquivo = secure_filename(imagem.filename)
             imagem.save(os.path.join(app.config['UPLOAD_FOLDER'], nome_arquivo))
         else:
             cursor.execute("SELECT imagem FROM produtos WHERE id = %s", (id,))
-            resultado = cursor.fetchone()
-            nome_arquivo = resultado[0] if resultado else None
+            nome_arquivo = cursor.fetchone()[0]
 
         cursor.execute("""
             UPDATE produtos
             SET nome=%s, descricao=%s, preco=%s, imagem=%s,
                 descricao_completa=%s, modo_uso=%s, beneficios=%s, ingredientes=%s, categoria=%s
             WHERE id=%s
-        """, (nome, descricao, preco, nome_arquivo, descricao_completa, modo_uso, beneficios, ingredientes, categoria, id))
+        """, (nome, descricao, preco, nome_arquivo, 
+              request.form.get('descricao_completa'), request.form.get('modo_uso'),
+              request.form.get('beneficios'), request.form.get('ingredientes'), 
+              request.form.get('categoria'), id))
 
         conexao.commit()
         cursor.close()
         conexao.close()
-
         return redirect('/admin')
 
     cursor.execute("SELECT * FROM produtos WHERE id = %s", (id,))
@@ -688,54 +645,21 @@ def editar_produto(id):
     return render_template('editar_produto.html', produto=produto)
 
 # ============================================
-# AVALIAÇÕES
+# PÁGINAS ESTÁTICAS
 # ============================================
-@app.route('/avaliar/<int:produto_id>', methods=['POST'])
-def avaliar(produto_id):
-    if not session.get('usuario'):
-        return redirect('/login')
 
-    nota = request.form.get('nota')
-    comentario = request.form.get('comentario')
-
-    conexao = conectar()
-    cursor = conexao.cursor()
-
-    cursor.execute("""
-        INSERT INTO avaliacoes (produto_id, usuario, nota, comentario)
-        VALUES (%s, %s, %s, %s)
-    """, (produto_id, session['usuario'], nota, comentario))
-
-    conexao.commit()
-    cursor.close()
-    conexao.close()
-
-    return redirect(f'/produto/{produto_id}')
-
-# ============================================
-# SKINMATCH
-# ============================================
 @app.route('/skinmatch')
 def skinmatch():
     return render_template('skinmatch.html')
 
-# ============================================
-# SOBRE
-# ============================================
 @app.route('/sobre')
 def sobre():
     return render_template('sobre.html')
 
-# ============================================
-# CONTATO
-# ============================================
 @app.route('/contato')
 def contato():
     return render_template('contato.html')
 
-# ============================================
-# PÁGINAS LEGAIS
-# ============================================
 @app.route('/politica_privacidade')
 def politica_privacidade():
     return render_template('politica_privacidade.html')

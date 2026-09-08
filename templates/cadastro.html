@@ -33,6 +33,7 @@
             <p>Faça parte da experiência Delicatto</p>
         </div>
 
+        <!-- FORMULÁRIO DE CADASTRO -->
         <form method="POST">
             <div class="input-group">
                 <i class="fa-solid fa-user input-icon"></i>
@@ -49,7 +50,7 @@
                     <i class="fa-solid fa-eye"></i>
                 </button>
             </div>
-                        <div class="terms-group">
+            <div class="terms-group">
                 <label class="terms-checkbox">
                     <input type="checkbox" name="aceito_termos" required>
                     <span class="checkmark"></span>
@@ -68,6 +69,20 @@
         {% if mensagem %}
             <p class="success-msg">{{ mensagem }}</p>
         {% endif %}
+
+<div class="social-divider">
+    <hr>
+    <span>ou</span>
+    <hr>
+</div>
+
+        <!-- ===== LOGIN SOCIAL (GOOGLE) - EMBAIXO DO FORM ===== -->
+        <div class="social-login">
+            <a href="/login/google" class="google-btn">
+                <i class="fa-brands fa-google"></i>
+                <span>Cadastrar com Google</span>
+            </a>
+        </div>
 
         <span class="register-link">
             Já possui conta? <a href="/login">Entrar</a>

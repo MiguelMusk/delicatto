@@ -284,7 +284,70 @@
     background: rgba(220, 53, 69, 0.08);
     color: #dc3545;
 }
+/* ============================================
+   NOTIFICAÇÃO AO ADICIONAR PRODUTO
+============================================ */
 
+.custom-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+    transform: translateX(120%);
+    transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    max-width: 360px;
+    width: 100%;
+}
+
+.custom-notification.show {
+    transform: translateX(0);
+}
+
+.custom-notification .notification-content {
+    background: white;
+    border-radius: 16px;
+    padding: 16px 20px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border-left: 4px solid #2d7a2d;
+}
+
+.custom-notification.error .notification-content {
+    border-left-color: #dc3545;
+}
+
+.custom-notification .notification-content span {
+    font-size: 14px;
+    font-weight: 500;
+    color: #2d1f42;
+}
+
+.custom-notification .notification-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #8a7a9e;
+    cursor: pointer;
+    padding: 0 4px;
+    transition: all 0.3s ease;
+}
+
+.custom-notification .notification-close:hover {
+    color: #dc3545;
+    transform: rotate(90deg);
+}
+
+/* Responsivo */
+@media (max-width: 480px) {
+    .custom-notification {
+        top: 10px;
+        right: 10px;
+        max-width: calc(100% - 20px);
+    }
+}
 /* ===== BOTÕES ===== */
 .popup-checkout {
     display: flex;
