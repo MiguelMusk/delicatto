@@ -52,17 +52,28 @@
             </button>
         </form>
 
+        <!-- ===== MENSAGENS ===== -->
         {% if mensagem %}
-            <p class="success-msg">{{ mensagem }}</p>
+            {% if 'inválido' in mensagem.lower() or 'erro' in mensagem.lower() %}
+                <p class="error-msg">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    {{ mensagem }}
+                </p>
+            {% else %}
+                <p class="success-msg">
+                    <i class="fa-solid fa-check-circle"></i>
+                    {{ mensagem }}
+                </p>
+            {% endif %}
         {% endif %}
 
-<div class="social-divider">
-    <hr>
-    <span>ou</span>
-    <hr>
-</div>
+        <div class="social-divider">
+            <hr>
+            <span>ou</span>
+            <hr>
+        </div>
 
-        <!-- ===== LOGIN SOCIAL (GOOGLE) - EMBAIXO DO FORM ===== -->
+        <!-- ===== LOGIN SOCIAL (GOOGLE) ===== -->
         <div class="social-login">
             <a href="/login/google" class="google-btn">
                 <i class="fa-brands fa-google"></i>
@@ -71,7 +82,6 @@
         </div>
 
         <div class="login-footer">
-            <!-- <a href="/recuperar_senha" class="forgot-link">Esqueceu sua senha?</a> --> 
             <span class="register-link">
                 Não possui conta? <a href="/cadastro">Criar conta</a>
             </span>

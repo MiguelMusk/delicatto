@@ -2,22 +2,54 @@
 # CONFIGURAÇÃO INICIAL
 # ============================================
 import os
-os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'  # Permite OAuth em HTTP (local)
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 from flask import Flask, render_template, request, redirect, session, url_for
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 import mysql.connector
 from dotenv import load_dotenv
-
-# ============================================
-# APP E CONFIGURAÇÕES
-# ============================================
+import re
+import dns.resolver
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
 app.config['UPLOAD_FOLDER'] = 'static/img'
 
 load_dotenv()
+
+# ============================================
+# FUNÇÃO PARA VALIDAR EMAIL (REGEX + DOMÍNIO)
+# ============================================
+def validar_email(email):
+    """
+    Valida o formato, domínio e tenta verificar se o email existe
+    """
+    # 1. Verifica formato
+    regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    if not re.match(regex, email):
+        return False, "Formato de e-mail inválido! (ex: nome@email.com)"
+    
+    # 2. Verifica se o domínio existe
+    dominio = email.split('@')[1]
+    try:
+        dns.resolver.resolve(dominio, 'MX')
+    except:
+        return False, f"O domínio '{dominio}' não existe!"
+    
+    # 3. Verifica se o email tem formato válido (ex: não é "teste@")
+    if email.split('@')[0].strip() == '':
+        return False, "Digite um nome de usuário válido antes do @"
+    
+    # 4. Lista de domínios comuns (se for um domínio comum, provavelmente é válido)
+    dominios_confiaveis = ['gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com', 
+                           'uol.com.br', 'bol.com.br', 'terra.com.br', 'icloud.com',
+                           'protonmail.com', 'mail.com', 'live.com', 'msn.com']
+    
+    if dominio in dominios_confiaveis:
+        return True, "E-mail válido!"
+    
+    return True, "E-mail válido (domínio verificado, mas não foi possível confirmar a conta)"
+
 
 # ============================================
 # BANCO DE DADOS
@@ -104,16 +136,54 @@ def cadastro():
     if request.method == 'POST':
         nome = request.form.get('nome')
         email = request.form.get('email')
-        senha_hash = generate_password_hash(request.form.get('senha'))
-
+        senha = request.form.get('senha')
+        
+        # ===== VALIDAÇÕES =====
+        if not nome or not email or not senha:
+            mensagem = 'Preencha todos os campos!'
+            return render_template('cadastro.html', mensagem=mensagem)
+        
+        if len(senha) < 6:
+            mensagem = 'A senha deve ter pelo menos 6 caracteres!'
+            return render_template('cadastro.html', mensagem=mensagem)
+        
+        # VALIDA SE O EMAIL É VÁLIDO (REGEX + DOMÍNIO)
+        email_valido, msg_email = validar_email(email)
+        if not email_valido:
+            mensagem = msg_email
+            return render_template('cadastro.html', mensagem=mensagem)
+        
         conexao = conectar()
         cursor = conexao.cursor()
+        
+        # Verifica se o email já está cadastrado
+        cursor.execute("SELECT * FROM usuarios WHERE email = %s", (email,))
+        usuario_existente = cursor.fetchone()
+        
+        if usuario_existente:
+            mensagem = 'Este e-mail já está cadastrado!'
+            cursor.close()
+            conexao.close()
+            return render_template('cadastro.html', mensagem=mensagem)
+        
+        # Cria o usuário
+        senha_hash = generate_password_hash(senha)
         cursor.execute("INSERT INTO usuarios (nome, email, senha) VALUES (%s, %s, %s)", 
                       (nome, email, senha_hash))
         conexao.commit()
+        
+        cursor.execute("SELECT * FROM usuarios WHERE email = %s", (email,))
+        usuario = cursor.fetchone()
+        
         cursor.close()
         conexao.close()
-        mensagem = 'Conta criada com sucesso!'
+        
+        if usuario:
+            session['usuario'] = usuario[1]
+            session['admin'] = usuario[4]
+            return redirect('/')
+        else:
+            mensagem = 'Erro ao criar conta. Tente novamente.'
 
     return render_template('cadastro.html', mensagem=mensagem)
 
@@ -136,7 +206,7 @@ def login():
             session['admin'] = usuario[4]
             return redirect('/')
         else:
-            mensagem = 'E-mail ou senha inválidos'
+            mensagem = '❌ E-mail ou senha inválidos!'
 
     return render_template('login.html', mensagem=mensagem)
 
@@ -152,15 +222,12 @@ def logout():
 from requests_oauthlib import OAuth2Session
 import requests
 
-# Todas as credenciais vêm do .env
 GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_OAUTH_CLIENT_ID')
 GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_OAUTH_CLIENT_SECRET')
 GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
 
-# Verifica se as credenciais foram carregadas
 if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
-    print("ATENÇÃO: Credenciais do Google não encontradas no .env!")
-    print("Defina GOOGLE_OAUTH_CLIENT_ID e GOOGLE_OAUTH_CLIENT_SECRET")
+    print("⚠️ ATENÇÃO: Credenciais do Google não encontradas no .env!")
 
 SCOPE = ["openid", "https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/userinfo.profile"]
 
@@ -171,7 +238,7 @@ def login_google():
     
     discovery = requests.get(GOOGLE_DISCOVERY_URL).json()
     oauth = OAuth2Session(GOOGLE_CLIENT_ID, scope=SCOPE, 
-                         redirect_uri='http://localhost:5000/login/google/authorized')
+                         redirect_uri=f"{request.host_url}login/google/authorized")
     authorization_url, state = oauth.authorization_url(
         discovery['authorization_endpoint'], access_type="offline", prompt="select_account"
     )
@@ -192,7 +259,7 @@ def google_authorized():
     try:
         discovery = requests.get(GOOGLE_DISCOVERY_URL).json()
         oauth = OAuth2Session(GOOGLE_CLIENT_ID, scope=SCOPE, 
-                             redirect_uri='http://localhost:5000/login/google/authorized',
+                             redirect_uri=f"{request.host_url}login/google/authorized",
                              state=state)
         
         oauth.fetch_token(discovery['token_endpoint'], client_secret=GOOGLE_CLIENT_SECRET,
@@ -344,7 +411,6 @@ def carrinho():
         cursor.close()
         conexao.close()
 
-    # Cupom de desconto
     cupom = request.args.get('cupom') or request.form.get('cupom')
     remover = request.args.get('remover')
     
