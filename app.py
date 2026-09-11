@@ -137,17 +137,23 @@ def cadastro():
         nome = request.form.get('nome')
         email = request.form.get('email')
         senha = request.form.get('senha')
+        aceito_termos = request.form.get('aceito_termos') 
         
         # ===== VALIDAÇÕES =====
         if not nome or not email or not senha:
             mensagem = 'Preencha todos os campos!'
             return render_template('cadastro.html', mensagem=mensagem)
         
+        # VERIFICA SE O USUÁRIO ACEITOU OS TERMOS
+        if not aceito_termos:
+            mensagem = 'Você precisa aceitar os Termos e Condições para criar uma conta!'
+            return render_template('cadastro.html', mensagem=mensagem)
+        
         if len(senha) < 6:
             mensagem = 'A senha deve ter pelo menos 6 caracteres!'
             return render_template('cadastro.html', mensagem=mensagem)
         
-        # VALIDA SE O EMAIL É VÁLIDO (REGEX + DOMÍNIO)
+        # VALIDA SE O EMAIL É VÁLIDO
         email_valido, msg_email = validar_email(email)
         if not email_valido:
             mensagem = msg_email

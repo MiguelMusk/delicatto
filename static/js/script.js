@@ -284,7 +284,45 @@ function reiniciarSkinmatch() {
         btn.classList.remove('active-option');
     });
 }
+// ============================================
+// VALIDAÇÃO DO CADASTRO - TERMOS DE USO
+// ============================================
 
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('cadastroForm');
+    const checkbox = document.getElementById('aceitoTermos');
+    const termsError = document.getElementById('termsError');
+    
+    // Oculta a mensagem de erro inicialmente
+    if (termsError) {
+        termsError.style.display = 'none';
+    }
+    
+    // Validação ao clicar no checkbox
+    if (checkbox) {
+        checkbox.addEventListener('change', function() {
+            if (this.checked) {
+                termsError.style.display = 'none';
+                this.closest('.terms-group').classList.remove('error');
+            }
+        });
+    }
+    
+    // Validação antes de enviar o formulário
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            if (!checkbox.checked) {
+                e.preventDefault(); // Impede o envio
+                termsError.style.display = 'block';
+                checkbox.closest('.terms-group').classList.add('error');
+                checkbox.focus();
+                
+                // Scroll suave até o erro
+                termsError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+    }
+});
 // ============================================
 // TELA DE CARREGAMENTO - CORRIGIDA
 // ============================================

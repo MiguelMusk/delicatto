@@ -651,6 +651,36 @@
         text-decoration: underline;
     }
 
+ /* ============================================
+   TERMOS DE USO - MENSAGEM DE ERRO
+============================================ */
+.terms-group {
+    margin: 4px 0 0;
+    text-align: left;
+    transition: all 0.3s ease;
+}
+
+.terms-group.error .terms-checkbox {
+    border-color: #dc3545;
+}
+
+.terms-group.error .terms-checkbox .checkmark {
+    border-color: #dc3545 !important;
+    background: rgba(220, 53, 69, 0.05);
+}
+
+.terms-error {
+    display: none;
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 6px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: rgba(220, 53, 69, 0.06);
+    border: 1px solid rgba(220, 53, 69, 0.1);
+    font-weight: 500;
+}
+
     /* ============================================
     RESPONSIVO
     ============================================ */

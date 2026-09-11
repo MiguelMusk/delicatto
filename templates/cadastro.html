@@ -34,7 +34,7 @@
         </div>
 
         <!-- FORMULÁRIO DE CADASTRO -->
-        <form method="POST">
+        <form method="POST" id="cadastroForm">
             <div class="input-group">
                 <i class="fa-solid fa-user input-icon"></i>
                 <input type="text" name="nome" placeholder="Seu nome" required>
@@ -50,16 +50,20 @@
                     <i class="fa-solid fa-eye"></i>
                 </button>
             </div>
-            <div class="terms-group">
+            
+            <!-- ===== TERMOS DE USO ===== -->
+            <div class="terms-group" id="termsGroup">
                 <label class="terms-checkbox">
-                    <input type="checkbox" name="aceito_termos" required>
+                    <input type="checkbox" name="aceito_termos" id="aceitoTermos">
                     <span class="checkmark"></span>
                     <span class="terms-text">
                         Li e aceito os <a href="/termos_condicoes" target="_blank">Termos e Condições</a> 
                         e a <a href="/politica_privacidade" target="_blank">Política de Privacidade</a>
                     </span>
                 </label>
+                <p class="terms-error" id="termsError">⚠️ Você precisa aceitar os Termos e Condições para continuar</p>
             </div>
+            
             <button type="submit" class="btn-primary btn-login">
                 <span>Criar Conta</span>
                 <i class="fa-solid fa-arrow-right"></i>
@@ -68,7 +72,7 @@
 
         <!-- ===== MENSAGENS ===== -->
         {% if mensagem %}
-            {% if 'inválido' in mensagem.lower() or 'erro' in mensagem.lower() or 'já' in mensagem.lower() or 'existe' in mensagem.lower() %}
+            {% if 'inválido' in mensagem.lower() or 'erro' in mensagem.lower() or 'já' in mensagem.lower() or 'existe' in mensagem.lower() or 'aceitar' in mensagem.lower() %}
                 <p class="error-msg">
                     <i class="fa-solid fa-circle-exclamation"></i>
                     {{ mensagem }}
@@ -100,4 +104,4 @@
         </span>
     </div>
 </section>
-{% endblock %}
+{% endblock %}re
