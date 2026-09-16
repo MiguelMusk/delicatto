@@ -285,6 +285,43 @@ function reiniciarSkinmatch() {
     });
 }
 // ============================================
+// SUSTENTABILIDADE - ANIMAÇÃO DOS NÚMEROS
+// ============================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    const stats = document.querySelectorAll('.sust-stat-number');
+    
+    if (stats.length === 0) return;
+    
+    const animateNumber = (element) => {
+        const target = parseInt(element.getAttribute('data-target'));
+        const duration = 2000;
+        const step = target / (duration / 16);
+        let current = 0;
+        
+        const timer = setInterval(() => {
+            current += step;
+            if (current >= target) {
+                current = target;
+                clearInterval(timer);
+            }
+            element.textContent = Math.floor(current);
+        }, 16);
+    };
+    
+    // Intersection Observer para animar quando visível
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateNumber(entry.target);
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+    
+    stats.forEach(stat => observer.observe(stat));
+});
+// ============================================
 // VALIDAÇÃO DO CADASTRO - TERMOS DE USO
 // ============================================
 
@@ -343,29 +380,29 @@ document.addEventListener('DOMContentLoaded', function() {
         link.addEventListener('click', function(e) {
             const href = this.getAttribute('href');
             
-            // ✅ IGNORA ADICIONAR AO CARRINHO (AJAX)
+            // IGNORA ADICIONAR AO CARRINHO (AJAX)
             if (href && href.includes('/adicionar_carrinho/')) {
                 return; // Não mostra loading
             }
             
-            // ✅ IGNORA API (AJAX)
+            // IGNORA API (AJAX)
             if (href && href.includes('/api/')) {
                 return; // Não mostra loading
             }
             
-            // ✅ IGNORA O CARRINHO FLUTUANTE
+            // IGNORA O CARRINHO FLUTUANTE
             if (this.id === 'floatingCartBtn') {
                 return;
             }
             
-            // ✅ IGNORA LINKS QUE ABREM EM MODAL
+            // IGNORA LINKS QUE ABREM EM MODAL
             if (this.classList.contains('popup-checkout') || 
                 this.classList.contains('popup-checkout-finalizar') ||
                 this.classList.contains('popup-empty-btn')) {
                 return;
             }
             
-            // ✅ IGNORA BOTÕES DE ADICIONAR AO CARRINHO
+            // IGNORA BOTÕES DE ADICIONAR AO CARRINHO
             if (this.classList.contains('btn-cart')) {
                 return;
             }

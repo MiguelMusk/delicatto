@@ -1,0 +1,337 @@
+{% extends 'base.html' %}
+
+{% block title %}Sustentabilidade | Delicatto{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/sustentabilidade.css') }}">
+{% endblock %}
+
+{% block content %}
+
+<!-- ============================================
+     WRAPPER ÚNICO - TODA A PÁGINA
+============================================ -->
+<div class="sust-wrapper">
+
+    <!-- ============================================
+         HERO SUSTENTABILIDADE
+    ============================================ -->
+    <section class="sust-hero">
+        <div class="sust-hero-bg">
+            <div class="sust-orb sust-orb-1"></div>
+            <div class="sust-orb sust-orb-2"></div>
+            <div class="sust-orb sust-orb-3"></div>
+        </div>
+
+        <div class="sust-hero-content">
+            <span class="sust-badge reveal">
+                <i class="fa-solid fa-leaf"></i>
+                PROJETO SUSTENTÁVEL
+            </span>
+            <h1 class="reveal">
+                Beleza que <span class="sust-highlight">cuida do planeta</span>
+            </h1>
+            <p class="reveal">
+                Na Delicatto, a sustentabilidade não é apenas uma escolha — é um compromisso.
+                Cada frasco, cada embalagem e cada ação reflete nosso respeito pela natureza.
+            </p>
+
+            <div class="sust-hero-stats">
+                <div class="sust-stat reveal">
+                    <span class="sust-stat-number" data-target="100">0</span>
+                    <span class="sust-stat-symbol">%</span>
+                    <span class="sust-stat-label">Embalagens recicláveis</span>
+                </div>
+                <div class="sust-stat reveal">
+                    <span class="sust-stat-number" data-target="50">0</span>
+                    <span class="sust-stat-symbol">%</span>
+                    <span class="sust-stat-label">Menos plástico até 2028</span>
+                </div>
+                <div class="sust-stat reveal">
+                    <span class="sust-stat-number" data-target="3">0</span>
+                    <span class="sust-stat-symbol">+</span>
+                    <span class="sust-stat-label">Projetos ativos</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="sust-scroll">
+            <span>Explore nossos projetos</span>
+            <i class="fa-solid fa-arrow-down"></i>
+        </div>
+    </section>
+
+
+    <!-- ============================================
+         INTRODUÇÃO
+    ============================================ -->
+    <section class="sust-intro">
+        <div class="sust-intro-container">
+            <div class="sust-intro-text reveal">
+                <span class="sust-section-label">NOSSO COMPROMISSO</span>
+                <h2>A sustentabilidade é um dos nossos pilares</h2>
+                <p>
+                    Acreditamos que a beleza verdadeira vem do equilíbrio entre cuidar de si
+                    e cuidar do mundo ao nosso redor. Por isso, cada decisão da Delicatto
+                    é pensada para reduzir nosso impacto ambiental e inspirar mudanças positivas.
+                </p>
+            </div>
+            <div class="sust-intro-icon reveal">
+                <div class="sust-globe">
+                    <i class="fa-solid fa-earth-americas"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- ============================================
+         PROJETOS
+    ============================================ -->
+    <section class="sust-projects">
+        <div class="sust-projects-header">
+            <span class="sust-section-label reveal">NOSSOS PROJETOS</span>
+            <h2 class="reveal">Iniciativas que transformam</h2>
+            <p class="reveal">Cada projeto é um passo em direção a um futuro mais verde e consciente.</p>
+        </div>
+
+        <div class="sust-projects-grid">
+
+            <!-- PROJETO 1 -->
+            <article class="sust-project-card reveal" data-project="redelicatto">
+                <div class="sust-project-glow"></div>
+                <div class="sust-project-icon">
+                    <i class="fa-solid fa-arrows-rotate"></i>
+                </div>
+                <span class="sust-project-tag">PROGRAMA PRINCIPAL</span>
+                <h3>ReDelicatto</h3>
+                <p>
+                    Devolva suas embalagens vazias e ganhe recompensas exclusivas.
+                    Cada frasco retornado é uma nova chance para o planeta.
+                </p>
+                <ul class="sust-project-features">
+                    <li><i class="fa-solid fa-check"></i> Recompensas por devolução</li>
+                    <li><i class="fa-solid fa-check"></i> Embalagens 100% recicladas</li>
+                    <li><i class="fa-solid fa-check"></i> Benefícios exclusivos</li>
+                </ul>
+                <div class="sust-project-reward">
+                    <span>+50</span> pontos por embalagem
+                </div>
+            </article>
+
+            <!-- PROJETO 2 -->
+            <article class="sust-project-card reveal" data-project="refil">
+                <div class="sust-project-glow"></div>
+                <div class="sust-project-icon">
+                    <i class="fa-solid fa-bottle-water"></i>
+                </div>
+                <span class="sust-project-tag">MENOS RESÍDUOS</span>
+                <h3>Projeto Refil</h3>
+                <p>
+                    Adquira seus produtos favoritos em embalagens de reposição
+                    e reduza drasticamente a geração de resíduos plásticos.
+                </p>
+                <ul class="sust-project-features">
+                    <li><i class="fa-solid fa-check"></i> Até 70% menos plástico</li>
+                    <li><i class="fa-solid fa-check"></i> Preço mais acessível</li>
+                    <li><i class="fa-solid fa-check"></i> Mesma qualidade premium</li>
+                </ul>
+                <div class="sust-project-reward">
+                    <span>70%</span> menos plástico por refil
+                </div>
+            </article>
+
+            <!-- PROJETO 3 -->
+            <article class="sust-project-card reveal" data-project="embalagens">
+                <div class="sust-project-glow"></div>
+                <div class="sust-project-icon">
+                    <i class="fa-solid fa-recycle"></i>
+                </div>
+                <span class="sust-project-tag">MATERIAIS</span>
+                <h3>Embalagens Recicláveis</h3>
+                <p>
+                    Estamos migrando todas as nossas embalagens para materiais
+                    recicláveis e biodegradáveis, reduzindo o impacto ambiental.
+                </p>
+                <ul class="sust-project-features">
+                    <li><i class="fa-solid fa-check"></i> Materiais sustentáveis</li>
+                    <li><i class="fa-solid fa-check"></i> Redução de plástico</li>
+                    <li><i class="fa-solid fa-check"></i> Design consciente</li>
+                </ul>
+                <div class="sust-project-reward">
+                    <span>100%</span> meta até 2027
+                </div>
+            </article>
+
+        </div>
+    </section>
+
+
+    <!-- ============================================
+         TIMELINE DE METAS
+    ============================================ -->
+    <section class="sust-timeline-section">
+        <div class="sust-timeline-header">
+            <span class="sust-section-label reveal">NOSSAS METAS</span>
+            <h2 class="reveal">O futuro que estamos construindo</h2>
+        </div>
+
+        <div class="sust-timeline">
+            <div class="sust-timeline-line"></div>
+
+            <div class="sust-timeline-item reveal" data-year="2026">
+                <div class="sust-timeline-dot"></div>
+                <div class="sust-timeline-content">
+                    <span class="sust-timeline-year">2026</span>
+                    <h4>Início do ReDelicatto</h4>
+                    <p>Lançamento do programa principal de devolução de embalagens.</p>
+                </div>
+            </div>
+
+            <div class="sust-timeline-item reveal" data-year="2026">
+                <div class="sust-timeline-dot"></div>
+                <div class="sust-timeline-content">
+                    <span class="sust-timeline-year">2026</span>
+                    <h4>Projeto Refil</h4>
+                    <p>Implementação das embalagens de reposição em toda a linha.</p>
+                </div>
+            </div>
+
+            <div class="sust-timeline-item reveal" data-year="2026">
+                <div class="sust-timeline-dot"></div>
+                <div class="sust-timeline-content">
+                    <span class="sust-timeline-year">2026</span>
+                    <h4>Campanhas Educativas</h4>
+                    <p>Expansão das ações de conscientização nas redes sociais.</p>
+                </div>
+            </div>
+
+            <div class="sust-timeline-item reveal" data-year="2028">
+                <div class="sust-timeline-dot"></div>
+                <div class="sust-timeline-content">
+                    <span class="sust-timeline-year">2028</span>
+                    <h4>Redução de 50% do Plástico</h4>
+                    <p>Meta de redução significativa do uso de materiais plásticos.</p>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+
+    <!-- ============================================
+         EDUCAÇÃO E CONSCIENTIZAÇÃO - MELHORADA
+    ============================================ -->
+    <section class="sust-education">
+        <div class="sust-education-header">
+            <span class="sust-section-label reveal">CONSCIENTIZAÇÃO</span>
+            <h2 class="reveal">Educar para <span class="sust-highlight-green">transformar</span></h2>
+            <p class="reveal">
+                Promovemos campanhas educativas em nossas redes sociais para
+                conscientizar sobre descarte correto, reciclagem e consumo responsável.
+            </p>
+        </div>
+
+        <div class="sust-education-content">
+
+            <!-- CARD 1 - Descarte Correto -->
+            <div class="sust-education-card reveal">
+                <div class="sust-education-card-bg"></div>
+                <div class="sust-education-card-icon">
+                    <i class="fa-solid fa-trash-can"></i>
+                </div>
+                <span class="sust-education-card-number">01</span>
+                <h3>Descarte Correto</h3>
+                <p>
+                    Aprenda a descartar seus resíduos de forma consciente e
+                    ajude a reduzir o impacto no meio ambiente.
+                </p>
+                <div class="sust-education-card-footer">
+                    <i class="fa-solid fa-arrow-right"></i>
+                  
+                </div>
+            </div>
+
+            <!-- CARD 2 - Reciclagem -->
+            <div class="sust-education-card reveal">
+                <div class="sust-education-card-bg"></div>
+                <div class="sust-education-card-icon">
+                    <i class="fa-solid fa-recycle"></i>
+                </div>
+                <span class="sust-education-card-number">02</span>
+                <h3>Reciclagem</h3>
+                <p>
+                    Descubra como transformar o que seria lixo em novas
+                    matérias-primas e dar uma nova vida aos materiais.
+                </p>
+                <div class="sust-education-card-footer">
+                    <i class="fa-solid fa-arrow-right"></i>
+                    
+                </div>
+            </div>
+
+            <!-- CARD 3 - Consumo Responsável -->
+            <div class="sust-education-card reveal">
+                <div class="sust-education-card-bg"></div>
+                <div class="sust-education-card-icon">
+                    <i class="fa-solid fa-heart"></i>
+                </div>
+                <span class="sust-education-card-number">03</span>
+                <h3>Consumo Responsável</h3>
+                <p>
+                    Escolhas conscientes no dia a dia que fazem toda a
+                    diferença para um futuro mais sustentável.
+                </p>
+                <div class="sust-education-card-footer">
+                    <i class="fa-solid fa-arrow-right"></i>
+                 
+                </div>
+            </div>
+
+        </div>
+
+        <!-- DESTAQUE DE CAMPANHAS -->
+        <div class="sust-education-highlight reveal">
+            <div class="sust-education-highlight-icon">
+                <i class="fa-solid fa-bullhorn"></i>
+            </div>
+            <div class="sust-education-highlight-content">
+                <h4>Campanhas ativas nas redes sociais</h4>
+                <p>Conteúdo educativo semanal para você aprender e compartilhar.</p>
+            </div>
+            <div class="sust-education-highlight-socials">
+                <a href="#" title="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#" title="TikTok"><i class="fa-brands fa-tiktok"></i></a>
+                <a href="#" title="YouTube"><i class="fa-brands fa-youtube"></i></a>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- ============================================
+         CALL TO ACTION
+    ============================================ -->
+    <section class="sust-cta">
+        <div class="sust-cta-content">
+            <div class="sust-cta-icon reveal"></div>
+            <h2 class="reveal">Faça parte dessa mudança</h2>
+            <p class="reveal">
+                Cada pequena ação conta. Junte-se a nós no compromisso de construir
+                um mundo mais bonito, consciente e sustentável.
+            </p>
+            <div class="sust-cta-buttons reveal">
+                <a href="/produtos" class="sust-btn sust-btn-primary">
+                    <i class="fa-solid fa-shopping-bag"></i>
+                    Conhecer produtos
+                </a>
+                <a href="/contato" class="sust-btn sust-btn-secondary">
+                    <i class="fa-solid fa-envelope"></i>
+                    Falar conosco
+                </a>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+{% endblock %}

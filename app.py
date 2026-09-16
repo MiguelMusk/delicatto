@@ -212,7 +212,7 @@ def login():
             session['admin'] = usuario[4]
             return redirect('/')
         else:
-            mensagem = '❌ E-mail ou senha inválidos!'
+            mensagem = 'E-mail ou senha inválidos!'
 
     return render_template('login.html', mensagem=mensagem)
 
@@ -233,7 +233,7 @@ GOOGLE_CLIENT_SECRET = os.environ.get('GOOGLE_OAUTH_CLIENT_SECRET')
 GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
 
 if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
-    print("⚠️ ATENÇÃO: Credenciais do Google não encontradas no .env!")
+    print("ATENÇÃO: Credenciais do Google não encontradas no .env!")
 
 SCOPE = ["openid", "https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/userinfo.profile"]
 
@@ -560,6 +560,12 @@ def remover_perso(id):
     session.modified = True
     
     return redirect('/carrinho')
+# ============================================
+# sustentabiliade
+# ============================================
+@app.route('/sustentabilidade')
+def sustentabilidade():
+    return render_template('sustentabilidade.html')
 
 # ============================================
 # PERFIL
