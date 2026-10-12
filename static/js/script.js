@@ -9,54 +9,110 @@ let sun = '';
 
 let currentStep = 0;
 
+// ===== NOVO: mapa de respostas por pergunta =====
+// Chave = índice do passo (0 a 6), valor = true quando respondido
+let respostas = {
+    0: false,  // Tipo de pele
+    1: false,  // Sensibilidade
+    2: false,  // Objetivo
+    3: false,  // Acne
+    4: false,  // Sensação após lavar
+    5: false,  // Maquiagem
+    6: false   // Sol
+};
+
+
 function markActive(button) {
     const buttons = button.parentElement.querySelectorAll('button');
     buttons.forEach(btn => btn.classList.remove('active-option'));
     button.classList.add('active-option');
 }
 
+
+// ===== NOVO: habilita o botão "Próxima" do passo atual =====
+function habilitarProxima() {
+    const stepAtual = document.querySelectorAll('.quiz-step')[currentStep];
+    if (!stepAtual) return;
+
+    // Marca a resposta como preenchida
+    respostas[currentStep] = true;
+
+    // Habilita todos os botões de avanço dentro do passo (next-btn e result-btn)
+    stepAtual.querySelectorAll('.next-btn, .result-btn').forEach(btn => {
+        btn.disabled = false;
+        btn.classList.remove('disabled');
+    });
+}
+
+
+// ===== NOVO: verifica se o passo atual foi respondido =====
+function passoRespondido(index) {
+    return respostas[index] === true;
+}
+
+
 function selectOption(button, type) {
     skinType = type;
     markActive(button);
+    habilitarProxima();
 }
 
 function setSensitive(value, button) {
     sensitive = value;
     markActive(button);
+    habilitarProxima();
 }
 
 function setGoal(value, button) {
     goal = value;
     markActive(button);
+    habilitarProxima();
 }
 
 function setAcne(value, button) {
     acne = value;
     markActive(button);
+    habilitarProxima();
 }
 
 function setFeel(value, button) {
     skinFeel = value;
     markActive(button);
+    habilitarProxima();
 }
 
 function setMakeup(value, button) {
     makeup = value;
     markActive(button);
+    habilitarProxima();
 }
 
 function setSun(value, button) {
     sun = value;
     markActive(button);
+    habilitarProxima();
 }
 
+
+// ===== ATUALIZADO: bloqueia avanço sem resposta =====
 function nextStep() {
+    // Verifica se o passo atual foi respondido
+    if (!passoRespondido(currentStep)) {
+        mostrarAvisoPasso(currentStep);
+        return;
+    }
+
     const steps = document.querySelectorAll('.quiz-step');
     if (currentStep < steps.length - 1) {
         steps[currentStep].classList.remove('active');
         currentStep++;
         steps[currentStep].classList.add('active');
+
+        // Desabilita o botão do novo passo até que ele seja respondido
+        bloquearBotoesPasso(currentStep);
+
         updateProgress();
+        scrollParaQuiz();
     }
 }
 
@@ -67,23 +123,169 @@ function prevStep() {
         currentStep--;
         steps[currentStep].classList.add('active');
         updateProgress();
+        scrollParaQuiz();
     }
 }
 
+
+// ===== NOVO: bloqueia os botões de avanço de um passo =====
+function bloquearBotoesPasso(index) {
+    const step = document.querySelectorAll('.quiz-step')[index];
+    if (!step) return;
+
+    step.querySelectorAll('.next-btn, .result-btn').forEach(btn => {
+        // Se já foi respondido, mantém habilitado
+        if (!passoRespondido(index)) {
+            btn.disabled = true;
+            btn.classList.add('disabled');
+        } else {
+            btn.disabled = false;
+            btn.classList.remove('disabled');
+        }
+    });
+}
+
+
+// ===== NOVO: mostra aviso visual quando tenta avançar sem responder =====
+function mostrarAvisoPasso(index) {
+    const step = document.querySelectorAll('.quiz-step')[index];
+    if (!step) return;
+
+    // Remove aviso anterior (se existir)
+    const avisoAntigo = step.querySelector('.quiz-warning');
+    if (avisoAntigo) avisoAntigo.remove();
+
+    // Cria aviso
+    const aviso = document.createElement('div');
+    aviso.className = 'quiz-warning';
+    aviso.innerHTML = '⚠️ Escolha uma opção para continuar';
+    step.querySelector('.quiz-step-header').appendChild(aviso);
+
+    // Anima e remove
+    setTimeout(() => aviso.classList.add('show'), 10);
+    setTimeout(() => {
+        aviso.classList.remove('show');
+        setTimeout(() => aviso.remove(), 300);
+    }, 2500);
+}
+
+
+// ===== NOVO: scroll suave para o topo do quiz ao trocar de passo =====
+function scrollParaQuiz() {
+    const quizBox = document.querySelector('.quiz-box');
+    if (quizBox) {
+        const offset = 120;
+        const top = quizBox.getBoundingClientRect().top + window.pageYOffset - offset;
+        window.scrollTo({ top, behavior: 'smooth' });
+    }
+}
+
+
+// ===== ATUALIZADO: contador e percentual =====
 function updateProgress() {
     const progress = document.getElementById('progress');
     if (!progress) return;
-    const percent = ((currentStep + 1) / document.querySelectorAll('.quiz-step').length) * 100;
+
+    const total = document.querySelectorAll('.quiz-step').length;
+    const percent = ((currentStep + 1) / total) * 100;
+
     progress.style.width = percent + '%';
+
+    const currentStepEl = document.getElementById('currentStep');
+    const totalStepsEl = document.getElementById('totalSteps');
+    const progressPercentEl = document.getElementById('progressPercent');
+
+    if (currentStepEl) currentStepEl.textContent = currentStep + 1;
+    if (totalStepsEl) totalStepsEl.textContent = total;
+    if (progressPercentEl) progressPercentEl.textContent = Math.round(percent) + '%';
 }
 
-function showResult() {
+
+// ============================================
+// SHOW RESULT - VERSÃO HÍBRIDA (IA + ESTÁTICO)
+// ============================================
+async function showResult() {
     const result = document.getElementById('result');
-    if (!skinType || !sensitive || !goal) {
-        result.innerHTML = "Responda as perguntas principais antes de ver o resultado.";
+    if (!result) return;
+
+    // ===== VALIDAÇÃO: último passo respondido? =====
+    if (!passoRespondido(currentStep)) {
+        mostrarAvisoPasso(currentStep);
         return;
     }
 
+    // Validação mínima de segurança (garante que nada ficou para trás)
+    if (!skinType || !sensitive || !goal) {
+        result.innerHTML = `
+            <div class="skin-result-card">
+                <p style="color:#dc3545;text-align:center;">⚠️ Responda as perguntas principais antes de ver o resultado.</p>
+            </div>
+        `;
+        return;
+    }
+
+    // ===== 1. DEFINE TÍTULO, PRODUTOS E ROTINA (LÓGICA ESTÁTICA) =====
+    let title = "";
+    let description = "";
+    let routine = [];
+    let produtos = [];
+
+    if (goal === "hidratacao" && skinType === "seca") {
+        title = "Rotina Ultra Hidratação";
+        description = "Recupera profundamente a barreira da pele, devolvendo maciez e viço.";
+        routine = ["Gel de limpeza suave", "Sérum ácido hialurônico", "Creme reparador", "Protetor solar hidratante"];
+        produtos = [
+            { nome: "Hidratante Corporal", preco: "R$ 89,90", link: "/produto/1" },
+            { nome: "Sérum Facial", preco: "R$ 129,90", link: "/produto/2" },
+            { nome: "Creme Revitalizante", preco: "R$ 99,90", link: "/produto/3" }
+        ];
+    }
+    else if (goal === "glow") {
+        title = "Rotina Glow Natural";
+        description = "Realça luminosidade com leveza, deixando sua pele radiante e uniforme.";
+        routine = ["Gel iluminador", "Sérum vitamina C", "Hidratante glow", "Protetor solar iluminador"];
+        produtos = [
+            { nome: "Glow Skin Essence", preco: "R$ 94,90", link: "/produto/4" },
+            { nome: "Sérum Facial", preco: "R$ 129,90", link: "/produto/2" }
+        ];
+    }
+    else if (goal === "oleosidade" && skinType === "oleosa") {
+        title = "Rotina Equilíbrio e Controle";
+        description = "Controla a oleosidade sem agredir a pele, mantendo o equilíbrio natural.";
+        routine = ["Gel de limpeza profunda", "Tônico adstringente", "Sérum matificante", "Protetor solar oil-free"];
+        produtos = [
+            { nome: "Sérum Facial", preco: "R$ 129,90", link: "/produto/2" },
+            { nome: "Body Splash", preco: "R$ 79,90", link: "/produto/5" }
+        ];
+    }
+    else if (goal === "antiidade") {
+        title = "Rotina Anti-idade";
+        description = "Combate os sinais do envelhecimento com ativos poderosos e nutrição profunda.";
+        routine = ["Gel de limpeza suave", "Sérum retinol", "Creme rejuvenescedor", "Protetor solar com FPS 50"];
+        produtos = [
+            { nome: "Creme Revitalizante", preco: "R$ 99,90", link: "/produto/3" },
+            { nome: "Sérum Facial", preco: "R$ 129,90", link: "/produto/2" }
+        ];
+    }
+    else if (skinType === "mista") {
+        title = "Rotina Equilibrada";
+        description = "Combina hidratação e controle para peles mistas, tratando cada área de forma específica.";
+        routine = ["Gel de limpeza equilibrador", "Sérum multifuncional", "Hidratante leve", "Protetor solar diário"];
+        produtos = [
+            { nome: "Hidratante Corporal", preco: "R$ 89,90", link: "/produto/1" },
+            { nome: "Body Splash", preco: "R$ 79,90", link: "/produto/5" }
+        ];
+    }
+    else {
+        title = "Rotina Essencial";
+        description = "Cuidados básicos para manter sua pele saudável e protegida.";
+        routine = ["Gel de limpeza suave", "Sérum multifuncional", "Hidratante leve", "Protetor solar diário"];
+        produtos = [
+            { nome: "Hidratante Corporal", preco: "R$ 89,90", link: "/produto/1" }
+        ];
+    }
+
+    // ===== 2. CALCULA COMPATIBILIDADE =====
     let score = 80;
     if (skinType === "oleosa") score += 5;
     if (skinType === "seca") score += 5;
@@ -91,144 +293,116 @@ function showResult() {
     if (acne === "alta") score -= 10;
     if (skinFeel === "repuxando" && skinType === "seca") score += 10;
     if (sun === "alta") score += 3;
+    const compatibility = Math.min(score, 99);
 
-    // ===== DEFINIÇÃO DOS RESULTADOS =====
-    let title = "";
-    let description = "";
-    let routine = [];
-    let explicacao = "";
-    let produtos = [];
-
-    // CASE 1: Pele Seca + Hidratação
-    if (goal === "hidratacao" && skinType === "seca") {
-        title = "Rotina Ultra Hidratação";
-        description = "Recupera profundamente a barreira da pele, devolvendo maciez e viço.";
-        routine = [
-            "Gel de limpeza suave",
-            "Sérum ácido hialurônico",
-            "Creme reparador",
-            "Protetor solar hidratante"
-        ];
-        explicacao = "Sua pele seca precisa de hidratação intensa e reparação da barreira cutânea. A falta de água e lipídios pode causar descamação e sensação de repuxamento. A rotina Ultra Hidratação foca em restaurar a umidade natural da pele, usando ingredientes como ácido hialurônico e manteigas vegetais.";
-        produtos = [
-            { nome: "Hidratante Corporal", preco: "R$ 89,90", link: "/produto/1" },
-            { nome: "Sérum Facial", preco: "R$ 129,90", link: "/produto/2" },
-            { nome: "Creme Revitalizante", preco: "R$ 99,90", link: "/produto/3" }
-        ];
-    }
-    // CASE 2: Glow
-    else if (goal === "glow") {
-        title = "Rotina Glow Natural";
-        description = "Realça luminosidade com leveza, deixando sua pele radiante e uniforme.";
-        routine = [
-            "Gel iluminador",
-            "Sérum vitamina C",
-            "Hidratante glow",
-            "Protetor solar iluminador"
-        ];
-        explicacao = "Sua pele pede luminosidade e viço! A rotina Glow Natural combina ingredientes que estimulam o brilho natural da pele, como vitamina C e extratos iluminadores. Ideal para quem quer uma pele mais uniforme, com aspecto saudável e radiante.";
-        produtos = [
-            { nome: "Glow Skin Essence", preco: "R$ 94,90", link: "/produto/4" },
-            { nome: "Sérum Facial", preco: "R$ 129,90", link: "/produto/2" }
-        ];
-    }
-    // CASE 3: Controle de Oleosidade
-    else if (goal === "oleosidade" && skinType === "oleosa") {
-        title = "Rotina Equilíbrio e Controle";
-        description = "Controla a oleosidade sem agredir a pele, mantendo o equilíbrio natural.";
-        routine = [
-            "Gel de limpeza profunda",
-            "Tônico adstringente",
-            "Sérum matificante",
-            "Protetor solar oil-free"
-        ];
-        explicacao = "Sua pele oleosa precisa de controle sem ressecar! A rotina Equilíbrio e Controle regula a produção de sebo, reduz o brilho e previne o aparecimento de cravos e espinhas. Ingredientes como niacinamida e ácido salicílico são ótimos aliados.";
-        produtos = [
-            { nome: "Sérum Facial", preco: "R$ 129,90", link: "/produto/2" },
-            { nome: "Body Splash", preco: "R$ 79,90", link: "/produto/5" }
-        ];
-    }
-    // CASE 4: Anti-idade
-    else if (goal === "antiidade") {
-        title = "Rotina Anti-idade";
-        description = "Combate os sinais do envelhecimento com ativos poderosos e nutrição profunda.";
-        routine = [
-            "Gel de limpeza suave",
-            "Sérum retinol",
-            "Creme rejuvenescedor",
-            "Protetor solar com FPS 50"
-        ];
-        explicacao = "O envelhecimento é natural, mas podemos retardar seus sinais! A rotina Anti-idade combina ativos como retinol, vitamina C e antioxidantes para estimular a produção de colágeno, reduzir linhas finas e proteger contra radicais livres.";
-        produtos = [
-            { nome: "Creme Revitalizante", preco: "R$ 99,90", link: "/produto/3" },
-            { nome: "Sérum Facial", preco: "R$ 129,90", link: "/produto/2" }
-        ];
-    }
-    // CASE 5: Pele Mista
-    else if (skinType === "mista") {
-        title = "Rotina Equilibrada";
-        description = "Combina hidratação e controle para peles mistas, tratando cada área de forma específica.";
-        routine = [
-            "Gel de limpeza equilibrador",
-            "Sérum multifuncional",
-            "Hidratante leve",
-            "Protetor solar diário"
-        ];
-        explicacao = "Pele mista precisa de equilíbrio! A zona T (testa, nariz e queixo) tende a ser mais oleosa, enquanto as bochechas podem ser mais secas. A Rotina Equilibrada atua em cada área de forma personalizada, com ingredientes que hidratam onde é necessário e controlam a oleosidade onde há excesso.";
-        produtos = [
-            { nome: "Hidratante Corporal", preco: "R$ 89,90", link: "/produto/1" },
-            { nome: "Body Splash", preco: "R$ 79,90", link: "/produto/5" }
-        ];
-    }
-    // CASE 6: Padrão
-    else {
-        title = "Rotina Essencial";
-        description = "Cuidados básicos para manter sua pele saudável e protegida.";
-        routine = [
-            "Gel de limpeza suave",
-            "Sérum multifuncional",
-            "Hidratante leve",
-            "Protetor solar diário"
-        ];
-        explicacao = "Sua pele está equilibrada, mas precisa de cuidados consistentes para se manter saudável. A Rotina Essencial oferece os passos fundamentais de skincare: limpeza, tratamento, hidratação e proteção solar. Simples, eficaz e adaptável ao seu dia a dia.";
-        produtos = [
-            { nome: "Hidratante Corporal", preco: "R$ 89,90", link: "/produto/1" }
-        ];
-    }
-
-    // ===== EXIBE O RESULTADO =====
-    let compatibility = Math.min(score, 99);
-
+    // ===== 3. MOSTRA LOADING =====
     result.innerHTML = `
         <div class="skin-result-card">
             <div class="result-header">
-                <span class="result-badge">Sua rotina personalizada</span>
+                <span class="result-badge">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    Analisando seu perfil...
+                </span>
+                <h2>${title}</h2>
+                <p class="skin-desc">${description}</p>
+            </div>
+            <div style="text-align:center;padding:50px 20px;">
+                <div class="loader-spinner" style="margin:0 auto 20px;"></div>
+                <p style="color:#8a7a9e;font-size:14px;"> Gerando diagnóstico personalizado com IA...</p>
+            </div>
+        </div>
+    `;
+    result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    // ===== 4. CHAMA A IA =====
+    let diagnosticoIA = null;
+    try {
+        const perfil = {
+            tipo_pele: skinType,
+            sensivel: sensitive,
+            objetivo: goal,
+            acne: acne || 'baixa',
+            sente_apos_lavar: skinFeel || 'normal',
+            maquiagem: makeup || 'baixo',
+            exposicao_sol: sun || 'media'
+        };
+
+        const response = await fetch('/api/skinmatch/diagnostico', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(perfil)
+        });
+
+        const data = await response.json();
+        if (!data.erro && data.diagnostico) {
+            diagnosticoIA = data.diagnostico;
+        }
+    } catch (e) {
+        console.warn('IA indisponível, usando apenas lógica estática:', e);
+    }
+
+    // ===== 5. FORMATA O DIAGNÓSTICO =====
+    let blocoIA = '';
+
+    if (diagnosticoIA) {
+        const textoFormatado = diagnosticoIA
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\n\n/g, '</p><p>')
+            .replace(/\n/g, '<br>');
+
+        blocoIA = `
+            <div class="result-explicacao">
+                <h4><i class="fa-solid fa-stethoscope"></i> Análise da IA Dermatológica</h4>
+                <div style="line-height:1.85;color:#4a3a5a;font-size:15px;">
+                    <p>${textoFormatado}</p>
+                </div>
+            </div>
+        `;
+    } else {
+        blocoIA = `
+            <div class="result-explicacao">
+                <h4><i class="fa-solid fa-circle-info"></i> Análise da IA Dermatológica</h4>
+                <p style="color:#6f6878;font-size:14px;margin:0;line-height:1.6;">
+                    Não foi possível gerar a análise textual agora. Mas sua rotina personalizada está logo abaixo! 💜
+                </p>
+            </div>
+        `;
+    }
+
+    // ===== 6. MONTA O CARD FINAL =====
+    result.innerHTML = `
+        <div class="skin-result-card">
+            <div class="result-header">
+                <span class="result-badge">
+                    <i class="fa-solid fa-sparkles"></i>
+                    Sua rotina personalizada
+                </span>
                 <h2>${title}</h2>
                 <p class="skin-desc">${description}</p>
             </div>
 
-            <div class="result-explicacao">
-                <h4>Por que essa rotina?</h4>
-                <p>${explicacao}</p>
-            </div>
+            ${blocoIA}
 
             <div class="routine">
-                <h4>Passos da rotina</h4>
+                <h4><i class="fa-solid fa-list-check"></i> Passos da sua rotina</h4>
                 ${routine.map((item, i) => `
                     <div class="step">
-                        <span class="step-number">${i+1}</span>
+                        <span class="step-number">${i + 1}</span>
                         <span class="step-text">${item}</span>
                     </div>
                 `).join('')}
             </div>
 
             <div class="produtos-recomendados">
-                <h4>Produtos recomendados</h4>
+                <h4><i class="fa-solid fa-gem"></i> Produtos recomendados para você</h4>
                 <div class="produtos-grid">
                     ${produtos.map(produto => `
                         <div class="produto-item">
                             <span class="produto-nome">${produto.nome}</span>
-                            <a href="${produto.link}" class="produto-btn">Ver Produto</a>
+                            <span class="produto-preco">${produto.preco}</span>
+                            <a href="${produto.link}" class="produto-btn">
+                                <i class="fa-solid fa-eye"></i> Ver Produto
+                            </a>
                         </div>
                     `).join('')}
                 </div>
@@ -236,22 +410,34 @@ function showResult() {
 
             <div class="compatibility-section">
                 <div class="compatibility-label">
-                    <span>Compatibilidade</span>
+                    <span>Compatibilidade com seu perfil</span>
                     <span>${compatibility}%</span>
                 </div>
                 <div class="compatibility-bar">
                     <div style="width:${compatibility}%"></div>
                 </div>
-                <p class="compatibility-text">Essa rotina é altamente compatível com seu perfil de pele.</p>
+                <p class="compatibility-text">Essa rotina é altamente compatível com o perfil da sua pele.</p>
             </div>
 
             <div class="result-actions">
-                <a href="/produtos" class="btn-primary">Ver todos os produtos</a>
-                <button class="btn-secondary" onclick="reiniciarSkinmatch()">Refazer o teste</button>
+                <a href="/produtos" class="btn-primary">
+                    <i class="fa-solid fa-bag-shopping"></i> Ver todos os produtos
+                </a>
+                <button class="btn-secondary" onclick="reiniciarSkinmatch()">
+                    <i class="fa-solid fa-rotate"></i> Refazer o teste
+                </button>
             </div>
+
+            <p style="font-size:11px;color:#8a7a9e;margin-top:20px;text-align:center;line-height:1.6;">
+                ⚠️ Esta é uma análise fictícia gerada por IA para fins de demonstração.
+                Não substitui a consulta com um dermatologista profissional.
+            </p>
         </div>
     `;
+
+    result.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
+
 
 // ===== FUNÇÃO PARA REINICIAR =====
 function reiniciarSkinmatch() {
@@ -265,14 +451,29 @@ function reiniciarSkinmatch() {
     sun = '';
     currentStep = 0;
 
+    // ===== NOVO: reseta as respostas =====
+    respostas = {
+        0: false,
+        1: false,
+        2: false,
+        3: false,
+        4: false,
+        5: false,
+        6: false
+    };
+
     // Reseta o progresso
     const progress = document.getElementById('progress');
-    if (progress) progress.style.width = '0%';
+    if (progress) progress.style.width = '14%';
 
     // Mostra o primeiro passo
     const steps = document.querySelectorAll('.quiz-step');
     steps.forEach((step, index) => {
         step.classList.toggle('active', index === 0);
+
+        // Remove avisos antigos
+        const aviso = step.querySelector('.quiz-warning');
+        if (aviso) aviso.remove();
     });
 
     // Limpa o resultado
@@ -283,22 +484,60 @@ function reiniciarSkinmatch() {
     document.querySelectorAll('.options button').forEach(btn => {
         btn.classList.remove('active-option');
     });
+
+    // ===== NOVO: bloqueia todos os botões de avanço =====
+    for (let i = 0; i < steps.length; i++) {
+        bloquearBotoesPasso(i);
+    }
+
+    // Atualiza o contador
+    updateProgress();
+
+    // Rola para o topo do quiz
+    const quizBox = document.querySelector('.quiz-box');
+    if (quizBox) quizBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
+
+
+// ============================================
+// INICIALIZAÇÃO
+// ============================================
+document.addEventListener('DOMContentLoaded', function() {
+    // Só executa se estiver na página de skinmatch
+    if (!document.querySelector('.quiz-box')) return;
+
+    // Define o total de passos
+    const totalSteps = document.querySelectorAll('.quiz-step').length;
+    const totalStepsEl = document.getElementById('totalSteps');
+    if (totalStepsEl) totalStepsEl.textContent = totalSteps;
+
+    // Inicializa contador
+    const currentStepEl = document.getElementById('currentStep');
+    const progressPercentEl = document.getElementById('progressPercent');
+    if (currentStepEl) currentStepEl.textContent = '1';
+    if (progressPercentEl) progressPercentEl.textContent = Math.round(100 / totalSteps) + '%';
+
+    // ===== NOVO: bloqueia todos os botões de avanço inicialmente =====
+    for (let i = 0; i < totalSteps; i++) {
+        bloquearBotoesPasso(i);
+    }
+});
+
+
 // ============================================
 // SUSTENTABILIDADE - ANIMAÇÃO DOS NÚMEROS
 // ============================================
 
 document.addEventListener('DOMContentLoaded', function() {
     const stats = document.querySelectorAll('.sust-stat-number');
-    
     if (stats.length === 0) return;
-    
+
     const animateNumber = (element) => {
         const target = parseInt(element.getAttribute('data-target'));
         const duration = 2000;
         const step = target / (duration / 16);
         let current = 0;
-        
+
         const timer = setInterval(() => {
             current += step;
             if (current >= target) {
@@ -308,8 +547,7 @@ document.addEventListener('DOMContentLoaded', function() {
             element.textContent = Math.floor(current);
         }, 16);
     };
-    
-    // Intersection Observer para animar quando visível
+
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -318,9 +556,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }, { threshold: 0.5 });
-    
+
     stats.forEach(stat => observer.observe(stat));
 });
+
+
 // ============================================
 // VALIDAÇÃO DO CADASTRO - TERMOS DE USO
 // ============================================
@@ -329,13 +569,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('cadastroForm');
     const checkbox = document.getElementById('aceitoTermos');
     const termsError = document.getElementById('termsError');
-    
-    // Oculta a mensagem de erro inicialmente
-    if (termsError) {
-        termsError.style.display = 'none';
-    }
-    
-    // Validação ao clicar no checkbox
+
+    if (termsError) termsError.style.display = 'none';
+
     if (checkbox) {
         checkbox.addEventListener('change', function() {
             if (this.checked) {
@@ -344,70 +580,50 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
-    // Validação antes de enviar o formulário
+
     if (form) {
         form.addEventListener('submit', function(e) {
             if (!checkbox.checked) {
-                e.preventDefault(); // Impede o envio
+                e.preventDefault();
                 termsError.style.display = 'block';
                 checkbox.closest('.terms-group').classList.add('error');
                 checkbox.focus();
-                
-                // Scroll suave até o erro
                 termsError.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         });
     }
 });
+
+
 // ============================================
-// TELA DE CARREGAMENTO - CORRIGIDA
+// TELA DE CARREGAMENTO
 // ============================================
 
 document.addEventListener('DOMContentLoaded', function() {
     const loadingScreen = document.getElementById('loading-screen');
-
-    // Esconde a tela de carregamento quando a página carregar
     if (loadingScreen) {
         setTimeout(function() {
             loadingScreen.classList.add('hidden');
         }, 500);
     }
 
-    // Mostra loading APENAS para links internos que não são o carrinho flutuante
     const links = document.querySelectorAll('a:not([target="_blank"]):not([href^="#"]):not([href^="http"])');
     links.forEach(function(link) {
         link.addEventListener('click', function(e) {
             const href = this.getAttribute('href');
-            
-            // IGNORA ADICIONAR AO CARRINHO (AJAX)
-            if (href && href.includes('/adicionar_carrinho/')) {
-                return; // Não mostra loading
-            }
-            
-            // IGNORA API (AJAX)
-            if (href && href.includes('/api/')) {
-                return; // Não mostra loading
-            }
-            
-            // IGNORA O CARRINHO FLUTUANTE
-            if (this.id === 'floatingCartBtn') {
-                return;
-            }
-            
-            // IGNORA LINKS QUE ABREM EM MODAL
-            if (this.classList.contains('popup-checkout') || 
+
+            if (href && href.includes('/adicionar_carrinho/')) return;
+            if (href && href.includes('/api/')) return;
+            if (this.id === 'floatingCartBtn') return;
+
+            if (this.classList.contains('popup-checkout') ||
                 this.classList.contains('popup-checkout-finalizar') ||
                 this.classList.contains('popup-empty-btn')) {
                 return;
             }
-            
-            // IGNORA BOTÕES DE ADICIONAR AO CARRINHO
-            if (this.classList.contains('btn-cart')) {
-                return;
-            }
-            
-            // Mostra loading para outros links internos
+
+            if (this.classList.contains('btn-cart')) return;
+
             if (href && href !== '' && href !== '#' && !href.startsWith('http') && loadingScreen) {
                 loadingScreen.classList.remove('hidden');
             }
@@ -416,8 +632,10 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
+// ============================================
+// MENU HAMBURGUER + DROPDOWN PERFIL
+// ============================================
 
-// MENU HABURGUER MOBLIE
 document.addEventListener('DOMContentLoaded', function() {
     const menuToggle = document.querySelector('.menu-toggle');
     const nav = document.querySelector('.navbar nav');
@@ -428,7 +646,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Fechar menu ao clicar em um link
     const navLinks = document.querySelectorAll('.navbar nav a');
     navLinks.forEach(link => {
         link.addEventListener('click', function() {
@@ -436,9 +653,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-
-    //  DROPDOWN DO PERFIL
-    
     const profileBtn = document.querySelector('.profile-btn');
     const dropdown = document.querySelector('.profile-dropdown');
     const profileMenu = document.querySelector('.profile-menu');
@@ -458,15 +672,14 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
+// ============================================
 // ADMIN - TABS, BUSCA E CONFIRMAÇÃO
-
+// ============================================
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Verifica se está na página admin
     const adminTabs = document.querySelector('.admin-tabs');
     if (!adminTabs) return;
 
-    // ===== TABS =====
     const tabs = document.querySelectorAll('.admin-tab');
     const contents = document.querySelectorAll('.tab-content');
 
@@ -481,7 +694,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // ===== BUSCA =====
     const searchInput = document.getElementById('searchProduto');
     const tableRows = document.querySelectorAll('#tableProdutos tr');
 
@@ -502,24 +714,21 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // ===== CONFIRMAÇÃO DE EXCLUSÃO =====
     const deleteBtns = document.querySelectorAll('.btn-delete');
     deleteBtns.forEach(btn => {
         btn.addEventListener('click', function(e) {
             const confirmar = confirm('Tem certeza que deseja excluir este produto?');
-            if (!confirmar) {
-                e.preventDefault();
-            }
+            if (!confirmar) e.preventDefault();
         });
     });
 });
+
+
 // ===== GRÁFICOS (Chart.js) =====
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Verifica se está na página admin
     if (!document.querySelector('.admin-dashboard')) return;
 
-    // ===== GRÁFICO 1 - Vendas =====
     const ctx1 = document.getElementById('chartVendas');
     if (ctx1) {
         new Chart(ctx1, {
@@ -529,15 +738,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 datasets: [{
                     label: 'Vendas (R$)',
                     data: [120, 250, 180, 320, 450, 280, 190],
-                    backgroundColor: [
-                        'rgba(143, 107, 207, 0.7)',
-                        'rgba(143, 107, 207, 0.7)',
-                        'rgba(143, 107, 207, 0.7)',
-                        'rgba(143, 107, 207, 0.7)',
-                        'rgba(143, 107, 207, 0.7)',
-                        'rgba(143, 107, 207, 0.7)',
-                        'rgba(143, 107, 207, 0.7)'
-                    ],
+                    backgroundColor: 'rgba(143, 107, 207, 0.7)',
                     borderColor: '#8F6BCF',
                     borderWidth: 2,
                     borderRadius: 8
@@ -546,29 +747,15 @@ document.addEventListener('DOMContentLoaded', function() {
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
+                plugins: { legend: { display: false } },
                 scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(143, 107, 207, 0.05)'
-                        }
-                    },
-                    x: {
-                        grid: {
-                            display: false
-                        }
-                    }
+                    y: { beginAtZero: true, grid: { color: 'rgba(143, 107, 207, 0.05)' } },
+                    x: { grid: { display: false } }
                 }
             }
         });
     }
 
-    // ===== GRÁFICO 2 - Distribuição de Produtos =====
     const ctx2 = document.getElementById('chartProdutos');
     if (ctx2) {
         new Chart(ctx2, {
@@ -577,12 +764,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 labels: ['Séruns', 'Cremes', 'Protetores', 'Outros'],
                 datasets: [{
                     data: [12, 8, 5, 3],
-                    backgroundColor: [
-                        '#8F6BCF',
-                        '#B49CFF',
-                        '#6d4eb0',
-                        '#D4C4F0'
-                    ],
+                    backgroundColor: ['#8F6BCF', '#B49CFF', '#6d4eb0', '#D4C4F0'],
                     borderWidth: 2,
                     borderColor: 'white'
                 }]
@@ -597,9 +779,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             padding: 15,
                             usePointStyle: true,
                             pointStyle: 'circle',
-                            font: {
-                                size: 12
-                            }
+                            font: { size: 12 }
                         }
                     }
                 },
@@ -609,31 +789,29 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+
 // ============================================
 // ORDENAÇÃO DE TABELAS
 // ============================================
 function ordenarTabela(coluna, tabela) {
-    const tbody = tabela === 'produtos' 
-        ? document.getElementById('tableProdutos') 
+    const tbody = tabela === 'produtos'
+        ? document.getElementById('tableProdutos')
         : document.getElementById('tableUsuarios');
-    
+
     if (!tbody) return;
 
     const rows = Array.from(tbody.querySelectorAll('tr'));
     const header = tbody.closest('table').querySelectorAll('th')[coluna];
     const isAsc = header.classList.contains('asc');
 
-    // Remove classes de todos os headers
     document.querySelectorAll('.sortable').forEach(th => {
         th.classList.remove('asc', 'desc');
     });
 
-    // Ordena
     rows.sort((a, b) => {
         const valA = a.querySelectorAll('td')[coluna]?.textContent?.trim() || '';
         const valB = b.querySelectorAll('td')[coluna]?.textContent?.trim() || '';
 
-        // Tenta converter para número
         const numA = parseFloat(valA.replace('R$', '').replace('#', '').trim());
         const numB = parseFloat(valB.replace('R$', '').replace('#', '').trim());
 
@@ -644,12 +822,10 @@ function ordenarTabela(coluna, tabela) {
         return isAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
     });
 
-    // Adiciona classe de ordenação
     header.classList.add(isAsc ? 'desc' : 'asc');
-
-    // Reinsere as linhas ordenadas
     rows.forEach(row => tbody.appendChild(row));
 }
+
 
 // ============================================
 // NOTIFICAÇÕES
@@ -660,7 +836,6 @@ function fecharNotificacao(botao) {
     setTimeout(() => alert.remove(), 400);
 }
 
-// Fecha automaticamente após 5 segundos
 document.addEventListener('DOMContentLoaded', function() {
     const alerts = document.querySelectorAll('.alert');
     alerts.forEach(alert => {
@@ -673,21 +848,16 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// CSS para animação de saída
 const styleSheet = document.createElement('style');
 styleSheet.textContent = `
     @keyframes slideOutRight {
-        from {
-            transform: translateX(0);
-            opacity: 1;
-        }
-        to {
-            transform: translateX(100%);
-            opacity: 0;
-        }
+        from { transform: translateX(0); opacity: 1; }
+        to { transform: translateX(100%); opacity: 0; }
     }
 `;
 document.head.appendChild(styleSheet);
+
+
 // ============================================
 // MOSTRAR/OCULTAR SENHA
 // ============================================
@@ -707,6 +877,7 @@ function toggleSenha(inputId, button) {
     }
 }
 
+
 // ============================================
 // CARROSSEL DO MVV
 // ============================================
@@ -723,7 +894,6 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentIndex = 0;
     const totalSlides = slides.length;
 
-    // Criar dots
     slides.forEach((_, index) => {
         const dot = document.createElement('button');
         dot.classList.add('dot');
@@ -739,31 +909,23 @@ document.addEventListener('DOMContentLoaded', function() {
         if (index >= totalSlides) index = 0;
         currentIndex = index;
         track.style.transform = `translateX(-${currentIndex * 100}%)`;
-        
+
         dots.forEach((dot, i) => {
             dot.classList.toggle('active', i === currentIndex);
         });
     }
 
-    function nextSlide() {
-        goToSlide(currentIndex + 1);
-    }
+    function nextSlide() { goToSlide(currentIndex + 1); }
+    function prevSlide() { goToSlide(currentIndex - 1); }
 
-    function prevSlide() {
-        goToSlide(currentIndex - 1);
-    }
-
-    // Eventos dos botões
     if (nextBtn) nextBtn.addEventListener('click', nextSlide);
     if (prevBtn) prevBtn.addEventListener('click', prevSlide);
 
-    // Teclado
     document.addEventListener('keydown', function(e) {
         if (e.key === 'ArrowRight') nextSlide();
         if (e.key === 'ArrowLeft') prevSlide();
     });
 
-    // Swipe (touch)
     let touchStartX = 0;
     let touchEndX = 0;
 
@@ -780,6 +942,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }, { passive: true });
 });
+
+
 // ============================================
 // CARRINHO FLUTUANTE COM POPUP
 // ============================================
@@ -791,13 +955,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (!cartBtn || !popup) return;
 
-    // Abrir ao clicar no botão
     cartBtn.addEventListener('click', function(e) {
         e.preventDefault();
         popup.classList.toggle('active');
     });
 
-    // Fechar ao clicar no X
     if (closeBtn) {
         closeBtn.addEventListener('click', function(e) {
             e.stopPropagation();
@@ -805,26 +967,25 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Fechar ao clicar fora
     document.addEventListener('click', function(e) {
         if (!popup.contains(e.target) && !cartBtn.contains(e.target)) {
             popup.classList.remove('active');
         }
     });
 
-    // Fechar ao pressionar ESC
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             popup.classList.remove('active');
         }
     });
 });
+
+
 // ============================================
 // PERSONALIZAÇÃO - PREVIEW AO VIVO
 // ============================================
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Elementos
     const nomeInput = document.getElementById('nomeRotulo');
     const mensagemInput = document.getElementById('mensagemRotulo');
     const previewNome = document.getElementById('previewNome');
@@ -839,7 +1000,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const charCounter = document.getElementById('charCounter');
     const msgCounter = document.getElementById('msgCounter');
 
-    // ===== CONTADOR DE CARACTERES =====
     if (nomeInput && charCounter) {
         nomeInput.addEventListener('input', function() {
             const length = this.value.length;
@@ -856,21 +1016,18 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // ===== NOME =====
     if (nomeInput && previewNome) {
         nomeInput.addEventListener('input', function() {
             previewNome.textContent = this.value.trim() || 'Seu Nome';
         });
     }
 
-    // ===== MENSAGEM =====
     if (mensagemInput && previewMensagem) {
         mensagemInput.addEventListener('input', function() {
             previewMensagem.textContent = this.value.trim() || '';
         });
     }
 
-    // ===== PRODUTO BASE =====
     document.querySelectorAll('input[name="produto_base"]').forEach(function(radio) {
         radio.addEventListener('change', function() {
             if (this.checked) {
@@ -882,7 +1039,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // ===== TIPO DE PELE =====
     const peleSelect = document.getElementById('selectPele');
     if (peleSelect && previewPele) {
         peleSelect.addEventListener('change', function() {
@@ -890,7 +1046,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // ===== FRAGRÂNCIA =====
     const fragranciaSelect = document.getElementById('selectFragrancia');
     if (fragranciaSelect && previewFragrancia) {
         fragranciaSelect.addEventListener('change', function() {
@@ -898,7 +1053,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // ===== OBJETIVO =====
     const objetivoSelect = document.getElementById('selectObjetivo');
     if (objetivoSelect && previewObjetivo) {
         objetivoSelect.addEventListener('change', function() {
@@ -906,7 +1060,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // ===== COR DA EMBALAGEM =====
     document.querySelectorAll('input[name="cor_embalagem"]').forEach(function(radio) {
         radio.addEventListener('change', function() {
             if (this.checked) {
@@ -916,13 +1069,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // ===== COR DA FONTE =====
     document.querySelectorAll('input[name="cor_fonte"]').forEach(function(radio) {
         radio.addEventListener('change', function() {
             if (this.checked) {
                 const corTexto = this.getAttribute('data-texto') || '#ffffff';
-                
-                // Aplica a cor em todos os elementos do rótulo
+
                 previewRotulo.style.color = corTexto;
                 previewNome.style.color = corTexto;
                 previewProduto.style.color = corTexto;
@@ -930,8 +1081,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 previewFragrancia.style.color = corTexto;
                 previewObjetivo.style.color = corTexto;
                 previewMensagem.style.color = corTexto;
-                
-                // Aplica nos divisores com opacidade
+
                 document.querySelectorAll('.preview-divider').forEach(function(el) {
                     el.style.color = corTexto;
                     el.style.opacity = '0.3';
@@ -940,9 +1090,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // ===== INICIALIZAÇÃO =====
     setTimeout(function() {
-        // Produto inicial
         const checkedProduto = document.querySelector('input[name="produto_base"]:checked');
         if (checkedProduto) {
             const nome = checkedProduto.getAttribute('data-nome') || 'Produto';
@@ -950,15 +1098,13 @@ document.addEventListener('DOMContentLoaded', function() {
             previewProduto.textContent = nome.toUpperCase();
             previewPreco.textContent = 'R$ ' + parseFloat(preco).toFixed(2).replace('.', ',');
         }
-        
-        // Cor da embalagem inicial
+
         const corInicial = document.querySelector('input[name="cor_embalagem"]:checked');
         if (corInicial) {
             const cor = corInicial.getAttribute('data-cor') || '#6d4eb0';
             previewProdutoContainer.style.background = cor;
         }
-        
-        // Cor da fonte inicial
+
         const fonteInicial = document.querySelector('input[name="cor_fonte"]:checked');
         if (fonteInicial) {
             const corTexto = fonteInicial.getAttribute('data-texto') || '#ffffff';
@@ -972,8 +1118,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }, 100);
 });
+
+
 // ============================================
-// SCROLL REVEAL - ANIMAÇÃO AO ROLAR A PÁGINA
+// SCROLL REVEAL
 // ============================================
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -985,16 +1133,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         reveals.forEach(element => {
             const revealTop = element.getBoundingClientRect().top;
-
             if (revealTop < windowHeight - revealPoint) {
                 element.classList.add('active');
             }
         });
     }
 
-    // Verifica ao carregar
     checkReveal();
-
-    // Verifica ao rolar
     window.addEventListener('scroll', checkReveal);
 });

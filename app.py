@@ -4,18 +4,35 @@
 import os
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
-from flask import Flask, render_template, request, redirect, session, url_for
+from flask import Flask, render_template, request, redirect, session, url_for, jsonify
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
 import mysql.connector
 from dotenv import load_dotenv
 import re
 import dns.resolver
+import json
+
+load_dotenv()
+
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
 app.config['UPLOAD_FOLDER'] = 'static/img'
 
-load_dotenv()
+# ============================================
+# GROQ - SKINMATCH IA  ===== ATUALIZADO =====
+# ============================================
+from groq import Groq
+
+GROQ_API_KEY = os.environ.get('GROQ_API_KEY')
+if not GROQ_API_KEY:
+    print("ATENÇÃO: GROQ_API_KEY não configurado! SkinMatch IA não funcionará.")
+
+# Cliente do Groq (inicializa uma vez)
+groq_client = Groq(api_key=GROQ_API_KEY) if GROQ_API_KEY else None
+
+GROQ_MODEL = "openai/gpt-oss-120b"
+
 
 # ============================================
 # FUNÇÃO PARA VALIDAR EMAIL (REGEX + DOMÍNIO)
@@ -24,30 +41,26 @@ def validar_email(email):
     """
     Valida o formato, domínio e tenta verificar se o email existe
     """
-    # 1. Verifica formato
     regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     if not re.match(regex, email):
         return False, "Formato de e-mail inválido! (ex: nome@email.com)"
-    
-    # 2. Verifica se o domínio existe
+
     dominio = email.split('@')[1]
     try:
         dns.resolver.resolve(dominio, 'MX')
     except:
         return False, f"O domínio '{dominio}' não existe!"
-    
-    # 3. Verifica se o email tem formato válido (ex: não é "teste@")
+
     if email.split('@')[0].strip() == '':
         return False, "Digite um nome de usuário válido antes do @"
-    
-    # 4. Lista de domínios comuns (se for um domínio comum, provavelmente é válido)
-    dominios_confiaveis = ['gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com', 
+
+    dominios_confiaveis = ['gmail.com', 'hotmail.com', 'outlook.com', 'yahoo.com',
                            'uol.com.br', 'bol.com.br', 'terra.com.br', 'icloud.com',
                            'protonmail.com', 'mail.com', 'live.com', 'msn.com']
-    
+
     if dominio in dominios_confiaveis:
         return True, "E-mail válido!"
-    
+
     return True, "E-mail válido (domínio verificado, mas não foi possível confirmar a conta)"
 
 
@@ -62,6 +75,91 @@ def conectar():
         database=os.environ.get('DB_DATABASE')
     )
 
+
+# ========================================
+# SKINMATCH IA - GERADOR DE DIAGNÓSTICO 
+# ========================================
+def gerar_diagnostico_ia(perfil_pele):
+
+    if not groq_client:
+        return None, "Serviço de IA não configurado. Configure GROQ_API_KEY no .env"
+
+    prompt = f"""Você é um dermatologista especializado em skincare da marca Delicatto Cosméticos.
+
+Com base no perfil de pele abaixo, gere um diagnóstico dermatológico (mas realista e profissional), seguido de uma rotina de cuidados personalizada.
+
+PERFIL DA PELE:
+- Tipo de pele: {perfil_pele.get('tipo_pele', 'não informado')}
+- Pele sensível: {perfil_pele.get('sensivel', 'não informado')}
+- Principal objetivo: {perfil_pele.get('objetivo', 'não informado')}
+- Tendência a acne: {perfil_pele.get('acne', 'não informado')}
+- Sensação após lavar o rosto: {perfil_pele.get('sente_apos_lavar', 'não informado')}
+- Frequência de maquiagem: {perfil_pele.get('maquiagem', 'não informado')}
+- Exposição solar: {perfil_pele.get('exposicao_sol', 'não informado')}
+
+INSTRUÇÕES:
+1. Escreva em português brasileiro
+2. Seja profissional, acessível e acolhedor
+3. Estruture a resposta EXATAMENTE neste formato:
+
+**DIAGNÓSTICO**
+[Um parágrafo de análise profissional]
+
+**ROTINA RECOMENDADA**
+1. [Passo 1]
+2. [Passo 2]
+3. [Passo 3]
+4. [Passo 4]
+
+**RECOMENDAÇÃO FINAL**
+[Uma frase com dica prática]
+
+4. Máximo de 250 palavras
+5. NÃO prescreva medicamentos ou tratamentos médicos reais
+6. Deixe claro que é uma análise para fins de demonstração e que sempre é recomendavél ter remomendações médicas reais
+
+Responda APENAS com o diagnóstico, sem explicações adicionais:"""
+
+    try:
+        completion = groq_client.chat.completions.create(
+            model=GROQ_MODEL,
+            messages=[
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=4000,     
+            temperature=0.7,
+        )
+
+        diagnostico = completion.choices[0].message.content
+
+        # ===== LOG DE DEBUG COMPLETO =====
+        print("=" * 60)
+        print("DEBUG IA - RESPOSTA DO GROQ:")
+        print(f"Modelo usado: {GROQ_MODEL}")
+        print(f"Tipo: {type(diagnostico)}")
+        print(f"Tamanho: {len(diagnostico) if diagnostico else 0} caracteres")
+        print(f"Finish reason: {completion.choices[0].finish_reason}")
+
+        # Verifica se há reasoning_content (modelos de raciocínio)
+        msg = completion.choices[0].message
+        if hasattr(msg, 'reasoning_content') and msg.reasoning_content:
+            print(f"Reasoning (primeiros 300 chars): {msg.reasoning_content[:300]}")
+
+        print(f"Content (primeiros 300 chars): {repr(diagnostico[:300]) if diagnostico else 'VAZIO'}")
+        print(f"Tokens usados: {completion.usage}")
+        print("=" * 60)
+        # =================================
+
+        if not diagnostico or diagnostico.strip() == "":
+            return None, "A IA retornou uma resposta vazia. Tente novamente."
+
+        return diagnostico, None
+
+    except Exception as e:
+        print(f"Erro ao chamar API do Groq: {e}")
+        return None, f"Erro ao gerar diagnóstico: {str(e)}"
+
+
 # ============================================
 # CONTEXT PROCESSOR - VARIÁVEIS GLOBAIS
 # ============================================
@@ -71,11 +169,11 @@ def inject_usuario():
     personalizacoes = session.get('personalizacoes', [])
     total_valor = 0
     produtos_carrinho = []
-    
+
     if carrinho:
         conexao = conectar()
         cursor = conexao.cursor()
-        
+
         for id in carrinho:
             if id < 0:
                 personalizacao = next((p for p in personalizacoes if p.get('id') == id), None)
@@ -101,16 +199,17 @@ def inject_usuario():
                         'is_personalizado': False
                     })
                     total_valor += float(produto[2])
-        
+
         cursor.close()
         conexao.close()
-    
+
     return dict(
         usuario=session.get('usuario'),
         total_carrinho=len(carrinho),
         total_carrinho_valor=total_valor,
         produtos_carrinho_resumo=produtos_carrinho
     )
+
 
 # ============================================
 # ROTAS PRINCIPAIS
@@ -126,6 +225,7 @@ def home():
     conexao.close()
     return render_template('index.html', produtos_destaque=produtos_destaque)
 
+
 # ============================================
 # AUTENTICAÇÃO
 # ============================================
@@ -137,53 +237,48 @@ def cadastro():
         nome = request.form.get('nome')
         email = request.form.get('email')
         senha = request.form.get('senha')
-        aceito_termos = request.form.get('aceito_termos') 
-        
-        # ===== VALIDAÇÕES =====
+        aceito_termos = request.form.get('aceito_termos')
+
         if not nome or not email or not senha:
             mensagem = 'Preencha todos os campos!'
             return render_template('cadastro.html', mensagem=mensagem)
-        
-        # VERIFICA SE O USUÁRIO ACEITOU OS TERMOS
+
         if not aceito_termos:
             mensagem = 'Você precisa aceitar os Termos e Condições para criar uma conta!'
             return render_template('cadastro.html', mensagem=mensagem)
-        
+
         if len(senha) < 6:
             mensagem = 'A senha deve ter pelo menos 6 caracteres!'
             return render_template('cadastro.html', mensagem=mensagem)
-        
-        # VALIDA SE O EMAIL É VÁLIDO
+
         email_valido, msg_email = validar_email(email)
         if not email_valido:
             mensagem = msg_email
             return render_template('cadastro.html', mensagem=mensagem)
-        
+
         conexao = conectar()
         cursor = conexao.cursor()
-        
-        # Verifica se o email já está cadastrado
+
         cursor.execute("SELECT * FROM usuarios WHERE email = %s", (email,))
         usuario_existente = cursor.fetchone()
-        
+
         if usuario_existente:
             mensagem = 'Este e-mail já está cadastrado!'
             cursor.close()
             conexao.close()
             return render_template('cadastro.html', mensagem=mensagem)
-        
-        # Cria o usuário
+
         senha_hash = generate_password_hash(senha)
-        cursor.execute("INSERT INTO usuarios (nome, email, senha) VALUES (%s, %s, %s)", 
-                      (nome, email, senha_hash))
+        cursor.execute("INSERT INTO usuarios (nome, email, senha) VALUES (%s, %s, %s)",
+                       (nome, email, senha_hash))
         conexao.commit()
-        
+
         cursor.execute("SELECT * FROM usuarios WHERE email = %s", (email,))
         usuario = cursor.fetchone()
-        
+
         cursor.close()
         conexao.close()
-        
+
         if usuario:
             session['usuario'] = usuario[1]
             session['admin'] = usuario[4]
@@ -192,6 +287,7 @@ def cadastro():
             mensagem = 'Erro ao criar conta. Tente novamente.'
 
     return render_template('cadastro.html', mensagem=mensagem)
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -216,10 +312,12 @@ def login():
 
     return render_template('login.html', mensagem=mensagem)
 
+
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect('/')
+
 
 # ============================================
 # LOGIN COM GOOGLE
@@ -237,72 +335,75 @@ if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
 
 SCOPE = ["openid", "https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/userinfo.profile"]
 
+
 @app.route('/login/google')
 def login_google():
     if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
         return "Erro: Credenciais do Google não configuradas", 500
-    
+
     discovery = requests.get(GOOGLE_DISCOVERY_URL).json()
-    oauth = OAuth2Session(GOOGLE_CLIENT_ID, scope=SCOPE, 
-                         redirect_uri=f"{request.host_url}login/google/authorized")
+    oauth = OAuth2Session(GOOGLE_CLIENT_ID, scope=SCOPE,
+                          redirect_uri=f"{request.host_url}login/google/authorized")
     authorization_url, state = oauth.authorization_url(
         discovery['authorization_endpoint'], access_type="offline", prompt="select_account"
     )
     session['oauth_state'] = state
     return redirect(authorization_url)
 
+
 @app.route('/login/google/authorized')
 def google_authorized():
     if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
         return "Erro: Credenciais do Google não configuradas", 500
-    
+
     code = request.args.get('code')
     state = request.args.get('state')
-    
+
     if not code:
         return redirect('/login')
-    
+
     try:
         discovery = requests.get(GOOGLE_DISCOVERY_URL).json()
-        oauth = OAuth2Session(GOOGLE_CLIENT_ID, scope=SCOPE, 
-                             redirect_uri=f"{request.host_url}login/google/authorized",
-                             state=state)
-        
+        oauth = OAuth2Session(GOOGLE_CLIENT_ID, scope=SCOPE,
+                              redirect_uri=f"{request.host_url}login/google/authorized",
+                              state=state)
+
         oauth.fetch_token(discovery['token_endpoint'], client_secret=GOOGLE_CLIENT_SECRET,
-                         authorization_response=request.url)
-        
+                          authorization_response=request.url)
+
         user_info = oauth.get(discovery['userinfo_endpoint']).json()
         email = user_info.get('email')
         nome = user_info.get('name')
-        
+
         if not email:
             return redirect('/login')
-        
+
         conexao = conectar()
         cursor = conexao.cursor()
         cursor.execute("SELECT * FROM usuarios WHERE email = %s", (email,))
         usuario = cursor.fetchone()
-        
+
         if not usuario:
             cursor.execute("INSERT INTO usuarios (nome, email, senha, admin) VALUES (%s, %s, %s, %s)",
-                          (nome, email, '', 0))
+                           (nome, email, '', 0))
             conexao.commit()
             cursor.execute("SELECT * FROM usuarios WHERE email = %s", (email,))
             usuario = cursor.fetchone()
-        
+
         cursor.close()
         conexao.close()
-        
+
         if usuario:
             session['usuario'] = usuario[1]
             session['admin'] = usuario[4]
             session.pop('oauth_state', None)
             return redirect('/')
-        
+
     except Exception as e:
         print(f"Erro no login com Google: {e}")
-    
+
     return redirect('/login')
+
 
 # ============================================
 # PRODUTOS
@@ -317,6 +418,7 @@ def produtos():
     cursor.close()
     conexao.close()
     return render_template('produtos.html', produtos=produtos)
+
 
 @app.route('/produto/<int:id>')
 def produto(id):
@@ -341,7 +443,8 @@ def produto(id):
     conexao.close()
 
     return render_template('produto.html', produto=produto, avaliacoes=avaliacoes,
-                          media=estatisticas[0] or 0, quantidade=estatisticas[1] or 0)
+                           media=estatisticas[0] or 0, quantidade=estatisticas[1] or 0)
+
 
 @app.route('/avaliar/<int:produto_id>', methods=['POST'])
 def avaliar(produto_id):
@@ -355,8 +458,9 @@ def avaliar(produto_id):
     conexao.commit()
     cursor.close()
     conexao.close()
-    
+
     return redirect(f'/produto/{produto_id}')
+
 
 # ============================================
 # CARRINHO
@@ -367,6 +471,7 @@ def adicionar_carrinho(id):
     session.setdefault('carrinho', []).append(id)
     return redirect('/produtos')
 
+
 @app.route('/remover_carrinho/<int:id>')
 def remover_carrinho(id):
     carrinho = session.get('carrinho', [])
@@ -374,6 +479,7 @@ def remover_carrinho(id):
         carrinho.remove(id)
     session['carrinho'] = carrinho
     return redirect('/carrinho')
+
 
 @app.route('/carrinho', methods=['GET', 'POST'])
 def carrinho():
@@ -419,7 +525,7 @@ def carrinho():
 
     cupom = request.args.get('cupom') or request.form.get('cupom')
     remover = request.args.get('remover')
-    
+
     desconto = 0
     total_com_desconto = total
     cupom_valido = False
@@ -431,7 +537,7 @@ def carrinho():
     elif cupom:
         cupom = cupom.upper()
         cupom_aplicado = cupom
-        
+
         if cupom == 'DELICATTO10':
             desconto = total * 0.10
             total_com_desconto = total - desconto
@@ -452,9 +558,10 @@ def carrinho():
             cupom_aplicado = None
 
     return render_template('carrinho.html', produtos=produtos_carrinho, total=total,
-                          total_com_desconto=total_com_desconto, desconto=desconto,
-                          cupom_valido=cupom_valido, mensagem_cupom=mensagem_cupom,
-                          cupom_aplicado=cupom_aplicado)
+                           total_com_desconto=total_com_desconto, desconto=desconto,
+                           cupom_valido=cupom_valido, mensagem_cupom=mensagem_cupom,
+                           cupom_aplicado=cupom_aplicado)
+
 
 @app.route('/finalizar_compra')
 def finalizar_compra():
@@ -489,9 +596,11 @@ def finalizar_compra():
     session.pop('personalizacoes', None)
     return redirect('/pedido_sucesso')
 
+
 @app.route('/pedido_sucesso')
 def pedido_sucesso():
     return render_template('pedido_sucesso.html')
+
 
 # ============================================
 # PERSONALIZAÇÃO
@@ -501,6 +610,7 @@ def pedido_sucesso():
 def personalizacao():
     return render_template('personalizacao.html')
 
+
 @app.route('/adicionar_personalizado', methods=['POST'])
 def adicionar_personalizado():
     session.setdefault('carrinho', [])
@@ -508,14 +618,14 @@ def adicionar_personalizado():
 
     produto_base = request.form.get('produto_base')
     nome = request.form.get('nome_rotulo')
-    
+
     nomes_produtos = {
         'hidratante_corporal': 'Hidratante Corporal',
         'serum_facial': 'Sérum Facial',
         'creme_revitalizante': 'Creme Revitalizante',
         'body_splash': 'Body Splash'
     }
-    
+
     precos_produtos = {
         'hidratante_corporal': 89.90,
         'serum_facial': 129.90,
@@ -540,14 +650,15 @@ def adicionar_personalizado():
         'produto_nome': nomes_produtos.get(produto_base, 'Produto Personalizado'),
         'preco': precos_produtos.get(produto_base, 89.90)
     })
-    
+
     session.modified = True
     return redirect('/carrinho')
+
 
 @app.route('/remover_perso/<id>')
 def remover_perso(id):
     carrinho = session.get('carrinho', [])
-    
+
     try:
         id_int = int(id)
         if id_int in carrinho:
@@ -555,17 +666,20 @@ def remover_perso(id):
             session['carrinho'] = carrinho
     except:
         pass
-    
+
     session['personalizacoes'] = [p for p in session.get('personalizacoes', []) if str(p.get('id')) != str(id)]
     session.modified = True
-    
+
     return redirect('/carrinho')
+
+
 # ============================================
-# sustentabiliade
+# SUSTENTABILIDADE
 # ============================================
 @app.route('/sustentabilidade')
 def sustentabilidade():
     return render_template('sustentabilidade.html')
+
 
 # ============================================
 # PERFIL
@@ -588,8 +702,9 @@ def perfil():
     cursor.close()
     conexao.close()
 
-    return render_template('perfil.html', usuario_db=usuario, 
-                          total_pedidos=dados[0], total_gasto=dados[1])
+    return render_template('perfil.html', usuario_db=usuario,
+                           total_pedidos=dados[0], total_gasto=dados[1])
+
 
 # ============================================
 # ADMIN
@@ -607,7 +722,7 @@ def admin():
         descricao = request.form.get('descricao')
         preco = request.form.get('preco')
         imagem = request.files['imagem']
-        
+
         nome_arquivo = secure_filename(imagem.filename)
         imagem.save(os.path.join(app.config['UPLOAD_FOLDER'], nome_arquivo))
 
@@ -616,7 +731,7 @@ def admin():
         cursor.execute("""
             INSERT INTO produtos (nome, descricao, preco, imagem, descricao_completa, modo_uso, beneficios, ingredientes, categoria)
             VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-        """, (nome, descricao, preco, nome_arquivo, 
+        """, (nome, descricao, preco, nome_arquivo,
               request.form.get('descricao_completa'), request.form.get('modo_uso'),
               request.form.get('beneficios'), request.form.get('ingredientes'), request.form.get('categoria')))
         conexao.commit()
@@ -645,7 +760,7 @@ def admin():
     try:
         cursor.execute("""
             SELECT DATE(data) as dia, COUNT(*) as total_pedidos, SUM(total) as valor_total
-            FROM pedidos 
+            FROM pedidos
             WHERE data >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
             GROUP BY DATE(data) ORDER BY dia ASC
         """)
@@ -668,9 +783,10 @@ def admin():
     conexao.close()
 
     return render_template('admin.html', mensagem=mensagem, produtos=produtos,
-                          total_usuarios=total_usuarios, total_pedidos=total_pedidos,
-                          total_avaliacoes=total_avaliacoes, usuarios=usuarios,
-                          vendas_semana=vendas_semana, distribuicao=distribuicao)
+                           total_usuarios=total_usuarios, total_pedidos=total_pedidos,
+                           total_avaliacoes=total_avaliacoes, usuarios=usuarios,
+                           vendas_semana=vendas_semana, distribuicao=distribuicao)
+
 
 @app.route('/deletar_produto/<int:id>')
 def deletar_produto(id):
@@ -682,6 +798,7 @@ def deletar_produto(id):
     conexao.close()
     return redirect('/admin')
 
+
 @app.route('/editar_produto/<int:id>', methods=['GET', 'POST'])
 def editar_produto(id):
     conexao = conectar()
@@ -691,7 +808,7 @@ def editar_produto(id):
         nome = request.form.get('nome')
         descricao = request.form.get('descricao')
         preco = request.form.get('preco')
-        
+
         imagem = request.files.get('imagem')
         if imagem and imagem.filename != '':
             nome_arquivo = secure_filename(imagem.filename)
@@ -705,9 +822,9 @@ def editar_produto(id):
             SET nome=%s, descricao=%s, preco=%s, imagem=%s,
                 descricao_completa=%s, modo_uso=%s, beneficios=%s, ingredientes=%s, categoria=%s
             WHERE id=%s
-        """, (nome, descricao, preco, nome_arquivo, 
+        """, (nome, descricao, preco, nome_arquivo,
               request.form.get('descricao_completa'), request.form.get('modo_uso'),
-              request.form.get('beneficios'), request.form.get('ingredientes'), 
+              request.form.get('beneficios'), request.form.get('ingredientes'),
               request.form.get('categoria'), id))
 
         conexao.commit()
@@ -722,6 +839,7 @@ def editar_produto(id):
 
     return render_template('editar_produto.html', produto=produto)
 
+
 # ============================================
 # PÁGINAS ESTÁTICAS
 # ============================================
@@ -730,21 +848,69 @@ def editar_produto(id):
 def skinmatch():
     return render_template('skinmatch.html')
 
+
 @app.route('/sobre')
 def sobre():
     return render_template('sobre.html')
+
 
 @app.route('/contato')
 def contato():
     return render_template('contato.html')
 
+
 @app.route('/politica_privacidade')
 def politica_privacidade():
     return render_template('politica_privacidade.html')
 
+
 @app.route('/termos_condicoes')
 def termos_condicoes():
     return render_template('termos_condicoes.html')
+
+
+# ============================================
+# API SKINMATCH IA  ===== ATUALIZADO =====
+# ============================================
+
+@app.route('/api/skinmatch/diagnostico', methods=['POST'])
+def skinmatch_diagnostico():
+    """
+    Recebe o perfil de pele do frontend e retorna o diagnóstico da IA.
+    """
+    data = request.get_json()
+
+    if not data:
+        return jsonify({'erro': 'Dados não enviados'}), 400
+
+    # Limite de uso por sessão (evita abuso)
+    usos = session.get('ia_usos', 0)
+    if usos >= 10:
+        return jsonify({'erro': 'Limite de uso da IA atingido. Recarregue a página para continuar.'}), 429
+    session['ia_usos'] = usos + 1
+
+    # Extrai o perfil
+    perfil = {
+        'tipo_pele': data.get('tipo_pele'),
+        'sensivel': data.get('sensivel'),
+        'objetivo': data.get('objetivo'),
+        'acne': data.get('acne'),
+        'sente_apos_lavar': data.get('sente_apos_lavar'),
+        'maquiagem': data.get('maquiagem'),
+        'exposicao_sol': data.get('exposicao_sol'),
+    }
+
+    # Chama a IA
+    diagnostico, erro = gerar_diagnostico_ia(perfil)
+
+    if erro:
+        return jsonify({'erro': erro}), 500
+
+    return jsonify({
+        'diagnostico': diagnostico,
+        'perfil': perfil
+    })
+
 
 # ============================================
 # INICIALIZAÇÃO

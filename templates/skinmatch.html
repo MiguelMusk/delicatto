@@ -2,109 +2,326 @@
 
 {% block title %}SkinMatch | Delicatto{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/skinmatch.css') }}">
+{% endblock %}
+
 {% block content %}
 <section class="skinmatch-page">
-    <div class="skinmatch-header">
-        <span>SKINMATCH</span>
-        <h1>Descubra sua rotina ideal</h1>
-        <p>Análise completa para encontrar o cuidado perfeito para sua pele.</p>
-    </div>
 
-    <div class="quiz-box">
-        <!-- PROGRESSO -->
-        <div class="progress-bar">
-            <div id="progress"></div>
+    <!-- ============================================
+         HERO / HEADER
+    ============================================ -->
+    <div class="skinmatch-hero">
+        <div class="skinmatch-hero-bg">
+            <div class="skinmatch-orb skinmatch-orb-1"></div>
+            <div class="skinmatch-orb skinmatch-orb-2"></div>
+            <div class="skinmatch-orb skinmatch-orb-3"></div>
         </div>
 
-        <!-- QUIZ -->
-        <div id="quiz-container">
-            <!-- 1 -->
-            <div class="quiz-step active">
-                <p>Como você define sua pele?</p>
-                <div class="options">
-                    <button onclick="selectOption(this, 'oleosa')">Oleosa</button>
-                    <button onclick="selectOption(this, 'seca')">Seca</button>
-                    <button onclick="selectOption(this, 'mista')">Mista</button>
-                    <button onclick="selectOption(this, 'normal')">Normal</button>
-                </div>
-                <button class="next-btn" onclick="nextStep()">Próxima</button>
-            </div>
+        <div class="skinmatch-hero-content">
+            <span class="skinmatch-badge reveal">
+                SKINMATCH · IA DERMATOLÓGICA
+            </span>
+            <h1 class="reveal">
+                Descubra a rotina <span class="gold-script gold-intense">perfeita</span><br>
+                para a sua pele
+            </h1>
+            <p class="reveal">
+                Responda 7 perguntas rápidas e receba uma análise personalizada
+                gerada por nossa inteligência artificial dermatológica.
+            </p>
 
-            <!-- 2 -->
-            <div class="quiz-step">
-                <p>Sua pele é sensível?</p>
-                <div class="options">
-                    <button onclick="setSensitive('sim', this)">Sim</button>
-                    <button onclick="setSensitive('nao', this)">Não</button>
+            <div class="skinmatch-features reveal">
+                <div class="skinmatch-feature">
+                    <i class="fa-solid fa-clock"></i>
+                    <span>Menos de 1 minuto</span>
                 </div>
-                <button class="back-btn" onclick="prevStep()">Voltar</button>
-                <button class="next-btn" onclick="nextStep()">Próxima</button>
-            </div>
-
-            <!-- 3 -->
-            <div class="quiz-step">
-                <p>Qual seu principal objetivo?</p>
-                <div class="options">
-                    <button onclick="setGoal('hidratacao', this)">Hidratação</button>
-                    <button onclick="setGoal('glow', this)">Glow</button>
-                    <button onclick="setGoal('oleosidade', this)">Controle de Oleosidade</button>
-                    <button onclick="setGoal('antiidade', this)">Anti-idade</button>
+                <div class="skinmatch-feature">
+                    <i class="fa-solid fa-brain"></i>
+                    <span>Análise com IA</span>
                 </div>
-                <button class="back-btn" onclick="prevStep()">Voltar</button>
-                <button class="next-btn" onclick="nextStep()">Próxima</button>
-            </div>
-
-            <!-- 4 -->
-            <div class="quiz-step">
-                <p>Você costuma ter acne?</p>
-                <div class="options">
-                    <button onclick="setAcne('alta', this)">Sim, frequentemente</button>
-                    <button onclick="setAcne('media', this)">Às vezes</button>
-                    <button onclick="setAcne('baixa', this)">Raramente</button>
+                <div class="skinmatch-feature">
+                    <i class="fa-solid fa-leaf"></i>
+                    <span>Produtos personalizados</span>
                 </div>
-                <button class="back-btn" onclick="prevStep()">Voltar</button>
-                <button class="next-btn" onclick="nextStep()">Próxima</button>
-            </div>
-
-            <!-- 5 -->
-            <div class="quiz-step">
-                <p>Como sua pele fica após lavar o rosto?</p>
-                <div class="options">
-                    <button onclick="setFeel('repuxando', this)">Repuxando</button>
-                    <button onclick="setFeel('normal', this)">Normal</button>
-                    <button onclick="setFeel('oleosa', this)">Fica oleosa rápido</button>
-                </div>
-                <button class="back-btn" onclick="prevStep()">Voltar</button>
-                <button class="next-btn" onclick="nextStep()">Próxima</button>
-            </div>
-
-            <!-- 6 -->
-            <div class="quiz-step">
-                <p>Você usa maquiagem com frequência?</p>
-                <div class="options">
-                    <button onclick="setMakeup('alto', this)">Sim, todos os dias</button>
-                    <button onclick="setMakeup('medio', this)">Às vezes</button>
-                    <button onclick="setMakeup('baixo', this)">Quase nunca</button>
-                </div>
-                <button class="back-btn" onclick="prevStep()">Voltar</button>
-                <button class="next-btn" onclick="nextStep()">Próxima</button>
-            </div>
-
-            <!-- 7 -->
-            <div class="quiz-step">
-                <p>Você se expõe ao sol com frequência?</p>
-                <div class="options">
-                    <button onclick="setSun('alta', this)">Sim</button>
-                    <button onclick="setSun('media', this)">Moderado</button>
-                    <button onclick="setSun('baixa', this)">Pouco</button>
-                </div>
-                <button class="back-btn" onclick="prevStep()">Voltar</button>
-                <button class="result-btn" onclick="showResult()">Ver Resultado</button>
             </div>
         </div>
-
-        <!-- RESULTADO -->
-        <div id="result"></div>
     </div>
+
+
+    <!-- ============================================
+         QUIZ
+    ============================================ -->
+    <div class="skinmatch-quiz-wrapper">
+
+        <div class="quiz-box">
+
+            <!-- PROGRESSO -->
+            <div class="quiz-progress-wrapper">
+                <div class="quiz-progress-labels">
+                    <span class="quiz-progress-label">
+                        <i class="fa-solid fa-circle-check"></i>
+                        Pergunta <strong id="currentStep">1</strong> de <strong id="totalSteps">7</strong>
+                    </span>
+                    <span class="quiz-progress-percent" id="progressPercent">14%</span>
+                </div>
+                <div class="progress-bar">
+                    <div id="progress"></div>
+                </div>
+            </div>
+
+            <!-- QUIZ -->
+            <div id="quiz-container">
+
+                <!-- 1 - Tipo de pele -->
+                <div class="quiz-step active">
+                    <div class="quiz-step-header">
+                        <span class="quiz-step-number">01</span>
+                        <h3>Como você define sua pele?</h3>
+                        <p class="quiz-step-subtitle">Escolha a opção que mais se parece com você</p>
+                    </div>
+                    <div class="options">
+                        <button onclick="selectOption(this, 'oleosa')">
+                            <i class="fa-solid fa-droplet"></i>
+                            <span class="option-name">Oleosa</span>
+                            <span class="option-desc">Brilho excessivo ao longo do dia </span>
+                        </button>
+                        <button onclick="selectOption(this, 'seca')">
+                            <i class="fa-solid fa-wind"></i>
+                            <span class="option-name">Seca</span>
+                            <span class="option-desc">Sensação de repuxamento</span>
+                        </button>
+                        <button onclick="selectOption(this, 'mista')">
+                            <i class="fa-solid fa-circle-half-stroke"></i>
+                            <span class="option-name">Mista</span>
+                            <span class="option-desc">Zona T oleosa, bochechas secas</span>
+                        </button>
+                        <button onclick="selectOption(this, 'normal')">
+                            <i class="fa-solid fa-star"></i>
+                            <span class="option-name">Normal</span>
+                            <span class="option-desc">Equilibrada e saudável</span>
+                        </button>
+                    </div>
+                    <div class="quiz-nav">
+                        <button class="next-btn" onclick="nextStep()">
+                            Próxima <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 2 - Sensibilidade -->
+                <div class="quiz-step">
+                    <div class="quiz-step-header">
+                        <span class="quiz-step-number">02</span>
+                        <h3>Sua pele é sensível?</h3>
+                        <p class="quiz-step-subtitle">Reage facilmente a novos produtos?</p>
+                    </div>
+                    <div class="options">
+                        <button onclick="setSensitive('sim', this)">
+            
+                            <span class="option-name">Sim</span>
+                            <span class="option-desc">Costuma vermelhidão ou irritação</span>
+                        </button>
+                        <button onclick="setSensitive('nao', this)">
+                          
+                            <span class="option-name">Não</span>
+                            <span class="option-desc">Tolera bem a maioria dos produtos</span>
+                        </button>
+                    </div>
+                    <div class="quiz-nav">
+                        <button class="back-btn" onclick="prevStep()">
+                            <i class="fa-solid fa-arrow-left"></i> Voltar
+                        </button>
+                        <button class="next-btn" onclick="nextStep()">
+                            Próxima <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3 - Objetivo -->
+                <div class="quiz-step">
+                    <div class="quiz-step-header">
+                        <span class="quiz-step-number">03</span>
+                        <h3>Qual seu principal objetivo?</h3>
+                        <p class="quiz-step-subtitle">O que você mais quer melhorar?</p>
+                    </div>
+                    <div class="options">
+                        <button onclick="setGoal('hidratacao', this)">
+                            <i class="fa-solid fa-droplet"></i>
+                            <span class="option-name">Hidratação</span>
+                            <span class="option-desc">Pele macia e nutrida</span>
+                        </button>
+                        <button onclick="setGoal('glow', this)">
+                            <i class="fa-solid fa-sun"></i>
+                            <span class="option-name">Glow</span>
+                            <span class="option-desc">Luminosidade natural</span>
+                        </button>
+                        <button onclick="setGoal('oleosidade', this)">
+                            <i class="fa-solid fa-wind"></i>
+                            <span class="option-name">Controle de Oleosidade</span>
+                            <span class="option-desc">Menos brilho, mais equilíbrio</span>
+                        </button>
+                        <button onclick="setGoal('antiidade', this)">
+                            <i class="fa-solid fa-hourglass-half"></i>
+                            <span class="option-name">Anti-idade</span>
+                            <span class="option-desc">Prevenir linhas e rugas</span>
+                        </button>
+                    </div>
+                    <div class="quiz-nav">
+                        <button class="back-btn" onclick="prevStep()">
+                            <i class="fa-solid fa-arrow-left"></i> Voltar
+                        </button>
+                        <button class="next-btn" onclick="nextStep()">
+                            Próxima <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 4 - Acne -->
+                <div class="quiz-step">
+                    <div class="quiz-step-header">
+                        <span class="quiz-step-number">04</span>
+                        <h3>Você costuma ter acne?</h3>
+                        <p class="quiz-step-subtitle">Com qual frequência aparecem espinhas?</p>
+                    </div>
+                    <div class="options">
+                        <button onclick="setAcne('alta', this)">
+                            
+                            <span class="option-name">Frequentemente</span>
+                            <span class="option-desc">Sempre com espinhas ativas</span>
+                        </button>
+                        <button onclick="setAcne('media', this)">
+                          
+                            <span class="option-name">Às vezes</span>
+                            <span class="option-desc">Aparecem de vez em quando</span>
+                        </button>
+                        <button onclick="setAcne('baixa', this)">
+                          
+                            <span class="option-name">Raramente</span>
+                            <span class="option-desc">Quase nunca tenho acne</span>
+                        </button>
+                    </div>
+                    <div class="quiz-nav">
+                        <button class="back-btn" onclick="prevStep()">
+                            <i class="fa-solid fa-arrow-left"></i> Voltar
+                        </button>
+                        <button class="next-btn" onclick="nextStep()">
+                            Próxima <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 5 - Sensação após lavar -->
+                <div class="quiz-step">
+                    <div class="quiz-step-header">
+                        <span class="quiz-step-number">05</span>
+                        <h3>Como sua pele fica após lavar o rosto?</h3>
+                        <p class="quiz-step-subtitle">Nos primeiros minutos depois da limpeza</p>
+                    </div>
+                    <div class="options">
+                        <button onclick="setFeel('repuxando', this)">
+                           
+                            <span class="option-name">Repuxando</span>
+                            <span class="option-desc">Sente a pele "esticada"</span>
+                        </button>
+                        <button onclick="setFeel('normal', this)">
+                           
+                            <span class="option-name">Normal</span>
+                            <span class="option-desc">Confortável e equilibrada</span>
+                        </button>
+                        <button onclick="setFeel('oleosa', this)">
+                           
+                            <span class="option-name">Fica oleosa rápido</span>
+                            <span class="option-desc">Brilho volta em minutos</span>
+                        </button>
+                    </div>
+                    <div class="quiz-nav">
+                        <button class="back-btn" onclick="prevStep()">
+                            <i class="fa-solid fa-arrow-left"></i> Voltar
+                        </button>
+                        <button class="next-btn" onclick="nextStep()">
+                            Próxima <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 6 - Maquiagem -->
+                <div class="quiz-step">
+                    <div class="quiz-step-header">
+                        <span class="quiz-step-number">06</span>
+                        <h3>Você usa maquiagem com frequência?</h3>
+                        <p class="quiz-step-subtitle">Isso influencia os cuidados recomendados</p>
+                    </div>
+                    <div class="options">
+                        <button onclick="setMakeup('alto', this)">
+                           
+                            <span class="option-name">Todos os dias</span>
+                            <span class="option-desc">Uso diário de maquiagem</span>
+                        </button>
+                        <button onclick="setMakeup('medio', this)">
+                            
+                            <span class="option-name">Às vezes</span>
+                            <span class="option-desc">Em ocasiões especiais</span>
+                        </button>
+                        <button onclick="setMakeup('baixo', this)">
+                          
+                            <span class="option-name">Quase nunca</span>
+                            <span class="option-desc">Prefiro a pele natural</span>
+                        </button>
+                    </div>
+                    <div class="quiz-nav">
+                        <button class="back-btn" onclick="prevStep()">
+                            <i class="fa-solid fa-arrow-left"></i> Voltar
+                        </button>
+                        <button class="next-btn" onclick="nextStep()">
+                            Próxima <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 7 - Sol -->
+                <div class="quiz-step">
+                    <div class="quiz-step-header">
+                        <span class="quiz-step-number">07</span>
+                        <h3>Você se expõe ao sol com frequência?</h3>
+                        <p class="quiz-step-subtitle">Considere passeios, trabalho e lazer</p>
+                    </div>
+                    <div class="options">
+                        <button onclick="setSun('alta', this)">
+                            <i class="fa-solid fa-sun"></i>
+                            <span class="option-name">Sim, muito</span>
+                            <span class="option-desc">Sol diário sem proteção</span>
+                        </button>
+                        <button onclick="setSun('media', this)">
+                            <i class="fa-solid fa-cloud-sun"></i>
+                            <span class="option-name">Moderado</span>
+                            <span class="option-desc">Alguma exposição regular</span>
+                        </button>
+                        <button onclick="setSun('baixa', this)">
+                            <i class="fa-solid fa-cloud"></i>
+                            <span class="option-name">Pouco</span>
+                            <span class="option-desc">Fico mais em ambientes fechados</span>
+                        </button>
+                    </div>
+                    <div class="quiz-nav">
+                        <button class="back-btn" onclick="prevStep()">
+                            <i class="fa-solid fa-arrow-left"></i> Voltar
+                        </button>
+                        <button class="result-btn" onclick="showResult()">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            Ver meu diagnóstico
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- RESULTADO -->
+            <div id="result"></div>
+
+        </div>
+    </div>
+
 </section>
 {% endblock %}
