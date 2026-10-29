@@ -673,13 +673,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 // ============================================
-// ADMIN - TABS, BUSCA E CONFIRMAÇÃO
+// ADMIN - TABS, BUSCA E GRÁFICOS
 // ============================================
 
 document.addEventListener('DOMContentLoaded', function() {
-    const adminTabs = document.querySelector('.admin-tabs');
-    if (!adminTabs) return;
+    if (!document.querySelector('.admin-dashboard')) return;
 
+    // ===== TABS =====
     const tabs = document.querySelectorAll('.admin-tab');
     const contents = document.querySelectorAll('.tab-content');
 
@@ -694,50 +694,79 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // ===== BUSCA DE PRODUTOS =====
     const searchInput = document.getElementById('searchProduto');
     const tableRows = document.querySelectorAll('#tableProdutos tr');
 
     if (searchInput) {
         searchInput.addEventListener('keyup', function() {
             const term = this.value.toLowerCase().trim();
-
             tableRows.forEach(row => {
                 const nome = row.querySelector('td:nth-child(3)')?.textContent?.toLowerCase() || '';
                 const id = row.querySelector('td:nth-child(1)')?.textContent?.toLowerCase() || '';
-
-                if (nome.includes(term) || id.includes(term)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
-                }
+                row.style.display = (nome.includes(term) || id.includes(term)) ? '' : 'none';
             });
         });
     }
 
-    const deleteBtns = document.querySelectorAll('.btn-delete');
-    deleteBtns.forEach(btn => {
+    // ===== BUSCA DE USUÁRIOS =====
+    const searchUsuario = document.getElementById('searchUsuario');
+    const userRows = document.querySelectorAll('#tableUsuarios tr');
+
+    if (searchUsuario) {
+        searchUsuario.addEventListener('keyup', function() {
+            const term = this.value.toLowerCase().trim();
+            userRows.forEach(row => {
+                const nome = row.querySelector('td:nth-child(2)')?.textContent?.toLowerCase() || '';
+                const email = row.querySelector('td:nth-child(3)')?.textContent?.toLowerCase() || '';
+                row.style.display = (nome.includes(term) || email.includes(term)) ? '' : 'none';
+            });
+        });
+    }
+
+    // ===== CONFIRMAÇÃO DE EXCLUSÃO =====
+    document.querySelectorAll('.btn-delete').forEach(btn => {
         btn.addEventListener('click', function(e) {
-            const confirmar = confirm('Tem certeza que deseja excluir este produto?');
-            if (!confirmar) e.preventDefault();
+            if (!confirm('Tem certeza que deseja excluir este produto?')) {
+                e.preventDefault();
+            }
         });
     });
+
+    // ============================================
+    // GRÁFICOS
+    // ============================================
+    if (window.dadosAdmin) {
+        criarGraficos(window.dadosAdmin.vendas, window.dadosAdmin.distribuicao);
+    }
 });
 
+function criarGraficos(vendasSemana, distribuicao) {
+    // ===== GRÁFICO 1: VENDAS =====
+    const canvasVendas = document.getElementById('chartVendas');
+    if (canvasVendas) {
+        let labels = ['Sem dados'];
+        let valores = [0];
 
-// ===== GRÁFICOS (Chart.js) =====
+        if (vendasSemana && vendasSemana.length > 0) {
+            labels = [];
+            valores = [];
+            vendasSemana.forEach(item => {
+                // item[0] = data, item[1] = total_pedidos, item[2] = valor_total
+                const data = new Date(item[0] + 'T00:00:00');
+                const diaMes = data.getDate().toString().padStart(2, '0') + '/' + (data.getMonth() + 1).toString().padStart(2, '0');
+                labels.push(diaMes);
+                valores.push(parseFloat(item[2]) || 0);
+            });
+        }
 
-document.addEventListener('DOMContentLoaded', function() {
-    if (!document.querySelector('.admin-dashboard')) return;
-
-    const ctx1 = document.getElementById('chartVendas');
-    if (ctx1) {
-        new Chart(ctx1, {
+        new Chart(canvasVendas, {
             type: 'bar',
             data: {
-                labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'],
+                labels: labels,
                 datasets: [{
                     label: 'Vendas (R$)',
-                    data: [120, 250, 180, 320, 450, 280, 190],
+                    data: valores,
                     backgroundColor: 'rgba(143, 107, 207, 0.7)',
                     borderColor: '#8F6BCF',
                     borderWidth: 2,
@@ -749,22 +778,42 @@ document.addEventListener('DOMContentLoaded', function() {
                 maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
                 scales: {
-                    y: { beginAtZero: true, grid: { color: 'rgba(143, 107, 207, 0.05)' } },
-                    x: { grid: { display: false } }
+                    y: { 
+                        beginAtZero: true,
+                        ticks: { callback: v => 'R$ ' + v }
+                    }
                 }
             }
         });
     }
 
-    const ctx2 = document.getElementById('chartProdutos');
-    if (ctx2) {
-        new Chart(ctx2, {
+    // ===== GRÁFICO 2: DISTRIBUIÇÃO =====
+    const canvasDistrib = document.getElementById('chartProdutos');
+    if (canvasDistrib) {
+        let labels = ['Nenhum produto'];
+        let dados = [1];
+        let cores = ['#e0d4f0'];
+        const coresPaleta = ['#8F6BCF', '#B49CFF', '#6d4eb0', '#D4C4F0', '#E8D5FF'];
+
+        if (distribuicao && distribuicao.length > 0) {
+            labels = [];
+            dados = [];
+            cores = [];
+            distribuicao.forEach((item, index) => {
+                // item[0] = categoria, item[1] = total
+                labels.push(item[0] || 'Outros');
+                dados.push(parseInt(item[1]) || 0);
+                cores.push(coresPaleta[index % coresPaleta.length]);
+            });
+        }
+
+        new Chart(canvasDistrib, {
             type: 'doughnut',
             data: {
-                labels: ['Séruns', 'Cremes', 'Protetores', 'Outros'],
+                labels: labels,
                 datasets: [{
-                    data: [12, 8, 5, 3],
-                    backgroundColor: ['#8F6BCF', '#B49CFF', '#6d4eb0', '#D4C4F0'],
+                    data: dados,
+                    backgroundColor: cores,
                     borderWidth: 2,
                     borderColor: 'white'
                 }]
@@ -787,17 +836,16 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-});
-
+}
 
 // ============================================
 // ORDENAÇÃO DE TABELAS
 // ============================================
 function ordenarTabela(coluna, tabela) {
-    const tbody = tabela === 'produtos'
-        ? document.getElementById('tableProdutos')
+    const tbody = tabela === 'produtos' 
+        ? document.getElementById('tableProdutos') 
         : document.getElementById('tableUsuarios');
-
+    
     if (!tbody) return;
 
     const rows = Array.from(tbody.querySelectorAll('tr'));
@@ -818,14 +866,12 @@ function ordenarTabela(coluna, tabela) {
         if (!isNaN(numA) && !isNaN(numB)) {
             return isAsc ? numA - numB : numB - numA;
         }
-
         return isAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
     });
 
     header.classList.add(isAsc ? 'desc' : 'asc');
     rows.forEach(row => tbody.appendChild(row));
 }
-
 
 // ============================================
 // NOTIFICAÇÕES
@@ -835,27 +881,6 @@ function fecharNotificacao(botao) {
     alert.style.animation = 'slideOutRight 0.4s ease';
     setTimeout(() => alert.remove(), 400);
 }
-
-document.addEventListener('DOMContentLoaded', function() {
-    const alerts = document.querySelectorAll('.alert');
-    alerts.forEach(alert => {
-        setTimeout(() => {
-            if (alert.parentNode) {
-                alert.style.animation = 'slideOutRight 0.4s ease';
-                setTimeout(() => alert.remove(), 400);
-            }
-        }, 5000);
-    });
-});
-
-const styleSheet = document.createElement('style');
-styleSheet.textContent = `
-    @keyframes slideOutRight {
-        from { transform: translateX(0); opacity: 1; }
-        to { transform: translateX(100%); opacity: 0; }
-    }
-`;
-document.head.appendChild(styleSheet);
 
 
 // ============================================
@@ -1119,7 +1144,44 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 100);
 });
 
+// ============================================
+// PERFIL - AVATAR E CONFIGURAÇÕES
+// ============================================
 
+document.addEventListener('DOMContentLoaded', function() {
+    // ===== Avatar com iniciais =====
+    const avatar = document.getElementById('perfilAvatar');
+    if (avatar) {
+        const nome = avatar.dataset.nome || '';
+        const partes = nome.trim().split(' ').filter(p => p.length > 0);
+        let iniciais = '';
+
+        if (partes.length === 1) {
+            iniciais = partes[0][0].toUpperCase();
+        } else if (partes.length > 1) {
+            iniciais = (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
+        }
+
+        avatar.textContent = iniciais;
+    }
+});
+
+
+// Toggle das abas de configuração
+function toggleConfig(id) {
+    const form = document.getElementById(id);
+    if (!form) return;
+
+    form.classList.toggle('active');
+
+    const card = form.closest('.perfil-config-card');
+    const chevron = card.querySelector('.perfil-chevron');
+    if (chevron) {
+        chevron.style.transform = form.classList.contains('active')
+            ? 'rotate(180deg)'
+            : 'rotate(0deg)';
+    }
+}
 // ============================================
 // SCROLL REVEAL
 // ============================================

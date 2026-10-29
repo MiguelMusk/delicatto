@@ -20,7 +20,7 @@ app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-producti
 app.config['UPLOAD_FOLDER'] = 'static/img'
 
 # ============================================
-# GROQ - SKINMATCH IA  ===== ATUALIZADO =====
+# SKINMATCH COM O GROQ
 # ============================================
 from groq import Groq
 
@@ -28,19 +28,13 @@ GROQ_API_KEY = os.environ.get('GROQ_API_KEY')
 if not GROQ_API_KEY:
     print("ATENÇÃO: GROQ_API_KEY não configurado! SkinMatch IA não funcionará.")
 
-# Cliente do Groq (inicializa uma vez)
 groq_client = Groq(api_key=GROQ_API_KEY) if GROQ_API_KEY else None
-
 GROQ_MODEL = "openai/gpt-oss-120b"
 
-
 # ============================================
-# FUNÇÃO PARA VALIDAR EMAIL (REGEX + DOMÍNIO)
+# FUNÇÃO PARA VALIDAR EMAIL
 # ============================================
 def validar_email(email):
-    """
-    Valida o formato, domínio e tenta verificar se o email existe
-    """
     regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     if not re.match(regex, email):
         return False, "Formato de e-mail inválido! (ex: nome@email.com)"
@@ -63,7 +57,6 @@ def validar_email(email):
 
     return True, "E-mail válido (domínio verificado, mas não foi possível confirmar a conta)"
 
-
 # ============================================
 # BANCO DE DADOS
 # ============================================
@@ -75,12 +68,10 @@ def conectar():
         database=os.environ.get('DB_DATABASE')
     )
 
-
-# ========================================
+# ============================================
 # SKINMATCH IA - GERADOR DE DIAGNÓSTICO 
-# ========================================
+# ============================================
 def gerar_diagnostico_ia(perfil_pele):
-
     if not groq_client:
         return None, "Serviço de IA não configurado. Configure GROQ_API_KEY no .env"
 
@@ -116,52 +107,27 @@ INSTRUÇÕES:
 
 4. Máximo de 250 palavras
 5. NÃO prescreva medicamentos ou tratamentos médicos reais
-6. Deixe claro que é uma análise para fins de demonstração e que sempre é recomendavél ter remomendações médicas reais
+6. Deixe claro que é uma análise para fins de demonstração e que sempre é recomendavél ter recomendações médicas reais.
 
 Responda APENAS com o diagnóstico, sem explicações adicionais:"""
 
     try:
         completion = groq_client.chat.completions.create(
             model=GROQ_MODEL,
-            messages=[
-                {"role": "user", "content": prompt}
-            ],
+            messages=[{"role": "user", "content": prompt}],
             max_tokens=4000,     
             temperature=0.7,
         )
-
         diagnostico = completion.choices[0].message.content
-
-        # ===== LOG DE DEBUG COMPLETO =====
-        print("=" * 60)
-        print("DEBUG IA - RESPOSTA DO GROQ:")
-        print(f"Modelo usado: {GROQ_MODEL}")
-        print(f"Tipo: {type(diagnostico)}")
-        print(f"Tamanho: {len(diagnostico) if diagnostico else 0} caracteres")
-        print(f"Finish reason: {completion.choices[0].finish_reason}")
-
-        # Verifica se há reasoning_content (modelos de raciocínio)
-        msg = completion.choices[0].message
-        if hasattr(msg, 'reasoning_content') and msg.reasoning_content:
-            print(f"Reasoning (primeiros 300 chars): {msg.reasoning_content[:300]}")
-
-        print(f"Content (primeiros 300 chars): {repr(diagnostico[:300]) if diagnostico else 'VAZIO'}")
-        print(f"Tokens usados: {completion.usage}")
-        print("=" * 60)
-        # =================================
-
         if not diagnostico or diagnostico.strip() == "":
-            return None, "A IA retornou uma resposta vazia. Tente novamente."
-
+            return None, "A IA retornou uma resposta vazia."
         return diagnostico, None
-
     except Exception as e:
         print(f"Erro ao chamar API do Groq: {e}")
         return None, f"Erro ao gerar diagnóstico: {str(e)}"
 
-
 # ============================================
-# CONTEXT PROCESSOR - VARIÁVEIS GLOBAIS
+# CONTEXT PROCESSOR
 # ============================================
 @app.context_processor
 def inject_usuario():
@@ -179,7 +145,7 @@ def inject_usuario():
                 personalizacao = next((p for p in personalizacoes if p.get('id') == id), None)
                 if personalizacao:
                     produtos_carrinho.append({
-                        'id': id,
+                     'id': id,
                         'nome': f" {personalizacao.get('produto_nome', 'Produto Personalizado')}",
                         'preco': personalizacao.get('preco', 89.90),
                         'imagem': 'personalizado.png',
@@ -210,11 +176,9 @@ def inject_usuario():
         produtos_carrinho_resumo=produtos_carrinho
     )
 
-
 # ============================================
 # ROTAS PRINCIPAIS
 # ============================================
-
 @app.route('/')
 def home():
     conexao = conectar()
@@ -225,11 +189,9 @@ def home():
     conexao.close()
     return render_template('index.html', produtos_destaque=produtos_destaque)
 
-
 # ============================================
 # AUTENTICAÇÃO
 # ============================================
-
 @app.route('/cadastro', methods=['GET', 'POST'])
 def cadastro():
     mensagem = ''
@@ -240,54 +202,43 @@ def cadastro():
         aceito_termos = request.form.get('aceito_termos')
 
         if not nome or not email or not senha:
-            mensagem = 'Preencha todos os campos!'
-            return render_template('cadastro.html', mensagem=mensagem)
+            return render_template('cadastro.html', mensagem='Preencha todos os campos!')
 
         if not aceito_termos:
-            mensagem = 'Você precisa aceitar os Termos e Condições para criar uma conta!'
-            return render_template('cadastro.html', mensagem=mensagem)
+            return render_template('cadastro.html', mensagem='Você precisa aceitar os Termos e Condições!')
 
         if len(senha) < 6:
-            mensagem = 'A senha deve ter pelo menos 6 caracteres!'
-            return render_template('cadastro.html', mensagem=mensagem)
+            return render_template('cadastro.html', mensagem='A senha deve ter pelo menos 6 caracteres!')
 
         email_valido, msg_email = validar_email(email)
         if not email_valido:
-            mensagem = msg_email
-            return render_template('cadastro.html', mensagem=mensagem)
+            return render_template('cadastro.html', mensagem=msg_email)
 
         conexao = conectar()
         cursor = conexao.cursor()
-
         cursor.execute("SELECT * FROM usuarios WHERE email = %s", (email,))
-        usuario_existente = cursor.fetchone()
-
-        if usuario_existente:
-            mensagem = 'Este e-mail já está cadastrado!'
+        if cursor.fetchone():
             cursor.close()
             conexao.close()
-            return render_template('cadastro.html', mensagem=mensagem)
+            return render_template('cadastro.html', mensagem='Este e-mail já está cadastrado!')
 
         senha_hash = generate_password_hash(senha)
-        cursor.execute("INSERT INTO usuarios (nome, email, senha) VALUES (%s, %s, %s)",
-                       (nome, email, senha_hash))
+        cursor.execute("INSERT INTO usuarios (nome, email, senha) VALUES (%s, %s, %s)", (nome, email, senha_hash))
         conexao.commit()
 
         cursor.execute("SELECT * FROM usuarios WHERE email = %s", (email,))
         usuario = cursor.fetchone()
-
         cursor.close()
         conexao.close()
 
         if usuario:
             session['usuario'] = usuario[1]
+            session['usuario_id'] = usuario[0]
             session['admin'] = usuario[4]
             return redirect('/')
-        else:
-            mensagem = 'Erro ao criar conta. Tente novamente.'
+        mensagem = 'Erro ao criar conta.'
 
     return render_template('cadastro.html', mensagem=mensagem)
-
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -305,24 +256,21 @@ def login():
 
         if usuario and check_password_hash(usuario[3], senha):
             session['usuario'] = usuario[1]
+            session['usuario_id'] = usuario[0]
             session['admin'] = usuario[4]
             return redirect('/')
-        else:
-            mensagem = 'E-mail ou senha inválidos!'
+        mensagem = 'E-mail ou senha inválidos!'
 
     return render_template('login.html', mensagem=mensagem)
-
 
 @app.route('/logout')
 def logout():
     session.clear()
     return redirect('/')
 
-
 # ============================================
 # LOGIN COM GOOGLE
 # ============================================
-
 from requests_oauthlib import OAuth2Session
 import requests
 
@@ -335,21 +283,16 @@ if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
 
 SCOPE = ["openid", "https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/userinfo.profile"]
 
-
 @app.route('/login/google')
 def login_google():
     if not GOOGLE_CLIENT_ID or not GOOGLE_CLIENT_SECRET:
         return "Erro: Credenciais do Google não configuradas", 500
 
     discovery = requests.get(GOOGLE_DISCOVERY_URL).json()
-    oauth = OAuth2Session(GOOGLE_CLIENT_ID, scope=SCOPE,
-                          redirect_uri=f"{request.host_url}login/google/authorized")
-    authorization_url, state = oauth.authorization_url(
-        discovery['authorization_endpoint'], access_type="offline", prompt="select_account"
-    )
+    oauth = OAuth2Session(GOOGLE_CLIENT_ID, scope=SCOPE, redirect_uri=f"{request.host_url}login/google/authorized")
+    authorization_url, state = oauth.authorization_url(discovery['authorization_endpoint'], access_type="offline", prompt="select_account")
     session['oauth_state'] = state
     return redirect(authorization_url)
-
 
 @app.route('/login/google/authorized')
 def google_authorized():
@@ -358,19 +301,13 @@ def google_authorized():
 
     code = request.args.get('code')
     state = request.args.get('state')
-
     if not code:
         return redirect('/login')
 
     try:
         discovery = requests.get(GOOGLE_DISCOVERY_URL).json()
-        oauth = OAuth2Session(GOOGLE_CLIENT_ID, scope=SCOPE,
-                              redirect_uri=f"{request.host_url}login/google/authorized",
-                              state=state)
-
-        oauth.fetch_token(discovery['token_endpoint'], client_secret=GOOGLE_CLIENT_SECRET,
-                          authorization_response=request.url)
-
+        oauth = OAuth2Session(GOOGLE_CLIENT_ID, scope=SCOPE, redirect_uri=f"{request.host_url}login/google/authorized", state=state)
+        oauth.fetch_token(discovery['token_endpoint'], client_secret=GOOGLE_CLIENT_SECRET, authorization_response=request.url)
         user_info = oauth.get(discovery['userinfo_endpoint']).json()
         email = user_info.get('email')
         nome = user_info.get('name')
@@ -384,8 +321,7 @@ def google_authorized():
         usuario = cursor.fetchone()
 
         if not usuario:
-            cursor.execute("INSERT INTO usuarios (nome, email, senha, admin) VALUES (%s, %s, %s, %s)",
-                           (nome, email, '', 0))
+            cursor.execute("INSERT INTO usuarios (nome, email, senha, admin) VALUES (%s, %s, %s, %s)", (nome, email, '', 0))
             conexao.commit()
             cursor.execute("SELECT * FROM usuarios WHERE email = %s", (email,))
             usuario = cursor.fetchone()
@@ -395,20 +331,18 @@ def google_authorized():
 
         if usuario:
             session['usuario'] = usuario[1]
+            session['usuario_id'] = usuario[0]
             session['admin'] = usuario[4]
             session.pop('oauth_state', None)
             return redirect('/')
-
     except Exception as e:
         print(f"Erro no login com Google: {e}")
 
     return redirect('/login')
 
-
 # ============================================
 # PRODUTOS
 # ============================================
-
 @app.route('/produtos')
 def produtos():
     conexao = conectar()
@@ -419,12 +353,10 @@ def produtos():
     conexao.close()
     return render_template('produtos.html', produtos=produtos)
 
-
 @app.route('/produto/<int:id>')
 def produto(id):
     conexao = conectar()
     cursor = conexao.cursor()
-
     cursor.execute("SELECT * FROM produtos WHERE id=%s", (id,))
     produto = cursor.fetchone()
 
@@ -445,7 +377,6 @@ def produto(id):
     return render_template('produto.html', produto=produto, avaliacoes=avaliacoes,
                            media=estatisticas[0] or 0, quantidade=estatisticas[1] or 0)
 
-
 @app.route('/avaliar/<int:produto_id>', methods=['POST'])
 def avaliar(produto_id):
     if not session.get('usuario'):
@@ -453,24 +384,35 @@ def avaliar(produto_id):
 
     conexao = conectar()
     cursor = conexao.cursor()
-    cursor.execute("INSERT INTO avaliacoes (produto_id, usuario, nota, comentario) VALUES (%s, %s, %s, %s)",
-                   (produto_id, session['usuario'], request.form.get('nota'), request.form.get('comentario')))
+    cursor.execute("INSERT INTO avaliacoes (produto_id, usuario_id, usuario, nota, comentario) VALUES (%s, %s, %s, %s, %s)",
+                   (produto_id, session.get('usuario_id'), session['usuario'], request.form.get('nota'), request.form.get('comentario')))
     conexao.commit()
     cursor.close()
     conexao.close()
 
     return redirect(f'/produto/{produto_id}')
 
-
 # ============================================
 # CARRINHO
 # ============================================
-
 @app.route('/adicionar_carrinho/<int:id>')
 def adicionar_carrinho(id):
-    session.setdefault('carrinho', []).append(id)
-    return redirect('/produtos')
+    # Verifica se o produto existe antes de adicionar
+    conexao = conectar()
+    cursor = conexao.cursor()
+    cursor.execute("SELECT id FROM produtos WHERE id = %s", (id,))
+    existe = cursor.fetchone()
+    cursor.close()
+    conexao.close()
 
+    if existe:
+        session.setdefault('carrinho', []).append(id)
+        session.modified = True
+        print(f" Produto {id} adicionado ao carrinho. Carrinho atual: {session['carrinho']}")
+    else:
+        print(f"⚠️ Tentativa de adicionar produto inexistente (ID: {id})")
+        
+    return redirect('/produtos')
 
 @app.route('/remover_carrinho/<int:id>')
 def remover_carrinho(id):
@@ -480,13 +422,17 @@ def remover_carrinho(id):
     session['carrinho'] = carrinho
     return redirect('/carrinho')
 
-
 @app.route('/carrinho', methods=['GET', 'POST'])
 def carrinho():
     ids = session.get('carrinho', [])
     personalizacoes = session.get('personalizacoes', [])
     produtos_carrinho = []
     total = 0
+
+    # ===== ESPIÃO DE DEBUG =====
+    print("=" * 40)
+    print("IDS NO CARRINHO:", ids)
+    # ===========================
 
     if ids:
         conexao = conectar()
@@ -513,12 +459,14 @@ def carrinho():
                     produtos_carrinho.append({
                         'id': produto[0],
                         'nome': produto[1],
-                        'descricao': produto[2],
+                        'descricao': produto[2] if produto[2] else '',
                         'preco': float(produto[3]),
                         'imagem': produto[4],
                         'is_personalizado': False
                     })
                     total += float(produto[3])
+                else:
+                    print(f"⚠️ Produto ID {id} não encontrado no banco.")
 
         cursor.close()
         conexao.close()
@@ -562,7 +510,6 @@ def carrinho():
                            cupom_valido=cupom_valido, mensagem_cupom=mensagem_cupom,
                            cupom_aplicado=cupom_aplicado)
 
-
 @app.route('/finalizar_compra')
 def finalizar_compra():
     if not session.get('usuario'):
@@ -571,6 +518,7 @@ def finalizar_compra():
     ids = session.get('carrinho', [])
     personalizacoes = session.get('personalizacoes', [])
     total = 0
+    itens_pedido = []
 
     if ids:
         conexao = conectar()
@@ -580,14 +528,45 @@ def finalizar_compra():
             if id < 0:
                 personalizacao = next((p for p in personalizacoes if p.get('id') == id), None)
                 if personalizacao:
-                    total += personalizacao.get('preco', 89.90)
+                    preco = personalizacao.get('preco', 89.90)
+                    total += preco
+                    itens_pedido.append({
+                        'produto_id': None,
+                        'nome': personalizacao.get('produto_nome', 'Produto Personalizado'),
+                        'preco': preco,
+                        'is_personalizado': True,
+                        'detalhes': json.dumps(personalizacao)
+                    })
             else:
-                cursor.execute("SELECT * FROM produtos WHERE id=%s", (id,))
+                cursor.execute("SELECT id, nome, preco FROM produtos WHERE id=%s", (id,))
                 produto = cursor.fetchone()
                 if produto:
-                    total += float(produto[3])
+                    preco = float(produto[2])
+                    total += preco
+                    itens_pedido.append({
+                        'produto_id': produto[0],
+                        'nome': produto[1],
+                        'preco': preco,
+                        'is_personalizado': False,
+                        'detalhes': None
+                    })
 
-        cursor.execute("INSERT INTO pedidos (usuario, total) VALUES (%s, %s)", (session['usuario'], total))
+        # Insere o pedido
+        cursor.execute(
+            "INSERT INTO pedidos (usuario_id, usuario, total, status) VALUES (%s, %s, %s, %s)",
+            (session.get('usuario_id'), session['usuario'], total, 'preparando')
+        )
+        pedido_id = cursor.lastrowid
+        print(f" Pedido #{pedido_id} criado. Total: R$ {total}")
+
+        for item in itens_pedido:
+            print(f"   -> Salvando item: {item['nome']} | Preço: {item['preco']}")
+            cursor.execute("""
+                INSERT INTO pedido_itens 
+                (pedido_id, produto_id, nome_produto, preco_unitario, quantidade, is_personalizado, detalhes_personalizacao)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """, (pedido_id, item['produto_id'], item['nome'], item['preco'], 1, item['is_personalizado'], item['detalhes']))
+
         conexao.commit()
         cursor.close()
         conexao.close()
@@ -596,20 +575,16 @@ def finalizar_compra():
     session.pop('personalizacoes', None)
     return redirect('/pedido_sucesso')
 
-
 @app.route('/pedido_sucesso')
 def pedido_sucesso():
     return render_template('pedido_sucesso.html')
 
-
 # ============================================
 # PERSONALIZAÇÃO
 # ============================================
-
 @app.route('/personalizacao')
 def personalizacao():
     return render_template('personalizacao.html')
-
 
 @app.route('/adicionar_personalizado', methods=['POST'])
 def adicionar_personalizado():
@@ -654,11 +629,9 @@ def adicionar_personalizado():
     session.modified = True
     return redirect('/carrinho')
 
-
 @app.route('/remover_perso/<id>')
 def remover_perso(id):
     carrinho = session.get('carrinho', [])
-
     try:
         id_int = int(id)
         if id_int in carrinho:
@@ -669,9 +642,7 @@ def remover_perso(id):
 
     session['personalizacoes'] = [p for p in session.get('personalizacoes', []) if str(p.get('id')) != str(id)]
     session.modified = True
-
     return redirect('/carrinho')
-
 
 # ============================================
 # SUSTENTABILIDADE
@@ -680,36 +651,150 @@ def remover_perso(id):
 def sustentabilidade():
     return render_template('sustentabilidade.html')
 
-
 # ============================================
-# PERFIL
+# PERFIL (BLINDADO)
 # ============================================
-
 @app.route('/perfil')
 def perfil():
-    if not session.get('usuario'):
+    if not session.get('usuario_id'):
         return redirect('/login')
 
     conexao = conectar()
-    cursor = conexao.cursor()
+    cursor = conexao.cursor(dictionary=True)
 
-    cursor.execute("SELECT * FROM usuarios WHERE nome = %s", (session['usuario'],))
+    cursor.execute("SELECT id, nome, email, telefone, admin, criado_em FROM usuarios WHERE id = %s", (session['usuario_id'],))
     usuario = cursor.fetchone()
 
-    cursor.execute("SELECT COUNT(*), IFNULL(SUM(total),0) FROM pedidos WHERE usuario = %s", (session['usuario'],))
-    dados = cursor.fetchone()
+    if not usuario:
+        cursor.close()
+        conexao.close()
+        return redirect('/logout')
+
+    cursor.execute("SELECT COUNT(*) AS total_pedidos, IFNULL(SUM(total),0) AS total_gasto FROM pedidos WHERE usuario_id = %s", (session['usuario_id'],))
+    stats = cursor.fetchone()
+
+    cursor.execute("SELECT id, total, data_pedido, status FROM pedidos WHERE usuario_id = %s ORDER BY data_pedido DESC LIMIT 10", (session['usuario_id'],))
+    pedidos = cursor.fetchall()
+
+    for pedido in pedidos:
+        cursor_itens = conexao.cursor() 
+        cursor_itens.execute("SELECT nome_produto, quantidade, preco_unitario FROM pedido_itens WHERE pedido_id = %s", (pedido['id'],))
+        itens = cursor_itens.fetchall()
+        pedido['itens'] = [{'nome_produto': i[0], 'quantidade': i[1], 'preco_unitario': i[2]} for i in itens]
+        cursor_itens.close()
+
+    cursor.execute("""
+        SELECT a.nota, a.comentario, p.nome AS produto_nome, p.id AS produto_id
+        FROM avaliacoes a
+        JOIN produtos p ON p.id = a.produto_id
+        WHERE a.usuario_id = %s
+        ORDER BY a.id DESC LIMIT 3
+    """, (session['usuario_id'],))
+    avaliacoes = cursor.fetchall()
 
     cursor.close()
     conexao.close()
 
-    return render_template('perfil.html', usuario_db=usuario,
-                           total_pedidos=dados[0], total_gasto=dados[1])
+    return render_template('perfil.html', usuario_db=usuario, total_pedidos=stats['total_pedidos'],
+                           total_gasto=stats['total_gasto'], pedidos=pedidos, avaliacoes=avaliacoes)
 
+@app.route('/perfil/editar', methods=['POST'])
+def perfil_editar():
+    if not session.get('usuario_id'):
+        return redirect('/login')
+
+    nome = request.form.get('nome', '').strip()
+    email = request.form.get('email', '').strip()
+    telefone = request.form.get('telefone', '').strip()
+
+    if not nome or not email:
+        session['msg_perfil'] = 'Nome e e-mail são obrigatórios.'
+        session['msg_perfil_tipo'] = 'erro'
+        return redirect('/perfil')
+
+    email_valido, msg_email = validar_email(email)
+    if not email_valido:
+        session['msg_perfil'] = msg_email
+        session['msg_perfil_tipo'] = 'erro'
+        return redirect('/perfil')
+
+    conexao = conectar()
+    cursor = conexao.cursor()
+
+    cursor.execute("SELECT id FROM usuarios WHERE email = %s AND id != %s", (email, session['usuario_id']))
+    if cursor.fetchone():
+        session['msg_perfil'] = 'Este e-mail já está em uso.'
+        session['msg_perfil_tipo'] = 'erro'
+        cursor.close()
+        conexao.close()
+        return redirect('/perfil')
+
+    nome_antigo = session['usuario']
+
+    cursor.execute("UPDATE usuarios SET nome = %s, email = %s, telefone = %s WHERE id = %s", (nome, email, telefone, session['usuario_id']))
+    
+    if nome_antigo != nome:
+        cursor.execute("UPDATE pedidos SET usuario = %s WHERE usuario_id = %s", (nome, session['usuario_id']))
+        cursor.execute("UPDATE avaliacoes SET usuario = %s WHERE usuario_id = %s", (nome, session['usuario_id']))
+
+    conexao.commit()
+    cursor.close()
+    conexao.close()
+
+    session['usuario'] = nome
+    session['msg_perfil'] = 'Dados atualizados com sucesso!'
+    session['msg_perfil_tipo'] = 'sucesso'
+    return redirect('/perfil')
+
+@app.route('/perfil/senha', methods=['POST'])
+def perfil_senha():
+    if not session.get('usuario_id'):
+        return redirect('/login')
+
+    senha_atual = request.form.get('senha_atual')
+    senha_nova = request.form.get('senha_nova')
+    senha_confirma = request.form.get('senha_confirma')
+
+    if not senha_atual or not senha_nova or not senha_confirma:
+        session['msg_perfil'] = 'Preencha todos os campos de senha.'
+        session['msg_perfil_tipo'] = 'erro'
+        return redirect('/perfil')
+
+    if len(senha_nova) < 6:
+        session['msg_perfil'] = 'A nova senha deve ter pelo menos 6 caracteres.'
+        session['msg_perfil_tipo'] = 'erro'
+        return redirect('/perfil')
+
+    if senha_nova != senha_confirma:
+        session['msg_perfil'] = 'As senhas novas não coincidem.'
+        session['msg_perfil_tipo'] = 'erro'
+        return redirect('/perfil')
+
+    conexao = conectar()
+    cursor = conexao.cursor()
+    cursor.execute("SELECT senha FROM usuarios WHERE id = %s", (session['usuario_id'],))
+    resultado = cursor.fetchone()
+
+    if not resultado or not check_password_hash(resultado[0], senha_atual):
+        session['msg_perfil'] = 'Senha atual incorreta.'
+        session['msg_perfil_tipo'] = 'erro'
+        cursor.close()
+        conexao.close()
+        return redirect('/perfil')
+
+    nova_hash = generate_password_hash(senha_nova)
+    cursor.execute("UPDATE usuarios SET senha = %s WHERE id = %s", (nova_hash, session['usuario_id']))
+    conexao.commit()
+    cursor.close()
+    conexao.close()
+
+    session['msg_perfil'] = 'Senha alterada com sucesso!'
+    session['msg_perfil_tipo'] = 'sucesso'
+    return redirect('/perfil')
 
 # ============================================
 # ADMIN
 # ============================================
-
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
     if not session.get('admin'):
@@ -759,13 +844,14 @@ def admin():
 
     try:
         cursor.execute("""
-            SELECT DATE(data) as dia, COUNT(*) as total_pedidos, SUM(total) as valor_total
+            SELECT DATE(data_pedido) as dia, COUNT(*) as total_pedidos, SUM(total) as valor_total
             FROM pedidos
-            WHERE data >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
-            GROUP BY DATE(data) ORDER BY dia ASC
+            WHERE data_pedido >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+            GROUP BY DATE(data_pedido) ORDER BY dia ASC
         """)
         vendas_semana = cursor.fetchall()
-    except:
+    except Exception as e:
+        print(f"Erro no gráfico de vendas: {e}")
         vendas_semana = []
 
     try:
@@ -776,7 +862,8 @@ def admin():
             GROUP BY categoria ORDER BY total DESC
         """)
         distribuicao = cursor.fetchall()
-    except:
+    except Exception as e:
+        print(f"Erro no gráfico de distribuição: {e}")
         distribuicao = []
 
     cursor.close()
@@ -787,7 +874,6 @@ def admin():
                            total_avaliacoes=total_avaliacoes, usuarios=usuarios,
                            vendas_semana=vendas_semana, distribuicao=distribuicao)
 
-
 @app.route('/deletar_produto/<int:id>')
 def deletar_produto(id):
     conexao = conectar()
@@ -797,7 +883,6 @@ def deletar_produto(id):
     cursor.close()
     conexao.close()
     return redirect('/admin')
-
 
 @app.route('/editar_produto/<int:id>', methods=['GET', 'POST'])
 def editar_produto(id):
@@ -839,57 +924,43 @@ def editar_produto(id):
 
     return render_template('editar_produto.html', produto=produto)
 
-
 # ============================================
 # PÁGINAS ESTÁTICAS
 # ============================================
-
 @app.route('/skinmatch')
 def skinmatch():
     return render_template('skinmatch.html')
-
 
 @app.route('/sobre')
 def sobre():
     return render_template('sobre.html')
 
-
 @app.route('/contato')
 def contato():
     return render_template('contato.html')
-
 
 @app.route('/politica_privacidade')
 def politica_privacidade():
     return render_template('politica_privacidade.html')
 
-
 @app.route('/termos_condicoes')
 def termos_condicoes():
     return render_template('termos_condicoes.html')
 
-
 # ============================================
-# API SKINMATCH IA  ===== ATUALIZADO =====
+# API SKINMATCH IA
 # ============================================
-
 @app.route('/api/skinmatch/diagnostico', methods=['POST'])
 def skinmatch_diagnostico():
-    """
-    Recebe o perfil de pele do frontend e retorna o diagnóstico da IA.
-    """
     data = request.get_json()
-
     if not data:
         return jsonify({'erro': 'Dados não enviados'}), 400
 
-    # Limite de uso por sessão (evita abuso)
     usos = session.get('ia_usos', 0)
     if usos >= 10:
         return jsonify({'erro': 'Limite de uso da IA atingido. Recarregue a página para continuar.'}), 429
     session['ia_usos'] = usos + 1
 
-    # Extrai o perfil
     perfil = {
         'tipo_pele': data.get('tipo_pele'),
         'sensivel': data.get('sensivel'),
@@ -900,17 +971,12 @@ def skinmatch_diagnostico():
         'exposicao_sol': data.get('exposicao_sol'),
     }
 
-    # Chama a IA
     diagnostico, erro = gerar_diagnostico_ia(perfil)
 
     if erro:
         return jsonify({'erro': erro}), 500
 
-    return jsonify({
-        'diagnostico': diagnostico,
-        'perfil': perfil
-    })
-
+    return jsonify({'diagnostico': diagnostico, 'perfil': perfil})
 
 # ============================================
 # INICIALIZAÇÃO

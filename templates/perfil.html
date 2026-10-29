@@ -4,27 +4,236 @@
 
 {% block content %}
 <section class="perfil-page">
-    <div class="perfil-card">
-        <div class="perfil-avatar">
-            <i class="fa-solid fa-user"></i>
-        </div>
-        <h1>{{ usuario_db[1] }}</h1>
-        <p>{{ usuario_db[2] }}</p>
 
-        <div class="perfil-info">
-            <div class="info-box">
-                <h3>Pedidos</h3>
-                <span>{{ total_pedidos }}</span>
+    <!-- MENSAGENS -->
+    {% if session.get('msg_perfil') %}
+    <div class="perfil-alert {% if session.get('msg_perfil_tipo') == 'erro' %}alert-erro{% else %}alert-sucesso{% endif %}">
+        <i class="fa-solid {% if session.get('msg_perfil_tipo') == 'erro' %}fa-circle-exclamation{% else %}fa-circle-check{% endif %}"></i>
+        <span>{{ session.get('msg_perfil') }}</span>
+    </div>
+    {% set _ = session.pop('msg_perfil', None) %}
+    {% set _ = session.pop('msg_perfil_tipo', None) %}
+    {% endif %}
+
+    <!-- HEADER DO PERFIL -->
+    <div class="perfil-hero">
+        <div class="perfil-avatar-wrap">
+            <div class="perfil-avatar" id="perfilAvatar" data-nome="{{ usuario_db.nome }}"></div>
+            <div class="perfil-avatar-glow"></div>
+        </div>
+
+        <div class="perfil-hero-info">
+            <h1>{{ usuario_db.nome }}</h1>
+            <p class="perfil-email">
+                <i class="fa-solid fa-envelope"></i>
+                {{ usuario_db.email }}
+            </p>
+            
+{% if usuario_db.criado_em %}
+<p class="perfil-membro">
+    <i class="fa-solid fa-heart"></i>
+    Membro Delicatto desde 
+    <strong>{{ usuario_db.criado_em.strftime('%d/%m/%Y') }}</strong>
+</p>
+{% endif %}
+        </div>
+    </div>
+
+    <!-- ESTATÍSTICAS -->
+    <div class="perfil-stats">
+        <div class="perfil-stat">
+            <div class="perfil-stat-icon">
+                <i class="fa-solid fa-bag-shopping"></i>
             </div>
-            <div class="info-box">
-                <h3>Total Gasto</h3>
-                <span>R$ {{ "%.2f"|format(total_gasto) }}</span>
+            <div class="perfil-stat-info">
+                <span class="perfil-stat-valor">{{ total_pedidos }}</span>
+                <span class="perfil-stat-label">Pedido{% if total_pedidos != 1 %}s{% endif %}</span>
             </div>
         </div>
 
-        <a href="/logout" class="logout-link">
-            Sair da Conta
+        <div class="perfil-stat">
+            <div class="perfil-stat-icon">
+                <i class="fa-solid fa-coins"></i>
+            </div>
+            <div class="perfil-stat-info">
+                <span class="perfil-stat-valor">R$ {{ "%.2f"|format(total_gasto) }}</span>
+                <span class="perfil-stat-label">Total gasto</span>
+            </div>
+        </div>
+
+        <div class="perfil-stat {% if total_gasto >= 500 %}perfil-stat-vip{% endif %}">
+            <div class="perfil-stat-icon">
+                <i class="fa-solid fa-{% if total_gasto >= 500 %}crown{% else %}star{% endif %}"></i>
+            </div>
+            <div class="perfil-stat-info">
+                <span class="perfil-stat-valor">
+                    {% if total_gasto >= 500 %}VIP{% elif total_gasto >= 200 %}Ouro{% else %}Bronze{% endif %}
+                </span>
+                <span class="perfil-stat-label">Nível</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- HISTÓRICO DE PEDIDOS -->
+    <div class="perfil-section">
+        <div class="perfil-section-header">
+            <h2><i class="fa-solid fa-box"></i> Meus Pedidos</h2>
+            <span class="perfil-section-count">{{ total_pedidos }} no total</span>
+        </div>
+
+        {% if pedidos %}
+        <div class="perfil-pedidos">
+            {% for pedido in pedidos %}
+            <div class="perfil-pedido">
+                <div class="perfil-pedido-header">
+                    <div>
+                        <span class="perfil-pedido-id">Pedido #{{ pedido.id }}</span>
+                        <span class="perfil-pedido-data">
+                            {{ pedido.data_pedido.strftime('%d/%m/%Y às %H:%M') }}
+                        </span>
+                    </div>
+                    <div>
+                        <span class="perfil-pedido-total">R$ {{ "%.2f"|format(pedido.total) }}</span>
+                        <span class="perfil-status perfil-status-{{ pedido.status }}">
+                            {% if pedido.status == 'preparando' %}
+                                <i class="fa-solid fa-clock"></i> Preparando
+                            {% elif pedido.status == 'enviado' %}
+                                <i class="fa-solid fa-truck"></i> Enviado
+                            {% elif pedido.status == 'entregue' %}
+                                <i class="fa-solid fa-circle-check"></i> Entregue
+                            {% else %}
+                                <i class="fa-solid fa-circle-xmark"></i> Cancelado
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                {% if pedido.itens %}
+                <div class="perfil-pedido-itens">
+                    {% for item in pedido.itens %}
+                    <div class="perfil-pedido-item">
+                        <i class="fa-solid fa-cube"></i>
+                        <span>{{ item.nome_produto }}</span>
+                        <span class="perfil-pedido-item-preco">R$ {{ "%.2f"|format(item.preco_unitario) }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="perfil-vazio">
+            <i class="fa-solid fa-bag-shopping"></i>
+            <p>Você ainda não fez nenhum pedido.</p>
+            <a href="/produtos" class="perfil-btn-vazio">
+                <i class="fa-solid fa-store"></i> Explorar produtos
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- AVALIAÇÕES -->
+    {% if avaliacoes %}
+    <div class="perfil-section">
+        <div class="perfil-section-header">
+            <h2><i class="fa-solid fa-star"></i> Minhas Avaliações</h2>
+        </div>
+        <div class="perfil-avaliacoes">
+            {% for av in avaliacoes %}
+            <div class="perfil-avaliacao">
+                <div class="perfil-avaliacao-header">
+                    <a href="/produto/{{ av.produto_id }}" class="perfil-avaliacao-produto">
+                        {{ av.produto_nome }}
+                    </a>
+                    <span class="perfil-avaliacao-estrelas">
+                        {% for i in range(av.nota) %}⭐{% endfor %}
+                    </span>
+                </div>
+                <p class="perfil-avaliacao-texto">"{{ av.comentario }}"</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- CONFIGURAÇÕES -->
+    <div class="perfil-section">
+        <div class="perfil-section-header">
+            <h2><i class="fa-solid fa-gear"></i> Configurações</h2>
+        </div>
+
+        <div class="perfil-config-grid">
+            <!-- EDITAR DADOS -->
+            <div class="perfil-config-card">
+                <button type="button" class="perfil-config-toggle" onclick="toggleConfig('config-dados')">
+                    <div>
+                        <i class="fa-solid fa-user-pen"></i>
+                        <strong>Editar dados pessoais</strong>
+                        <p>Nome, e-mail e telefone</p>
+                    </div>
+                    <i class="fa-solid fa-chevron-down perfil-chevron"></i>
+                </button>
+
+                <form method="POST" action="/perfil/editar" class="perfil-config-form" id="config-dados">
+                    <div class="perfil-input-group">
+                        <label>Nome</label>
+                        <input type="text" name="nome" value="{{ usuario_db.nome }}" required>
+                    </div>
+                    <div class="perfil-input-group">
+                        <label>E-mail</label>
+                        <input type="email" name="email" value="{{ usuario_db.email }}" required>
+                    </div>
+                    <div class="perfil-input-group">
+                        <label>Telefone</label>
+                        <input type="tel" name="telefone" value="{{ usuario_db.telefone or '' }}" placeholder="(11) 99999-9999">
+                    </div>
+                    <button type="submit" class="perfil-btn-salvar">
+                        <i class="fa-solid fa-check"></i> Salvar alterações
+                    </button>
+                </form>
+            </div>
+
+            <!-- TROCAR SENHA -->
+            <div class="perfil-config-card">
+                <button type="button" class="perfil-config-toggle" onclick="toggleConfig('config-senha')">
+                    <div>
+                        <i class="fa-solid fa-lock"></i>
+                        <strong>Trocar senha</strong>
+                        <p>Atualize sua senha de acesso</p>
+                    </div>
+                    <i class="fa-solid fa-chevron-down perfil-chevron"></i>
+                </button>
+
+                <form method="POST" action="/perfil/senha" class="perfil-config-form" id="config-senha">
+                    <div class="perfil-input-group">
+                        <label>Senha atual</label>
+                        <input type="password" name="senha_atual" required>
+                    </div>
+                    <div class="perfil-input-group">
+                        <label>Nova senha</label>
+                        <input type="password" name="senha_nova" required minlength="6">
+                    </div>
+                    <div class="perfil-input-group">
+                        <label>Confirmar nova senha</label>
+                        <input type="password" name="senha_confirma" required minlength="6">
+                    </div>
+                    <button type="submit" class="perfil-btn-salvar">
+                        <i class="fa-solid fa-key"></i> Alterar senha
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <a href="/logout" class="perfil-btn-sair">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            Sair da conta
         </a>
     </div>
+
 </section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
 {% endblock %}
